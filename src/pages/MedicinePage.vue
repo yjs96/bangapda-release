@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
-import Main from '@/components/Main.vue';
+import Main from '@/components/Main.vue'
 </script>
 
 <template>
-  <HeadBar>마이페이지</HeadBar>
+  <HeadBar>복용약</HeadBar>
   <NavBar />
-  <Main :headbar="true" :navbar="true" :bg-gray="true">
-    
-  </Main>
+  <Main :headbar="true" :navbar="true" :bg-gray="true">Medicine</Main>
 </template>
 
 <style scoped></style>

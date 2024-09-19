@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '@/pages/Home.vue';
-import Medicine from '@/pages/Medicine.vue';
-import Prescription from '@/pages/Prescription.vue';
-import Mypage from '@/pages/Mypage.vue';
+import Home from '@/pages/HomePage.vue';
+import Medicine from '@/pages/MedicinePage.vue';
+import Prescription from '@/pages/PrescriptionPage.vue';
+import Mypage from '@/pages/MyPage.vue';
 import Login from '@/pages/Login.vue';
 
 const router = createRouter({

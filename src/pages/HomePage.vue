@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import Badge from '@/components/Badge.vue';
+
 import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 
-const showSummaryDetail = ref(false);
+const showSummaryDetail = ref(true);
 
 const handleSummaryDetail = () => {
   showSummaryDetail.value = !showSummaryDetail.value;
@@ -13,7 +15,9 @@ const handleSummaryDetail = () => {
 </script>
 
 <template>
-  <Main :padded="true" :bg-gray="true">
+
+  <NavBar />
+  <Main :headbar="false" :navbar="true" :padded="true" :bg-gray="true">
     <div class="notice">
       <img src="/images/tada.svg" />
       <div>아직 조제받지 않은 처방전이 있어요</div>

@@ -5,10 +5,10 @@ import Main from '@/components/Main.vue';
 </script>
 
 <template>
-  <HeadBar>마이페이지</HeadBar>
+  <HeadBar>처방전</HeadBar>
   <NavBar />
-  <Main :headbar="true" :navbar="true" :bg-gray="true">
-    
+  <Main :headbar="true" :navbar="true" :padded="true" :bg-gray="true">
+
   </Main>
 </template>
 
