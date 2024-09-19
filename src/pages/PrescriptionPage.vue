@@ -5,7 +5,7 @@ import Main from '@/components/Main.vue';
 </script>
 
 <template>
-  <HeadBar>처방전</HeadBar>
+  <HeadBar :bg-gray="true">처방전</HeadBar>
   <NavBar />
   <Main :headbar="true" :navbar="true" :padded="true" :bg-gray="true">
 
