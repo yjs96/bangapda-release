@@ -1,9 +1,9 @@
-## 🔎 Summary
+## 🔎 작업 내용
+- 기능에서 어떤 부분이
+- 구현되었는지 설명해주세요
 
-## 📑 Description
-
-## 🔷 JIRA Issue Number
-
-## ✅ Check List
-- 소스-타겟 브랜치 확인하기
-- 코드 리뷰하기
+  <br/>
+  
+## ☑️ 확인하기
+- [ ] 타겟 브렌치 develop 확인
+- [ ] Approve 여부 확인
