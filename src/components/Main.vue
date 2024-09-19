@@ -1,5 +1,5 @@
 <template>
-  <div :class="padded ? 'padded main-frame ' : 'main-frame'" :style="{ backgroundColor: bgColor }">
+  <div class="main-frame" :style="mainStyle">
     <slot></slot>
   </div>
 </template>
@@ -9,6 +9,14 @@ import { computed, defineProps } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 
 const props = defineProps({
+  headbar: {
+    type: Boolean,
+    default: false
+  },
+  navbar: {
+    type: Boolean,
+    default: false
+  },
   padded: {
     type: Boolean,
     default: false
@@ -22,7 +30,26 @@ const props = defineProps({
 const themeStore = useThemeStore()
 themeStore.setThemeColor(`${props.bgGray ? '#F6F7F6' : '#FDFDFD'}`)
 
-const bgColor = computed(() => (props.bgGray ? 'var(--background)' : 'var(--white)'))
+const mainStyle = computed(() => {
+  let height = '100%'
+  let margin = '0px'
+  if (props.headbar && props.navbar) {
+    height = 'calc(100% - 76px - 68px)'
+    margin = '68px'
+  } else if (!props.headbar && props.navbar) {
+    height = 'calc(100% - 76px)'
+  } else if (props.headbar && !props.navbar) {
+    height = 'calc(100% - 68px)';
+    margin = '68px'
+  }
+
+  return {
+    marginTop: margin,
+    backgroundColor: props.bgGray ? '#F6F7F6' : '#FDFDFD',
+    padding: props.padded ? '0 5.13%' : '0',
+    height: height
+  }
+})
 </script>
 
 <style scoped>
@@ -30,7 +57,8 @@ const bgColor = computed(() => (props.bgGray ? 'var(--background)' : 'var(--whit
   background-color: var(--background);
   position: absolute;
   width: 100%;
-  height: calc(100% - 76px);
+  height: calc(100% - 76px - 68px);
+  margin-top: 68px;
   overflow-x: hidden;
   overflow-y: scroll;
 }
