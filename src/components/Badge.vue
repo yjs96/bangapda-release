@@ -15,5 +15,6 @@
   font-weight: 500;
   font-size: 12px;
   background-color: var(--red);
+  white-space: nowrap;
 }
 </style>

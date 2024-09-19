@@ -23,6 +23,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        cssblack: "var(--black)",
+        cssgray: "hsl(var--css-gray))",
         csswhite: "hsl(var(--css-white))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

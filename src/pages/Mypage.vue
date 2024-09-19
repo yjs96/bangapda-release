@@ -5,7 +5,7 @@ import Main from '@/components/Main.vue';
 </script>
 
 <template>
-  <HeadBar>마이페이지</HeadBar>
+  <HeadBar :bg-gray="true">마이페이지</HeadBar>
   <NavBar />
   <Main :headbar="true" :navbar="true" :bg-gray="true">
     

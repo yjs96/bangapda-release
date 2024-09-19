@@ -1,5 +1,5 @@
 <template>
-  <div class="headbar-frame">
+  <div class="headbar-frame" :style="headStyle">
     <div class="headbar-inner" @click="routeBack()">
       <i v-if="backButton" class="fa-solid fa-chevron-left"></i>
       <slot></slot>
@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -17,7 +18,11 @@ const props = defineProps({
   },
   moveTo: {
     type: String,
-    default: '/home'
+    default: '-1'
+  },
+  bgGray: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -29,8 +34,11 @@ const routeBack = () => {
   } else {
     router.push(props.moveTo);
   }
-
 }
+
+const headStyle = computed(() => ({
+  backgroundColor: props.bgGray ? '#F6F7F6' : '#FDFDFD',
+}));
 </script>
 
 <style scoped>
