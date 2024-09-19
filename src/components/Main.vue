@@ -36,6 +36,6 @@ const bgColor = computed(() => (props.bgGray ? 'var(--background)' : 'var(--whit
 }
 
 .padded {
-  padding: 0px 5.56%;
+  padding: 0px 5.13%;
 }
 </style>
