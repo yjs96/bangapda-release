@@ -6,6 +6,10 @@ import ShadowBox from '@/components/ShadowBox.vue';
 import Badge from '@/components/Badge.vue';
 
 import { Button } from '@/components/ui/button';
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+themeStore.setThemeColor('#FDFDFD')
 
 </script>
 
