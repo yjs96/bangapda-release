@@ -23,13 +23,18 @@ const props = defineProps({
   marginBottom: {
     type: Number,
     default: 16
+  },
+  radius: {
+    type: Boolean,
+    default: true
   }
 });
 
 const boxStyle = computed(() => ({
   height: props.height ? `${props.height}px` : 'auto',
   padding: `${props.paddingY}px ${props.paddingX}px`,
-  marginBottom: `${props.marginBottom}px`
+  marginBottom: `${props.marginBottom}px`,
+  borderRadius: props.radius ? '10px' : '0px'
 }));
 </script>
 
