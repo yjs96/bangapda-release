@@ -2,7 +2,7 @@
   <div class="navbar-frame">
     <div class="tab-frame" v-for="(tab, index) in navTabs" :key="index">
       <router-link :to="tab.path">
-        <div :class="$route.path === tab.path ? 'tab tab-active' : 'tab'">
+        <div :class="isActiveTab(tab.path) ? 'tab tab-active' : 'tab'">
           <i :class="tab.icon"></i>
           <span>{{ tab.name }}</span>
         </div>
@@ -13,12 +13,15 @@
 
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 interface NavTab {
   path: string
   name: string
   icon: string
 }
+
+const route = useRoute()
 
 const navTabs: Ref<NavTab[]> = ref([
   {
@@ -42,6 +45,15 @@ const navTabs: Ref<NavTab[]> = ref([
     icon: 'fa-solid fa-user'
   }
 ])
+
+const isActiveTab = (tabPath: string) => {
+  if (tabPath === '/') {
+    return route.path === '/'
+  } else {
+    return route.path.startsWith(tabPath) && 
+          (route.path.length === tabPath.length || route.path[tabPath.length] === '/')
+  }
+}
 </script>
 
 <style scoped>
