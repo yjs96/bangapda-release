@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
-themeStore.setThemeColor('#FDFDFD')
+setTimeout(() => {
+  themeStore.setThemeColor('#FDFDFD')
+}, 10);
 
 </script>
 
@@ -68,7 +70,7 @@ themeStore.setThemeColor('#FDFDFD')
         <Button variant="destructive">취소</Button>
       </div>
       <div class="medicine-list">
-        <div class="medicine-info-frame">
+        <div class="medicine-info-frame" @click="$router.push('/medicine/1')">
           <div class="medicine-info-left">
             <div class="medicine-icon-name">
               <div class="medicine-icon">
