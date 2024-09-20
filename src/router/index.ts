@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/pages/HomePage.vue';
 import Medicine from '@/pages/MedicinePage.vue';
 import Prescription from '@/pages/PrescriptionPage.vue';
-import Mypage from '@/pages/MyPage.vue';
+import Mypage from '@/pages/ProfilePage.vue';
 import Login from '@/pages/Login.vue';
 
 const router = createRouter({
