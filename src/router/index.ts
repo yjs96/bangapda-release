@@ -3,7 +3,8 @@ import Home from '@/pages/HomePage.vue';
 import Medicine from '@/pages/MedicinePage.vue';
 import Prescription from '@/pages/PrescriptionPage.vue';
 import Mypage from '@/pages/ProfilePage.vue';
-import Login from '@/pages/LoginPage.vue';
+import Login from '@/pages/Login/LoginPageKakao.vue';
+import LoginMember from '@/pages/Login/LoginPageInfoMember.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/loginMember',
+      name: 'loginMember',
+      component: LoginMember
     }
   ]
 });
