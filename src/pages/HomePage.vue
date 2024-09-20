@@ -7,7 +7,7 @@ import Badge from '@/components/Badge.vue';
 import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 
-const showSummaryDetail = ref(true);
+const showSummaryDetail = ref(false);
 
 const handleSummaryDetail = () => {
   showSummaryDetail.value = !showSummaryDetail.value;

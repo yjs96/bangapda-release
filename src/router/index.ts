@@ -6,6 +6,7 @@ import Mypage from '@/pages/ProfilePage.vue';
 import Login from '@/pages/Login/LoginPageKakao.vue';
 import LoginMember from '@/pages/Login/LoginPageInfoMember.vue';
 import MedicineDetail from '@/pages/MedicineDetail.vue';
+import PrescriptionDetail from '@/pages/PrescriptionDetail.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/medicine/:id',
       name: 'medicineDetail',
       component: MedicineDetail
+    },
+    {
+      path: '/prescription/:id',
+      name: 'PrescriptionDetail',
+      component: PrescriptionDetail
     }
   ]
 });
