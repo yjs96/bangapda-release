@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
-themeStore.setThemeColor('#FDFDFD')
+setTimeout(() => {
+  themeStore.setThemeColor('#FDFDFD')
+}, 10);
 
 </script>
 

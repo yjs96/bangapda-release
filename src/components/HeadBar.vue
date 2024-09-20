@@ -48,7 +48,7 @@ const headStyle = computed(() => ({
   left: 0;
   right: 0;
   background-color: var(--background);
-  height: 68px;
+  height: 52px;
   z-index: 3;
   display: flex;
   align-items: end;

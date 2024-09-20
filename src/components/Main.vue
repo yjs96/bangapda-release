@@ -34,13 +34,13 @@ const mainStyle = computed(() => {
   let height = '100%'
   let margin = '0px'
   if (props.headbar && props.navbar) {
-    height = 'calc(100% - 76px - 68px)'
-    margin = '68px'
+    height = 'calc(100% - 76px - 52px)'
+    margin = '52px'
   } else if (!props.headbar && props.navbar) {
     height = 'calc(100% - 76px)'
   } else if (props.headbar && !props.navbar) {
-    height = 'calc(100% - 68px)';
-    margin = '68px'
+    height = 'calc(100% - 52px)';
+    margin = '52px'
   }
 
   return {
@@ -57,8 +57,8 @@ const mainStyle = computed(() => {
   background-color: var(--background);
   position: absolute;
   width: 100%;
-  height: calc(100% - 76px - 68px);
-  margin-top: 68px;
+  height: calc(100% - 76px - 52px);
+  margin-top: 52px;
   overflow-x: hidden;
   overflow-y: scroll;
 }

@@ -68,8 +68,8 @@ const handleSummaryDetail = () => {
     </ShadowBox>
 
     <ShadowBox :padding-x="20" :padding-y="20">
-      <div @click="handleSummaryDetail()">
-        <div class="title-with-arrow">
+      <div>
+        <div class="title-with-arrow" @click="handleSummaryDetail()">
           <div class="shadow-box-title">최규찬님,</div>
           <i class="fa-solid fa-chevron-down" :class="{ rotate: showSummaryDetail }"></i>
         </div>
@@ -266,6 +266,10 @@ const handleSummaryDetail = () => {
   gap: 8px;
   overflow-x: scroll;
   white-space: nowrap;
+}
+
+.tab-select-container::-webkit-scrollbar {
+  display: none !important;
 }
 
 .tab {
