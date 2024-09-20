@@ -26,7 +26,7 @@ import {
         <Button variant="destructive" class="one-third">약사</Button>
       </div>
       <Label for="name-input">이름</Label>
-      <Input type="text" id="name-input" placeholder="이름을 입력해주세요" />
+      <Input type="text" id="name-input" placeholder="이름을 입력해주세요." />
       <Label for="phone-number-input">전화번호</Label>
       <div class="phone-num-tong">
         <Select>
@@ -44,7 +44,7 @@ import {
         <Input
           type="text"
           id="phone-number-input"
-          placeholder="전화번호를 입력해주세요"
+          placeholder="전화번호를 입력해주세요."
           maxlength="11"
         />
       </div>
@@ -53,7 +53,7 @@ import {
         <Input
           type="number"
           id="resident-number-input-front"
-          placeholder="주민등록번호를 입력해주세요"
+          placeholder="주민등록번호를 입력해주세요."
         />
         <div>_</div>
         <div class="number-back">
