@@ -119,9 +119,11 @@ const selectedLeft = ref(true);
   font-size: 16px;
   font-weight: 500;
   border-bottom: 2px solid var(--white);
+  color: var(--dark-gray)
 }
 
 .tab.selected {
+  color: var(--black);
   border-bottom: 2px solid var(--css-primary);
 }
 
