@@ -1,6 +1,13 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import Main from '@/components/Main.vue';
+
+const router = useRouter();
+
+const navigateToNextPage = () => {
+  router.push('/login/member');
+};
 </script>
 
 <template>
@@ -8,9 +15,9 @@ import Main from '@/components/Main.vue';
     <div class="login-container">
       <div class="login-icon"></div>
       <div class="login-name">우리 1-3조 kbAnk</div>
-      <Button size="lg" class="login-kakao"
-        ><img src="/images/report-pill.svg" />카카오 로그인</Button
-      >
+      <Button size="lg" class="login-kakao" @click="navigateToNextPage">
+        <i class="fa-solid fa-comment"></i>카카오 로그인
+      </Button>
     </div>
   </Main>
 </template>
