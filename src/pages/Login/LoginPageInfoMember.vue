@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import { Button } from '@/components/ui/button';
@@ -9,10 +11,53 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+
+const memberType = ref('');
+const name = ref('');
+const phoneNumber = ref('');
+const phoneCarrier = ref('');
+const residentNumberFront = ref('');
+const residentNumberBack = ref('');
+const residentNumberBackRef = ref<HTMLInputElement | null>(null);
+const router = useRouter();
+
+const isFormValid = computed(
+  () =>
+    memberType.value !== '' &&
+    name.value !== '' &&
+    phoneNumber.value !== '' &&
+    phoneCarrier.value !== '' &&
+    residentNumberFront.value.length === 6 &&
+    residentNumberBack.value.length === 1
+);
+
+const selectMemberType = (type: string) => {
+  memberType.value = type;
+};
+
+watch(residentNumberFront, (newValue) => {
+  if (newValue.length > 6) {
+    residentNumberFront.value = newValue.slice(0, 6);
+  }
+  if (newValue.length === 6 && residentNumberBackRef.value) {
+    residentNumberBackRef.value.focus();
+  }
+});
+
+watch(residentNumberBack, (newValue) => {
+  if (newValue.length > 1) {
+    residentNumberBack.value = newValue.slice(0, 1);
+  }
+});
+
+const handleNextButtonClick = () => {
+  if (isFormValid.value) {
+    router.push('/login/bank_type');
+  }
+};
 </script>
 
 <template>
@@ -21,15 +66,33 @@ import {
     <div class="login-info">회원 정보를 <br />입력해주세요</div>
     <div class="login-container">
       <div class="member-select-container">
-        <Button variant="destructive" class="one-third">일반 회원</Button>
-        <Button variant="destructive" class="one-third">의사</Button>
-        <Button variant="destructive" class="one-third">약사</Button>
+        <Button
+          :variant="memberType === '일반 회원' ? 'default' : 'destructive'"
+          class="one-third"
+          @click="selectMemberType('일반 회원')"
+        >
+          일반 회원
+        </Button>
+        <Button
+          :variant="memberType === '의사' ? 'default' : 'destructive'"
+          class="one-third"
+          @click="selectMemberType('의사')"
+        >
+          의사
+        </Button>
+        <Button
+          :variant="memberType === '약사' ? 'default' : 'destructive'"
+          class="one-third"
+          @click="selectMemberType('약사')"
+        >
+          약사
+        </Button>
       </div>
       <Label for="name-input">이름</Label>
-      <Input type="text" id="name-input" placeholder="이름을 입력해주세요." />
+      <Input type="text" id="name-input" v-model="name" placeholder="이름을 입력해주세요." />
       <Label for="phone-number-input">전화번호</Label>
       <div class="phone-num-tong">
-        <Select>
+        <Select v-model="phoneCarrier">
           <SelectTrigger class="w-[80px]">
             <SelectValue placeholder="통신사" />
           </SelectTrigger>
@@ -44,6 +107,7 @@ import {
         <Input
           type="text"
           id="phone-number-input"
+          v-model="phoneNumber"
           placeholder="전화번호를 입력해주세요."
           maxlength="11"
         />
@@ -51,18 +115,35 @@ import {
       <Label for="resident-number-input-front">주민등록번호</Label>
       <div class="resident-number-container">
         <Input
-          type="number"
+          type="text"
+          inputmode="numeric"
           id="resident-number-input-front"
-          placeholder="주민등록번호를 입력해주세요."
+          v-model="residentNumberFront"
+          placeholder="ex) 990909"
+          maxlength="6"
         />
         <div>_</div>
         <div class="number-back">
-          <Input type="number" id="resident-number-input-back" />
+          <Input
+            type="text"
+            inputmode="numeric"
+            id="resident-number-input-back"
+            v-model="residentNumberBack"
+            maxlength="1"
+            ref="residentNumberBackRef"
+          />
           <span class="back-stars">* * * * * *</span>
         </div>
       </div>
     </div>
-    <Button class="next-button" variant="destructive">다음</Button>
+    <Button
+      class="next-button"
+      variant="default"
+      :disabled="!isFormValid"
+      @click="handleNextButtonClick"
+    >
+      다음
+    </Button>
   </Main>
 </template>
 
