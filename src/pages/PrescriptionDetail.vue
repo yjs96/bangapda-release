@@ -3,6 +3,25 @@ import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 
+import {
+  Dialog,
+  // DialogHeader,
+  // DialogDescription,
+  // DialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogClose,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from '@/components/ui/carousel'
+
+
 import { Button } from '@/components/ui/button';
 import { ref } from 'vue';
 
@@ -32,6 +51,7 @@ const prescDetail = [
     value: '3개'
   },
 ]
+
 
 const showMedicine = ref(false);
 
@@ -79,14 +99,129 @@ const showMedicine = ref(false);
       </div>
     </div>
     <div class="seperator"></div>
-    <div class="docu-button">
-      <span>처방전 보기</span>
-      <i class="fa-solid fa-chevron-right"></i>
-    </div>
-    <div class="docu-button">
-      <span>영수증 보기</span>
-      <i class="fa-solid fa-chevron-right"></i>
-    </div>
+    <Dialog>
+      <DialogTrigger class="docu-button">
+          <span>처방전 보기</span>
+          <i class="fa-solid fa-chevron-right"></i>
+      </DialogTrigger>
+      <DialogContent>
+        <div>
+          
+        </div>
+        <DialogFooter class="modal-footer">
+          <Button size="lg">이미지로 저장</Button>
+          <DialogClose>
+            <Button variant="destructive" size="lg">닫기</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    <Dialog>
+      <DialogTrigger class="docu-button">
+          <span>전자영수증 보기</span>
+          <i class="fa-solid fa-chevron-right"></i>
+      </DialogTrigger>
+      <DialogContent>
+        <Carousel>
+          <CarouselContent class="carousel-frame">
+            <CarouselItem>
+              <div class="receipt-frame">
+                <div class="receipt-store">김성헌내과의원</div>
+                <div>
+                  <span class="receipt-price">10,000</span>
+                  <span class="won">원</span>
+                </div>
+              </div>
+              <div class="receipt-top">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">승인일시</div>
+                  <div>2024-09-23 11:19</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">거래유형</div>
+                  <div>승인</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">할부</div>
+                  <div>일시불</div>
+                </div>
+              </div>
+              <div class="receipt-top dotted-top">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">공급가액</div>
+                  <div>9,091원</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">부가세</div>
+                  <div>909원</div>
+                </div>
+              </div>
+              <div class="receipt-top dotted-top" style="margin-bottom: 18px">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">가맹점명</div>
+                  <div>김성헌내과의원</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">사업자번호</div>
+                  <div>123-456-7890</div>
+                </div>
+              </div>
+            </CarouselItem>
+            <CarouselItem>
+              <div class="receipt-frame">
+                <div class="receipt-store">김성헌약국</div>
+                <div>
+                  <span class="receipt-price">10,000</span>
+                  <span class="won">원</span>
+                </div>
+              </div>
+              <div class="receipt-top">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">승인일시</div>
+                  <div>2024-09-23 11:19</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">거래유형</div>
+                  <div>승인</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">할부</div>
+                  <div>일시불</div>
+                </div>
+              </div>
+              <div class="receipt-top dotted-top">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">공급가액</div>
+                  <div>9,091원</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">부가세</div>
+                  <div>909원</div>
+                </div>
+              </div>
+              <div class="receipt-top dotted-top" style="margin-bottom: 18px">
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">가맹점명</div>
+                  <div>김성헌약국</div>
+                </div>
+                <div class="receipt-info-line">
+                  <div class="receipt-info-left">사업자번호</div>
+                  <div>123-456-7890</div>
+                </div>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+        <DialogFooter class="modal-footer">
+          <Button size="lg">이미지로 저장</Button>
+          <DialogClose>
+            <Button variant="destructive" size="lg">닫기</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </Main>
 </template>
 
@@ -175,16 +310,84 @@ const showMedicine = ref(false);
   margin-bottom: 16px;
 }
 
+.docu-button-frame {
+  width: 100%;
+}
+
 .docu-button {
-  height: 56px;
+  width: 100%;
+  height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
   
   span {
     font-size: 20px;
     font-weight: 600
   }
+}
+
+.modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.carousel-frame {
+  display: flex;
+  justify-content: center;
+  width: calc(100% - 80px);
+}
+
+.receipt-frame {
+  width: calc(100% - 32px);
+  position: relative;
+  margin-bottom: 32px;
+  margin-top: 12px;
+}
+
+.receipt-store {
+  font-size: 15px;
+  font-weight: 550;
+  margin-bottom: -5px;
+}
+
+.receipt-price {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.won {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 1.5px;
+}
+
+.receipt-top {
+  width: calc(100% - 32px);
+  border-top: 2px solid var(--black);
+  padding: 20px 4px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receipt-info-line {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.receipt-info-left {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--dark-gray)
+}
+
+.dotted-top {
+  border-top: 2px dotted var(--dark-gray);
 }
 </style>
