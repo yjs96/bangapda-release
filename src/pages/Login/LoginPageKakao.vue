@@ -14,7 +14,9 @@ const navigateToNextPage = () => {
   <Main :headbar="false" :navbar="false" :padded="false" :bg-gray="false">
     <div class="login-container">
       <div class="login-icon"></div>
+
       <div class="login-name">우리 1-3조 kbAnk</div>
+
       <Button size="lg" class="login-kakao" @click="navigateToNextPage">
         <i class="fa-solid fa-comment"></i>카카오 로그인
       </Button>

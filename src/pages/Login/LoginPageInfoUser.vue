@@ -32,6 +32,7 @@ const handleNextButtonClick = () => {
   <HeadBar :back-button="true">회원가입</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="false">
     <div class="bank-info">계좌 등록을 위해 <br />은행을 선택해주세요</div>
+
     <div class="bank-container">
       <div
         v-for="bank in banks"
@@ -44,9 +45,11 @@ const handleNextButtonClick = () => {
         {{ bank.name }}
       </div>
     </div>
+
     <div>
       <Button variant="destructive" size="lg" class="extra-button">기타</Button>
     </div>
+
     <Button
       class="next-button"
       variant="default"
