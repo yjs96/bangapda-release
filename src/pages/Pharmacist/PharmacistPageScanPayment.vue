@@ -17,7 +17,8 @@ const medicineList = ref<MedicineItem[]>([
   { name: '약품 B', price: 15000 },
   { name: '약품 C', price: 8000 },
   { name: '약품 D', price: 20000 },
-  { name: '약품 E', price: 10000 }
+  { name: '약품 E', price: 10000 },
+  { name: '약품 F', price: 3000 }
 ]);
 
 const totalPrice = computed(() => {
