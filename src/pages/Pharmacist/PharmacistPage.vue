@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
-import Button from '@/components/ui/button/Button.vue';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
