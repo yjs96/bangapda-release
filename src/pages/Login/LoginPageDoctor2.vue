@@ -39,6 +39,7 @@ const handleNextButtonClick = () => {
   <HeadBar :back-button="true">회원가입</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="false">
     <div class="login-doctor">의사 정보를 <br />입력해주세요</div>
+
     <div class="doctor-container">
       <div class="input-group">
         <Label for="doctor-license">면허 번호</Label>
@@ -47,12 +48,13 @@ const handleNextButtonClick = () => {
             type="text"
             id="doctor-license"
             v-model="licenseNumber"
-            placeholder="면허 번호 입력"
+            placeholder="면허 번호 입력하세요"
           ></Input>
           <Button @click="verifyLicense" :disabled="isLicenseVerified">등록하기</Button>
-          <CheckCircle2 v-if="isLicenseVerified" class="text-green-500" />
+          <CheckCircle2 v-if="isLicenseVerified" class="text-yellow-500" />
         </div>
       </div>
+
       <div class="input-group">
         <Label for="doctor-representative">대표 원장 성명</Label>
         <Input
@@ -62,6 +64,7 @@ const handleNextButtonClick = () => {
           placeholder="대표 원장 성명 입력"
         ></Input>
       </div>
+
       <div class="input-group">
         <Label for="hospital-tel">병원 연락처</Label>
         <Input
@@ -112,12 +115,6 @@ const handleNextButtonClick = () => {
 }
 
 .input-group label {
-  margin-bottom: 8px;
-}
-
-.hospital-container {
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 8px;
 }
 

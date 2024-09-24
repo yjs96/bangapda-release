@@ -12,6 +12,7 @@ import LoginPageInfoUser2 from '@/pages/Login/LoginPageInfoUser2.vue';
 import LoginPageSuccess from '@/pages/Login/LoginPageSuccess.vue';
 import LoginPageDoctor from '@/pages/Login/LoginPageDoctor.vue';
 import LoginPageDoctor2 from '@/pages/Login/LoginPageDoctor2.vue';
+import LoginPagePharmacist from '@/pages/Login/LoginPagePharmacist.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +66,11 @@ const router = createRouter({
       path: '/login/doctor/license',
       name: '/loginPageDoctor2',
       component: LoginPageDoctor2
+    },
+    {
+      path: '/login/pharmacist',
+      name: '/LoginPagePharmacist',
+      component: LoginPagePharmacist
     },
     {
       path: '/success',

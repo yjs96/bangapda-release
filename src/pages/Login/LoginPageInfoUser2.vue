@@ -56,6 +56,7 @@ const handleNextClick = () => {
       <img src="/images/banks/kb-bank.png" class="bank-icon" />
       <div>국민은행</div>
     </div>
+
     <div class="bank-container">
       <div class="bank-info-container">
         <Label for="bank-id-input">계좌 번호</Label>
@@ -66,6 +67,7 @@ const handleNextClick = () => {
           placeholder="계좌번호를 입력해주세요."
         />
       </div>
+
       <div class="bank-info-container">
         <Label for="bank-password-input">계좌 비밀번호</Label>
         <Input
@@ -136,6 +138,7 @@ const handleNextClick = () => {
         </div>
       </div>
     </div>
+
     <Button class="next-button" variant="default" :disabled="!isFormValid" @click="handleNextClick">
       다음
     </Button>

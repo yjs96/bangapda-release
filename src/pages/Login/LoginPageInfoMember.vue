@@ -64,6 +64,7 @@ const handleNextButtonClick = () => {
   <HeadBar :back-button="true">회원가입</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="false">
     <div class="login-info">회원 정보를 <br />입력해주세요</div>
+
     <div class="login-container">
       <div class="member-select-container">
         <Button
@@ -88,8 +89,10 @@ const handleNextButtonClick = () => {
           약사
         </Button>
       </div>
+
       <Label for="name-input">이름</Label>
       <Input type="text" id="name-input" v-model="name" placeholder="이름을 입력해주세요." />
+
       <Label for="phone-number-input">전화번호</Label>
       <div class="phone-num-tong">
         <Select v-model="phoneCarrier">
@@ -112,6 +115,7 @@ const handleNextButtonClick = () => {
           maxlength="11"
         />
       </div>
+
       <Label for="resident-number-input-front">주민등록번호</Label>
       <div class="resident-number-container">
         <Input
@@ -136,6 +140,7 @@ const handleNextButtonClick = () => {
         </div>
       </div>
     </div>
+
     <Button
       class="next-button"
       variant="default"
