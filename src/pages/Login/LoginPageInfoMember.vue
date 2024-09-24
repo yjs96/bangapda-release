@@ -55,7 +55,19 @@ watch(residentNumberBack, (newValue) => {
 
 const handleNextButtonClick = () => {
   if (isFormValid.value) {
-    router.push('/login/bank_type');
+    switch (memberType.value) {
+      case '일반 회원':
+        router.push('/login/bank_type');
+        break;
+      case '의사':
+        router.push('/login/doctor');
+        break;
+      case '약사':
+        router.push('/login/pharmacist');
+        break;
+      default:
+        console.error('회원 가입 타입을 정해주세요');
+    }
   }
 };
 </script>
