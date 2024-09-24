@@ -1,10 +1,28 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
-import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
+
+interface MedicineItem {
+  name: string;
+  price: number;
+}
 
 const showPaymentDetail = ref(false);
+
+const medicineList = ref<MedicineItem[]>([
+  { name: '약품 A', price: 12000 },
+  { name: '약품 B', price: 15000 },
+  { name: '약품 C', price: 8000 },
+  { name: '약품 D', price: 20000 },
+  { name: '약품 E', price: 10000 }
+]);
+
+const totalPrice = computed(() => {
+  return medicineList.value.reduce((sum, item) => sum + item.price, 0);
+});
 
 const handlePaymentDetail = () => {
   showPaymentDetail.value = !showPaymentDetail.value;
@@ -33,45 +51,21 @@ const handlePaymentDetail = () => {
       <div class="divider"></div>
 
       <div v-if="showPaymentDetail">
-        <div>
-          <div class="pill-list">
-            <div class="pill-cost">
-              <div>약품 정보</div>
-              <div>12,000원</div>
-            </div>
-          </div>
-          <div class="pill-list">
-            <div class="pill-cost">
-              <div>약품 정보</div>
-              <div>12,000원</div>
-            </div>
-          </div>
-          <div class="pill-list">
-            <div class="pill-cost">
-              <div>약품 정보</div>
-              <div>12,000원</div>
-            </div>
-          </div>
-          <div class="pill-list">
-            <div class="pill-cost">
-              <div>약품 정보</div>
-              <div>12,000원</div>
-            </div>
-          </div>
-          <div class="pill-list">
-            <div class="pill-cost">
-              <div>약품 정보</div>
-              <div>12,000원</div>
-            </div>
+        <div class="pill-list" v-for="(medicine, index) in medicineList" :key="index">
+          <div class="pill-cost">
+            <div>{{ medicine.name }}</div>
+            <div>{{ medicine.price.toLocaleString() }}원</div>
           </div>
         </div>
       </div>
 
       <div class="pill-arrow" style="margin-bottom: 0">
         <div class="title-text">총 가격</div>
-        <div class="title-number">65,000원</div>
+        <div class="title-number">{{ totalPrice.toLocaleString() }}원</div>
       </div>
     </ShadowBox>
+
+    <Button size="lg">결제 요청</Button>
   </Main>
 </template>
 
