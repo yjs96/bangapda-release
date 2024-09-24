@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
+import html2canvas from 'html2canvas';
 
 import {
   Dialog,
@@ -11,19 +13,16 @@ import {
   DialogContent,
   DialogFooter,
   DialogClose,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+  DialogTrigger
+} from '@/components/ui/dialog';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious
-} from '@/components/ui/carousel'
-
-
+} from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-import { ref } from 'vue';
 
 const prescDetail = [
   {
@@ -49,12 +48,49 @@ const prescDetail = [
   {
     key: '처방약',
     value: '3개'
-  },
-]
-
+  }
+];
 
 const showMedicine = ref(false);
 
+const saveAsImage = async (item: string) => {
+  const carouselItem = document.querySelector(`.${item}`) as HTMLElement;
+  if (carouselItem) {
+    try {
+      // Capture the original content
+      const originalCanvas = await html2canvas(carouselItem, { scale: 5 });
+
+      // Create a new canvas with extra space for margins
+      const margin = 80; // 50px margin on each side
+      const newWidth = originalCanvas.width + margin * 2;
+      const newHeight = originalCanvas.height + margin * 2;
+      const newCanvas = document.createElement('canvas');
+      const fileName = item == 'presc-frame' ? 'prescription' : 'receipt';
+      newCanvas.width = newWidth;
+      newCanvas.height = newHeight;
+
+      // Get the context of the new canvas
+      const ctx = newCanvas.getContext('2d');
+      if (ctx) {
+        // Fill the entire canvas with a white background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, newWidth, newHeight);
+
+        // Draw the original canvas onto the new canvas with margins
+        ctx.drawImage(originalCanvas, margin, margin);
+
+        // Convert the new canvas to an image and trigger download
+        const image = newCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `${fileName}.png`;
+        link.click();
+      }
+    } catch (error) {
+      console.error('이미지 저장 중 오류 발생:', error);
+    }
+  }
+};
 </script>
 
 <template>
@@ -93,23 +129,208 @@ const showMedicine = ref(false);
         <span>{{ info.key }}</span>
         <div>
           {{ info.value }}
-          <i v-if="info.key == '처방약'" class="fa-solid fa-caret-down" @click="showMedicine = !showMedicine"></i>
-          <div v-if="showMedicine && info.key =='처방약'">dddd</div>
+          <i
+            v-if="info.key == '처방약'"
+            class="fa-solid fa-caret-down"
+            @click="showMedicine = !showMedicine"
+          ></i>
+          <div v-if="showMedicine && info.key == '처방약'">dddd</div>
         </div>
       </div>
     </div>
     <div class="seperator"></div>
     <Dialog>
       <DialogTrigger class="docu-button">
-          <span>처방전 보기</span>
-          <i class="fa-solid fa-chevron-right"></i>
+        <span>처방전 보기</span>
+        <i class="fa-solid fa-chevron-right"></i>
       </DialogTrigger>
       <DialogContent>
-        <div>
-          
+        <div class="presc-frame">
+          <div class="text-right px-1 mt-1">(환자보관용)</div>
+          <div class="presc-header">처&nbsp;&nbsp;&nbsp; 방&nbsp;&nbsp;&nbsp; 전</div>
+          <div class="flex justify-between px-1 mb-1">
+            <div>보험유형 : 건강보험</div>
+            <div>요양기관번호 : 1238861</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2" rowspan="2">교부번호</th>
+                <th colspan="2" rowspan="2">2024년 09월 24일<br />제 00001 호</th>
+                <th rowspan="4">의료기관</th>
+                <th>명칭</th>
+                <th>김성헌내과의원</th>
+              </tr>
+              <tr>
+                <th>전화번호</th>
+                <th>02-1234-5678</th>
+              </tr>
+              <tr>
+                <th rowspan="2">환자</th>
+                <th>성명</th>
+                <th colspan="2">임준수</th>
+                <th>팩스번호</th>
+                <th>02-1234-5679</th>
+              </tr>
+              <tr>
+                <th>주민등록번호</th>
+                <th colspan="2">960816-1******</th>
+                <th>e-mail주소</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="2">질병<br />분류<br />기호</td>
+                <td rowspan="2">A049</td>
+                <td rowspan="2">처방<br />의료인의<br />성명</td>
+                <td rowspan="2">김성헌</td>
+                <td colspan="2">면허종별</td>
+                <td>의사</td>
+              </tr>
+              <tr>
+                <td colspan="2">면허번호</td>
+                <td>제 12345 호</td>
+              </tr>
+              <tr>
+                <td colspan="7" class="left">
+                  * 환자의 요구가 있는 때에는 질병분류기호를 기재하지 아니합니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="presc-pill-list">
+            <thead class="bg-blue-100">
+              <tr>
+                <th colspan="2">처 방 의 약 품 의 명 칭</th>
+                <th>1회<br />투여량</th>
+                <th>1회<br />투여횟수</th>
+                <th>투약<br />일수</th>
+                <th colspan="2">용 법</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="2" class="left">프레드포로트점안액(외용)</td>
+                <td>1</td>
+                <td>6</td>
+                <td>1</td>
+                <td colspan="2" class="left">2시간마다</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="left">파오시드정 20mb(내복)</td>
+                <td>1</td>
+                <td>3</td>
+                <td>2</td>
+                <td colspan="2" class="left">식후30분</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="left">슬로젠정(내복)</td>
+                <td>2</td>
+                <td>3</td>
+                <td>2</td>
+                <td colspan="2" class="left">식후30분</td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td colspan="2">조 제 시 참 고 사 항</td>
+              </tr>
+              <tr>
+                <td colspan="5">주사제 처방내역 (원내조제 , 원외처방)</td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td colspan="2"></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="no-border-top">
+            <thead>
+              <tr>
+                <td>사용기간</td>
+                <td colspan="5">교부일로부터 ( &nbsp;&nbsp;3&nbsp;&nbsp; )일간</td>
+                <td colspan="5">*사용기간내에 약국에 제출하여야 합니다.</td>
+              </tr>
+            </thead>
+          </table>
+
+          <table style="border-bottom: none">
+            <thead class="bg-blue-100">
+              <tr>
+                <th colspan="12">의 약 품&nbsp;&nbsp;조 제 내 역</th>
+              </tr>
+            </thead>
+            <tbody class="presc-medicine-table">
+              <tr>
+                <td rowspan="4" class="no-border-bottom">조<br />제<br />내<br />역</td>
+                <td colspan="2">조제기관의명칭</td>
+                <td colspan="5"></td>
+                <td colspan="4" rowspan="2">처방전의 변경, 수정, 확인<br />대체 시 그 내용 등</td>
+              </tr>
+              <tr>
+                <td colspan="2">조제약사</td>
+                <td>성명</td>
+                <td colspan="4" style="border-right: 0.5px solid var(--blue)">
+                  &nbsp;임준수 &nbsp;&nbsp;&nbsp;(서명 또는 날인)
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">조제량</td>
+                <td colspan="5"></td>
+                <td colspan="4" rowspan="2" class="no-border-bottom"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="no-border-bottom">조제년월일</td>
+                <td
+                  colspan="5"
+                  class="no-border-bottom"
+                  style="border-right: 0.5px solid var(--blue)"
+                ></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <DialogFooter class="modal-footer">
-          <Button size="lg">이미지로 저장</Button>
+          <Button size="lg" @click="saveAsImage('presc-frame')">이미지로 저장</Button>
           <DialogClose>
             <Button variant="destructive" size="lg">닫기</Button>
           </DialogClose>
@@ -118,13 +339,13 @@ const showMedicine = ref(false);
     </Dialog>
     <Dialog>
       <DialogTrigger class="docu-button">
-          <span>전자영수증 보기</span>
-          <i class="fa-solid fa-chevron-right"></i>
+        <span>전자영수증 보기</span>
+        <i class="fa-solid fa-chevron-right"></i>
       </DialogTrigger>
       <DialogContent>
         <Carousel>
           <CarouselContent class="carousel-frame">
-            <CarouselItem>
+            <CarouselItem class="carousel-item">
               <div class="receipt-frame">
                 <div class="receipt-store">김성헌내과의원</div>
                 <div>
@@ -215,7 +436,7 @@ const showMedicine = ref(false);
           <CarouselNext />
         </Carousel>
         <DialogFooter class="modal-footer">
-          <Button size="lg">이미지로 저장</Button>
+          <Button size="lg" @click="saveAsImage('carousel-item')">이미지로 저장</Button>
           <DialogClose>
             <Button variant="destructive" size="lg">닫기</Button>
           </DialogClose>
@@ -226,6 +447,13 @@ const showMedicine = ref(false);
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'YESMyoungjo-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_13@1.0/YESMyoungjo-Regular.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 .misc-func-frame {
   margin-top: 24px;
   margin-bottom: 32px;
@@ -320,10 +548,10 @@ const showMedicine = ref(false);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   span {
     font-size: 20px;
-    font-weight: 600
+    font-weight: 600;
   }
 }
 
@@ -384,10 +612,93 @@ const showMedicine = ref(false);
 .receipt-info-left {
   font-weight: 400;
   font-size: 14px;
-  color: var(--dark-gray)
+  color: var(--dark-gray);
 }
 
 .dotted-top {
   border-top: 2px dotted var(--dark-gray);
+}
+
+.presc-frame {
+  margin-top: 16px;
+  width: 100%;
+  border: 2px solid var(--blue);
+  * {
+    font-family: 'YESMyoungjo-Regular';
+    font-size: 8px;
+    font-weight: 500;
+  }
+}
+
+table {
+  width: 100%;
+  border-top: 1px solid var(--blue);
+  border-bottom: 1px solid var(--blue);
+  /* border: 1px solid var(--blue); */
+}
+
+th,
+td {
+  border-right: 0.5px solid var(--blue);
+  border-bottom: 0.5px solid var(--blue);
+}
+
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr,
+th,
+td {
+  text-align: center;
+  white-space: nowrap;
+}
+
+th[rowspan] {
+  z-index: 50;
+  background-color: var(--white);
+  position: relative;
+}
+
+td[rowspan] {
+  z-index: 50;
+  background-color: var(--white);
+  position: relative;
+}
+
+.presc-header {
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+}
+
+.left {
+  text-align: left;
+  padding-left: 6px;
+}
+
+.presc-pill-list {
+  * {
+    height: 16.5px;
+  }
+}
+
+.no-border-top {
+  border-top: none;
+}
+
+.no-border-bottom {
+  border-bottom: none;
+}
+
+.no-border-right {
+  border-right: none;
 }
 </style>
