@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
@@ -39,6 +40,8 @@ const medicines = ref<Medicine[]>([]);
 const showMedicineModal = ref(false);
 const newMedicine = ref<Medicine>({ name: '', morning: 0, afternoon: 0, evening: 0, days: 0 });
 
+const router = useRouter();
+
 const addMedicine = () => {
   medicines.value.push({ ...newMedicine.value });
   newMedicine.value = { name: '', morning: 0, afternoon: 0, evening: 0, days: 0 };
@@ -62,6 +65,12 @@ const handleResidentNumBackInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
   input.value = input.value.replace(/\D/g, '').slice(0, 1);
   residentNumBack.value = input.value;
+};
+
+const handleNextButtonClick = () => {
+  if (isFormValid.value) {
+    router.push('/doctor/check');
+  }
 };
 </script>
 
@@ -196,7 +205,9 @@ const handleResidentNumBackInput = (event: Event) => {
       </div>
 
       <div class="fixed-button">
-        <Button size="lg" :disabled="!isFormValid">처방전 등록</Button>
+        <Button size="lg" :disabled="!isFormValid" @click="handleNextButtonClick"
+          >처방전 등록</Button
+        >
       </div>
     </Main>
   </div>
