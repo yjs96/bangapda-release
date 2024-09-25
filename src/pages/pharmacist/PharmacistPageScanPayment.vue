@@ -33,16 +33,15 @@ const handlePaymentDetail = () => {
 <template>
   <HeadBar :back-button="true"></HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="true">
-    <div class="prescription-container">
-      <ShadowBox :padding-x="20" :padding-y="20">
-        <div class="prescription-info">처방전</div>
-        <div class="prescription-info">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam delectus autem amet
-          tempore, error nihil quae quas aut iure quisquam doloremque voluptatum nesciunt
-          accusantium, et numquam nisi totam id. Commodi!
-        </div>
-      </ShadowBox>
-    </div>
+    <ShadowBox :padding-x="20" :padding-y="20" class="prescription-container">
+      <div class="prescription-title">처방전</div>
+      <div class="prescription-info">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam delectus autem amet tempore,
+        error nihil quae quas aut iure quisquam doloremque voluptatum nesciunt accusantium, et
+        numquam nisi totam id. Commodi!
+      </div>
+    </ShadowBox>
+
     <ShadowBox :padding-x="20" :padding-y="20">
       <div class="pill-arrow" @click="handlePaymentDetail()">
         <div class="title-text">약품 내역</div>
@@ -73,7 +72,14 @@ const handlePaymentDetail = () => {
 <style scoped>
 .prescription-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 20px;
+}
+
+.prescription-title {
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .prescription-info {
