@@ -4,7 +4,6 @@ import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import html2canvas from 'html2canvas';
-
 import {
   Dialog,
   // DialogHeader,
@@ -23,7 +22,6 @@ import {
   CarouselPrevious
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-
 const prescDetail = [
   {
     key: '병원명',
@@ -50,16 +48,13 @@ const prescDetail = [
     value: '3개'
   }
 ];
-
 const showMedicine = ref(false);
-
 const saveAsImage = async (item: string) => {
   const carouselItem = document.querySelector(`.${item}`) as HTMLElement;
   if (carouselItem) {
     try {
       // Capture the original content
       const originalCanvas = await html2canvas(carouselItem, { scale: 5 });
-
       // Create a new canvas with extra space for margins
       const margin = 80; // 50px margin on each side
       const newWidth = originalCanvas.width + margin * 2;
@@ -68,17 +63,14 @@ const saveAsImage = async (item: string) => {
       const fileName = item == 'presc-frame' ? 'prescription' : 'receipt';
       newCanvas.width = newWidth;
       newCanvas.height = newHeight;
-
       // Get the context of the new canvas
       const ctx = newCanvas.getContext('2d');
       if (ctx) {
         // Fill the entire canvas with a white background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, newWidth, newHeight);
-
         // Draw the original canvas onto the new canvas with margins
         ctx.drawImage(originalCanvas, margin, margin);
-
         // Convert the new canvas to an image and trigger download
         const image = newCanvas.toDataURL('image/png');
         const link = document.createElement('a');
@@ -309,7 +301,7 @@ const saveAsImage = async (item: string) => {
               <tr>
                 <td colspan="2">조제약사</td>
                 <td>성명</td>
-                <td colspan="4" style="border-right: 0.5px solid var(--blue)">
+                <td colspan="4" style="border-right: 0.8px solid var(--blue)">
                   &nbsp;임준수 &nbsp;&nbsp;&nbsp;(서명 또는 날인)
                 </td>
               </tr>
@@ -323,7 +315,7 @@ const saveAsImage = async (item: string) => {
                 <td
                   colspan="5"
                   class="no-border-bottom"
-                  style="border-right: 0.5px solid var(--blue)"
+                  style="border-right: 0.8px solid var(--blue)"
                 ></td>
               </tr>
             </tbody>
@@ -461,19 +453,16 @@ const saveAsImage = async (item: string) => {
   flex-direction: column;
   gap: 20px;
 }
-
 .misc-func-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .misc-func-left {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .icon-frame {
   width: 44px;
   height: 44px;
@@ -483,40 +472,33 @@ const saveAsImage = async (item: string) => {
   justify-content: center;
   align-items: center;
 }
-
 .misc-info-text {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
-
 .misc-info-title {
   font-size: 16px;
   font-weight: 550;
 }
-
 .misc-info-desc {
   font-size: 12px;
   color: var(--dark-gray);
 }
-
 .presc-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 20px;
 }
-
 .detail-frame {
   display: flex;
   flex-direction: column;
   gap: 28px;
   margin-bottom: 32px;
 }
-
 .detail-container {
   display: flex;
   justify-content: space-between;
-
   div {
     font-size: 16px;
     color: var(--dark-gray);
@@ -524,73 +506,61 @@ const saveAsImage = async (item: string) => {
     align-items: center;
     gap: 6px;
   }
-
   span {
     font-size: 18px;
     font-weight: 550;
   }
 }
-
 .seperator {
   width: 100%;
   height: 1px;
   border-bottom: 1px solid var(--gray);
   margin-bottom: 16px;
 }
-
 .docu-button-frame {
   width: 100%;
 }
-
 .docu-button {
   width: 100%;
   height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   span {
     font-size: 20px;
     font-weight: 600;
   }
 }
-
 .modal-footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .carousel-frame {
   display: flex;
   justify-content: center;
   width: calc(100% - 80px);
 }
-
 .receipt-frame {
   width: calc(100% - 32px);
   position: relative;
   margin-bottom: 32px;
   margin-top: 12px;
 }
-
 .receipt-store {
   font-size: 15px;
   font-weight: 550;
   margin-bottom: -5px;
 }
-
 .receipt-price {
   font-size: 28px;
   font-weight: 600;
 }
-
 .won {
   font-size: 18px;
   font-weight: 600;
   margin-left: 1.5px;
 }
-
 .receipt-top {
   width: calc(100% - 32px);
   border-top: 2px solid var(--black);
@@ -599,7 +569,6 @@ const saveAsImage = async (item: string) => {
   flex-direction: column;
   gap: 12px;
 }
-
 .receipt-info-line {
   width: 100%;
   display: flex;
@@ -608,17 +577,14 @@ const saveAsImage = async (item: string) => {
   font-weight: 500;
   font-size: 15px;
 }
-
 .receipt-info-left {
   font-weight: 400;
   font-size: 14px;
   color: var(--dark-gray);
 }
-
 .dotted-top {
   border-top: 2px dotted var(--dark-gray);
 }
-
 .presc-frame {
   margin-top: 16px;
   width: 100%;
@@ -629,48 +595,40 @@ const saveAsImage = async (item: string) => {
     font-weight: 500;
   }
 }
-
 table {
   width: 100%;
   border-top: 1px solid var(--blue);
   border-bottom: 1px solid var(--blue);
   /* border: 1px solid var(--blue); */
 }
-
 th,
 td {
-  border-right: 0.5px solid var(--blue);
-  border-bottom: 0.5px solid var(--blue);
+  border-right: 0.8px solid var(--blue);
+  border-bottom: 0.8px solid var(--blue);
 }
-
 th:last-child,
 td:last-child {
   border-right: none;
 }
-
 tr:last-child td {
   border-bottom: none;
 }
-
 tr,
 th,
 td {
   text-align: center;
   white-space: nowrap;
 }
-
 th[rowspan] {
   z-index: 50;
   background-color: var(--white);
   position: relative;
 }
-
 td[rowspan] {
   z-index: 50;
   background-color: var(--white);
   position: relative;
 }
-
 .presc-header {
   width: 100%;
   font-size: 16px;
@@ -678,26 +636,21 @@ td[rowspan] {
   display: flex;
   justify-content: center;
 }
-
 .left {
   text-align: left;
   padding-left: 6px;
 }
-
 .presc-pill-list {
   * {
     height: 16.5px;
   }
 }
-
 .no-border-top {
   border-top: none;
 }
-
 .no-border-bottom {
   border-bottom: none;
 }
-
 .no-border-right {
   border-right: none;
 }

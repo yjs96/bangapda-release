@@ -1,21 +1,72 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import QRCodeVue3 from 'qrcode-vue3';
+
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import Badge from '@/components/Badge.vue';
-
+import {
+  Dialog,
+  // DialogHeader,
+  // DialogDescription,
+  // DialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogClose,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ref } from 'vue';
 
 const showSummaryDetail = ref(false);
 
 const handleSummaryDetail = () => {
   showSummaryDetail.value = !showSummaryDetail.value;
 };
+
+const isAuthenticated = ref(false);
+const authenticate = async () => {
+  if (isAuthenticated.value) {
+    return;
+  }
+  if (!window.PublicKeyCredential) {
+    // authResult.value = 'Web Authentication API가 지원되지 않습니다.';
+    return;
+  }
+  try {
+    const options: object = {
+      publicKey: {
+        challenge: new Uint8Array(32), // 서버에서 생성된 챌린지를 사용해야 합니다
+        rp: {
+          name: '어플리케이션이름',
+          id: location.hostname
+        },
+        user: {
+          id: new Uint8Array(16), // 사용자 ID를 적절히 설정해야 합니다
+          name: '유저명',
+          displayName: '유저명'
+        },
+        pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+        authenticatorSelection: {
+          authenticatorAttachment: 'platform',
+          userVerification: 'required'
+        },
+        timeout: 60000
+      }
+    };
+    const credential = await navigator.credentials.create(options);
+    // authResult.value = '인증 성공!';
+    isAuthenticated.value = true;
+    console.log('Credential', credential);
+  } catch (error: unknown) {
+    // authResult.value = `인증 실패: ${error}`;
+    isAuthenticated.value = false;
+    console.error('Authentication error', error);
+  }
+};
 </script>
 
 <template>
-
   <NavBar />
   <Main :headbar="false" :navbar="true" :padded="true" :bg-gray="true">
     <div class="notice">
@@ -34,10 +85,47 @@ const handleSummaryDetail = () => {
           <div class="date-and-time">24. 09. 10</div>
         </div>
       </div>
-      <div class="ticket-right">
-        <img src="/images/qr-logo.png" alt="" />
-        <div class="qr-text">약 받기</div>
-      </div>
+      <Dialog>
+        <DialogTrigger>
+          <div class="ticket-right" @click="authenticate">
+            <img src="/images/qr-logo.png" alt="" />
+            <div class="qr-text">약 받기</div>
+          </div>
+        </DialogTrigger>
+        <DialogContent>
+          <div class="qr-content-frame" v-if="isAuthenticated">
+            <QRCodeVue3
+              value="{userid=1,docno=12}"
+              :qrOptions="{ typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' }"
+              :imageOptions="{ hideBackgroundDots: false, imageSize: 0, margin: 0 }"
+              :dotsOptions="{
+                type: 'square',
+                color: '#000000',
+                gradient: {
+                  type: 'linear',
+                  rotation: 0,
+                  colorStops: [
+                    { offset: 0, color: '#000000' },
+                    { offset: 1, color: '#000000' }
+                  ]
+                }
+              }"
+              :backgroundOptions="{ color: '#ffffff' }"
+              :cornersSquareOptions="{ type: 'square', color: '#000000' }"
+              :cornersDotOptions="{ type: undefined, color: '#000000' }"
+              fileExt="png"
+              myclass="my-qur"
+              imgclass="img-qr"
+            />
+          </div>
+          <div class="text-center mt-4" v-else>본인인증을 완료해주세요</div>
+          <DialogFooter class="modal-footer">
+            <DialogClose>
+              <Button variant="destructive" size="lg">닫기</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ShadowBox>
 
     <ShadowBox :padding-x="20" :padding-y="20">
@@ -339,5 +427,22 @@ const handleSummaryDetail = () => {
   margin-left: 12px;
   font-size: 12px;
   color: var(--dark-gray);
+}
+
+.qr-content-frame {
+  margin-top: 20px;
+  margin-bottom: 4px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+}
+
+.modal-footer {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
