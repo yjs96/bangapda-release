@@ -14,6 +14,13 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import {
+  NumberField,
+  NumberFieldContent,
+  NumberFieldDecrement,
+  NumberFieldIncrement,
+  NumberFieldInput
+} from '@/components/ui/number-field';
 
 interface Medicine {
   name: string;
@@ -42,15 +49,14 @@ const removeMedicine = (index: number) => {
   medicines.value.splice(index, 1);
 };
 
-const isFormValid = computed(() => {
-  return (
+const isFormValid = computed(
+  () =>
     name.value.trim() !== '' &&
     residentNumFront.value.length === 6 &&
     residentNumBack.value.length === 1 &&
     diseaseCode.value.trim() !== '' &&
     medicines.value.length > 0
-  );
-});
+);
 
 const handleResidentNumBackInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -69,7 +75,7 @@ const handleResidentNumBackInput = (event: Event) => {
 
           <div class="prescription-info">
             <Label for="name">이름</Label>
-            <Input type="text" id="name" v-model="name" placeholder="이름을 입력하세요"></Input>
+            <Input type="text" id="name" v-model="name" placeholder="이름을 입력하세요" />
           </div>
 
           <div class="prescription-info">
@@ -82,8 +88,7 @@ const handleResidentNumBackInput = (event: Event) => {
                 placeholder="ex) 990909"
                 inputmode="numeric"
                 maxlength="6"
-                class="w-28"
-              ></Input>
+              />
               <div>-</div>
               <div class="resident-num-back">
                 <Input
@@ -94,7 +99,7 @@ const handleResidentNumBackInput = (event: Event) => {
                   inputmode="numeric"
                   maxlength="1"
                   class="w-10"
-                ></Input>
+                />
                 <div>* * * * * *</div>
               </div>
             </div>
@@ -107,8 +112,9 @@ const handleResidentNumBackInput = (event: Event) => {
               id="disease-code"
               v-model="diseaseCode"
               placeholder="질병 코드를 입력하세요"
-            ></Input>
+            />
           </div>
+
           <div class="prescription-info">
             <div class="pill-container">
               <Label>약 등록</Label>
@@ -133,43 +139,33 @@ const handleResidentNumBackInput = (event: Event) => {
                   </div>
                   <div class="medicine-form">
                     <div class="dosage-inputs">
-                      <div class="dosage-day">
-                        <Label for="medicine-morning">아침</Label>
-                        <Input
-                          id="medicine-morning"
-                          v-model.number="newMedicine.morning"
-                          type="number"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div class="dosage-day">
-                        <Label for="medicine-afternoon">점심</Label>
-                        <Input
-                          id="medicine-afternoon"
-                          v-model.number="newMedicine.afternoon"
-                          type="number"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div class="dosage-day">
-                        <Label for="medicine-evening">저녁</Label>
-                        <Input
-                          id="medicine-evening"
-                          v-model.number="newMedicine.evening"
-                          type="number"
-                          placeholder="0"
-                        />
+                      <div
+                        v-for="time in ['morning', 'afternoon', 'evening'] as const"
+                        :key="time"
+                        class="dosage-day"
+                      >
+                        <NumberField :id="`dosage-${time}`" :min="0" v-model="newMedicine[time]">
+                          <Label :for="`medicine-${time}`">{{
+                            { morning: '아침', afternoon: '점심', evening: '저녁' }[time]
+                          }}</Label>
+                          <NumberFieldContent>
+                            <NumberFieldDecrement />
+                            <NumberFieldInput />
+                            <NumberFieldIncrement />
+                          </NumberFieldContent>
+                        </NumberField>
                       </div>
                     </div>
                   </div>
                   <div class="medicine-form">
-                    <Label for="medicine-days">복용 일수</Label>
-                    <Input
-                      id="medicine-days"
-                      v-model.number="newMedicine.days"
-                      type="number"
-                      placeholder="복용 일수를 입력하세요"
-                    />
+                    <NumberField id="dosage-days" :min="0" v-model="newMedicine.days">
+                      <Label for="medicine-days">복용 일수</Label>
+                      <NumberFieldContent>
+                        <NumberFieldDecrement />
+                        <NumberFieldInput />
+                        <NumberFieldIncrement />
+                      </NumberFieldContent>
+                    </NumberField>
                   </div>
                   <div class="dialog-footer">
                     <Button @click="addMedicine" size="lg">등록</Button>
@@ -211,7 +207,7 @@ const handleResidentNumBackInput = (event: Event) => {
   display: flex;
   flex-direction: column;
   margin-top: 20px;
-  margin-bottom: 80px; /* 고정 버튼을 위한 여백 */
+  margin-bottom: 80px;
 }
 
 .prescription-title {
@@ -229,6 +225,10 @@ const handleResidentNumBackInput = (event: Event) => {
   margin-bottom: 28px;
 }
 
+.prescription-info:last-child {
+  margin-bottom: 0;
+}
+
 .resident-num {
   display: flex;
   flex-direction: row;
@@ -239,8 +239,8 @@ const handleResidentNumBackInput = (event: Event) => {
 
 .resident-num-back {
   display: flex;
-  flex-direction: row;
   align-items: center;
+  width: 100%;
   gap: 8px;
 }
 
@@ -278,8 +278,8 @@ const handleResidentNumBackInput = (event: Event) => {
 }
 
 .medicine-list {
-  max-height: 180px; /* 스크롤 가능한 최대 높이 설정 */
-  overflow-y: auto; /* 세로 스크롤 활성화 */
+  max-height: auto;
+  overflow-y: auto;
 }
 
 .medicine-item {
@@ -287,9 +287,13 @@ const handleResidentNumBackInput = (event: Event) => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 10px;
-  border: 1px solid var(--dark-gray);
-  border-radius: 8px; /* 모서리를 더 둥글게 */
+  border: 1px solid var(--nav-gray);
+  border-radius: 8px;
   margin-bottom: 8px;
+}
+
+.medicine-item:last-child {
+  margin-bottom: 0;
 }
 
 .medicine-info {
