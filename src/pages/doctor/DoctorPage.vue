@@ -282,12 +282,6 @@ const handleNextButtonClick = () => {
   align-items: center;
 }
 
-.divider {
-  height: 1px;
-  background-color: var(--dark-gray);
-  margin-bottom: 12px;
-}
-
 .medicine-form {
   display: flex;
   flex-direction: column;
@@ -297,7 +291,7 @@ const handleNextButtonClick = () => {
 .divider {
   height: 1px;
   background-color: var(--dark-gray);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .dosage-inputs {
