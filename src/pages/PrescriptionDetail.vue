@@ -4,6 +4,8 @@ import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import html2canvas from 'html2canvas';
+import { Toaster, toast } from '@steveyuowo/vue-hot-toast';
+import '@/assets/toast.css';
 import {
   Dialog,
   // DialogHeader,
@@ -21,7 +23,9 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/ui/carousel';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+
 const prescDetail = [
   {
     key: '병원명',
@@ -48,7 +52,14 @@ const prescDetail = [
     value: '3개'
   }
 ];
-const showMedicine = ref(false);
+
+const claimRequested = ref(false);
+
+const handleClaim = () => {
+  toast.success('청구 신청이 완료되었습니다.');
+  claimRequested.value = true;
+};
+
 const saveAsImage = async (item: string) => {
   const carouselItem = document.querySelector(`.${item}`) as HTMLElement;
   if (carouselItem) {
@@ -88,6 +99,7 @@ const saveAsImage = async (item: string) => {
 <template>
   <HeadBar :back-button="true">상세보기</HeadBar>
   <NavBar />
+  <Toaster />
   <Main :headbar="true" :navbar="true" :padded="true">
     <div class="misc-func-frame">
       <div class="misc-func-container">
@@ -100,7 +112,9 @@ const saveAsImage = async (item: string) => {
             <span class="misc-info-desc">{서비스명}이 복잡한 과정을 대신 해드려요</span>
           </div>
         </div>
-        <Button>신청</Button>
+        <Button @click="handleClaim()" :variant="claimRequested ? 'destructive' : 'default'">{{
+          claimRequested ? '완료' : '신청'
+        }}</Button>
       </div>
       <div class="misc-func-container">
         <div class="misc-func-left">
@@ -119,15 +133,19 @@ const saveAsImage = async (item: string) => {
     <div class="detail-frame">
       <div class="detail-container" v-for="info in prescDetail" :key="info.key">
         <span>{{ info.key }}</span>
-        <div>
+        <div v-if="info.key != '처방약'">
           {{ info.value }}
-          <i
-            v-if="info.key == '처방약'"
-            class="fa-solid fa-caret-down"
-            @click="showMedicine = !showMedicine"
-          ></i>
-          <div v-if="showMedicine && info.key == '처방약'">dddd</div>
         </div>
+        <Popover v-else>
+          <PopoverTrigger>
+            <Button variant="outline">3개</Button>
+          </PopoverTrigger>
+          <PopoverContent class="medicine-detail">
+            <div>약이름 1</div>
+            <div>약이름 2</div>
+            <div>약이름 3</div>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
     <div class="seperator"></div>
@@ -653,5 +671,13 @@ td[rowspan] {
 }
 .no-border-right {
   border-right: none;
+}
+
+.medicine-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 8px;
+  color: var(--dark-gray);
 }
 </style>
