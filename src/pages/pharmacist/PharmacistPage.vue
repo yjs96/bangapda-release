@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -40,10 +39,15 @@ function onError(err: Error) {
     <div class="pharmacist-container">
       <Dialog v-model:open="isDialogOpen">
         <DialogTrigger asChild>
-          <Button class="qr-camera">
-            <i class="fa-solid fa-qrcode qr-icon"></i>
-            처방전 <br />불러오기
-          </Button>
+          <button class="qr-camera">
+            <div class="qr-icon-container">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div class="qr-text">
+              <span class="qr-title">처방전 불러오기</span>
+              <span class="qr-subtitle">QR 코드를 스캔하세요</span>
+            </div>
+          </button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -120,23 +124,60 @@ function onError(err: Error) {
 
 .qr-camera {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: 120px;
-  width: 120px;
-  background-color: var(--css-primary);
-  border: 1px solid var(--nav-gray);
-  border-radius: 8px;
+  width: 280px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--kb-yellow) 0%, var(--nav-gray));
+  border: none;
+  border-radius: 15px;
   margin-bottom: 40px;
-  text-align: center;
-  font-size: 16px;
-  gap: 10px;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 4px 6px rgba(50, 50, 93, 0.11),
+    0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.qr-icon {
-  font-size: 40px;
-  margin-bottom: 5px;
+.qr-camera:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 7px 14px rgba(50, 50, 93, 0.1),
+    0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.qr-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.qr-icon-container i {
+  font-size: 24px;
+  color: white;
+}
+
+.qr-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: white;
+}
+
+.qr-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.qr-subtitle {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .recent-list-title {
@@ -166,7 +207,7 @@ function onError(err: Error) {
 }
 
 .recent-item:last-child {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .recent-info {
@@ -176,17 +217,9 @@ function onError(err: Error) {
 
 .recent-group {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 6px;
 }
-
-/* .middot {
-  width: 6px;
-  height: 6px;
-  border-radius: 100px;
-  background-color: var(--black);
-} */
 
 .recent-name {
   font-size: 16px;
