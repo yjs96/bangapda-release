@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
+import Button from '@/components/ui/button/Button.vue';
 import {
   Dialog,
   DialogContent,
@@ -39,7 +40,7 @@ function onError(err: Error) {
     <div class="pharmacist-container">
       <Dialog v-model:open="isDialogOpen">
         <DialogTrigger asChild>
-          <button class="qr-camera">
+          <Button class="qr-camera">
             <div class="qr-icon-container">
               <i class="fa-solid fa-qrcode"></i>
             </div>
@@ -47,7 +48,7 @@ function onError(err: Error) {
               <span class="qr-title">처방전 불러오기</span>
               <span class="qr-subtitle">QR 코드를 스캔하세요</span>
             </div>
-          </button>
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -124,26 +125,14 @@ function onError(err: Error) {
 
 .qr-camera {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  width: 280px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--kb-yellow) 0%, var(--nav-gray));
-  border: none;
-  border-radius: 15px;
-  margin-bottom: 40px;
-  padding: 0 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow:
-    0 4px 6px rgba(50, 50, 93, 0.11),
-    0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.qr-camera:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 7px 14px rgba(50, 50, 93, 0.1),
-    0 3px 6px rgba(0, 0, 0, 0.08);
+  width: 160px;
+  height: 140px;
+  background: var(--css-primary);
+  /* background: linear-gradient(135deg, var(--kb-yellow) 0%, var(--nav-gray)); */
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
 .qr-icon-container {
@@ -152,21 +141,20 @@ function onError(err: Error) {
   align-items: center;
   width: 50px;
   height: 50px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--css-secondary);
   border-radius: 50%;
-  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .qr-icon-container i {
   font-size: 24px;
-  color: white;
+  color: var(black);
 }
 
 .qr-text {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  color: white;
+  color: var(black);
 }
 
 .qr-title {

@@ -339,8 +339,14 @@ const handleNextButtonClick = () => {
 }
 
 .medicine-dosage {
-  font-size: 0.9em;
+  font-size: 14px;
   color: var(--dark-gray);
+}
+
+.medicine-memo {
+  font-size: 14px;
+  color: var(--dark-gray);
+  margin-top: 4px;
 }
 
 .dialog-footer {
@@ -355,11 +361,5 @@ const handleNextButtonClick = () => {
   left: 20px;
   right: 20px;
   z-index: 10;
-}
-
-.medicine-memo {
-  font-size: 0.9em;
-  color: var(--dark-gray);
-  margin-top: 4px;
 }
 </style>
