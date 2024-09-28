@@ -20,6 +20,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const showSummaryDetail = ref(false);
 
@@ -187,6 +188,20 @@ const selectTab = (tabId: number) => {
             <div class="report-content">
               1일 3회, 식후 30분에 물과 함께 복용하세요. 3일간 꾸준히 드시고, 증상이 지속되면 의사와
               상담하세요. 약을 삼키기 어려우면 물에 녹여 드셔도 됩니다.
+            </div>
+          </div>
+
+          <div>
+            <div class="report-title-load">
+              <Skeleton class="report-icon-load" />
+              <div class="space-y-1">
+                <Skeleton class="h-4 w-[120px]" />
+                <Skeleton class="h-4 w-[200px]" />
+              </div>
+            </div>
+            <div class="report-content-load">
+              <Skeleton class="h-4 w-[300px]"> </Skeleton>
+              <Skeleton class="h-4 w-[300px]"> </Skeleton>
             </div>
           </div>
         </div>
@@ -402,13 +417,35 @@ const selectTab = (tabId: number) => {
   margin-right: 8px;
 }
 
+.report-icon-load {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+}
+
 .report-title {
   font-size: 16px;
   font-weight: 600;
 }
 
+.report-title-load {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .report-content {
   font-size: 15px;
+}
+
+.report-content-load {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .middot {
