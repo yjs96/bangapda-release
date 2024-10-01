@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   backButton: {
@@ -24,7 +24,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
-})
+});
 
 const router = useRouter();
 
@@ -34,16 +34,16 @@ const routeBack = () => {
   } else {
     router.push(props.moveTo);
   }
-}
+};
 
 const headStyle = computed(() => ({
-  backgroundColor: props.bgGray ? '#F6F7F6' : '#FDFDFD',
+  backgroundColor: props.bgGray ? '#F6F7F6' : '#FDFDFD'
 }));
 </script>
 
 <style scoped>
 .headbar-frame {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
