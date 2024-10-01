@@ -58,7 +58,7 @@ const isActiveTab = (tabPath: string) => {
 
 <style scoped>
 .navbar-frame {
-  position: absolute;
+  position: fixed;
   padding: 0 4%;
   bottom: 0;
   width: 100%;
