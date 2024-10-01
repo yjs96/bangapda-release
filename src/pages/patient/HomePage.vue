@@ -432,7 +432,7 @@ onMounted(() => {
 .tab-select-container {
   display: flex;
   margin: 16px 0;
-  width: calc(100% + 20px);
+  width: 100%;
   gap: 8px;
   overflow-x: scroll;
   white-space: nowrap;
