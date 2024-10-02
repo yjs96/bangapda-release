@@ -406,7 +406,7 @@ fetchTodo(7);
 }
 
 .bottom-half {
-  padding: 0 5.13%;
+  padding: 0 5.13% 40px;
   height: calc(100% - 236px);
   overflow-y: scroll;
   /* padding-top: 20px; */
