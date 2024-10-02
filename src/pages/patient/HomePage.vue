@@ -76,6 +76,33 @@ onMounted(() => {
   }
   themeStore.setThemeColor('#FEDE5B');
 });
+
+// axios Examples
+// https://jsonplaceholder.typicode.com/
+import axiosInstance from '@/api/instance';
+
+const todoExample = ref(null);
+
+const getTodoExample = async (idx: number) => {
+  try {
+    const response = await axiosInstance.get(`todos/${idx}`);
+    todoExample.value = response.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+getTodoExample(7);
+
+// example 2
+import getTodoExampleTwo from '@/api/apiExample';
+
+const todoExampleTwo = ref(null);
+
+const fetchTodo = async (id: number) => {
+  todoExampleTwo.value = await getTodoExampleTwo(id);
+};
+
+fetchTodo(7);
 </script>
 
 <template>
@@ -150,7 +177,8 @@ onMounted(() => {
         <Button variant="destructive" @click="$router.push('/pharmacist')">약사</Button>
         <Button variant="destructive" @click="$router.push('/doctor')">의사</Button>
       </div>
-
+      <div></div>
+      <div></div>
       <ShadowBox :padding-x="20" :padding-y="20">
         <div class="shadow-box-title">오늘 복용 확인</div>
         <div class="daily-check-container">
