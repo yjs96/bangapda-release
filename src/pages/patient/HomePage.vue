@@ -25,7 +25,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const themeStore = useThemeStore();
 
-const showSummaryDetail = ref(false);
+const showSummaryDetail = ref(true);
+// 임시
+const isLoaded = ref(false);
+
+setTimeout(() => {
+  isLoaded.value = true;
+}, 2000);
 
 const handleSummaryDetail = () => {
   showSummaryDetail.value = !showSummaryDetail.value;
@@ -86,7 +92,7 @@ const todoExample = ref(null);
 const getTodoExample = async (idx: number) => {
   try {
     const response = await axiosInstance.get(`todos/${idx}`);
-    todoExample.value = response.data;
+    todoExample.value = response.data.data;
   } catch (err) {
     console.log(err);
   }
@@ -235,7 +241,7 @@ fetchTodo(7);
                 >{{ tab.name }}</span
               >
             </div>
-            <div>
+            <div v-if="isLoaded">
               <div class="report-top">
                 <div class="flex">
                   <div class="report-icon">
@@ -259,17 +265,17 @@ fetchTodo(7);
               </div>
             </div>
 
-            <div>
+            <div v-else>
               <div class="report-title-load">
                 <Skeleton class="report-icon-load" />
-                <div class="space-y-1">
-                  <Skeleton class="h-4 w-[120px]" />
-                  <Skeleton class="h-4 w-[200px]" />
+                <div class="flex flex-col gap-1">
+                  <Skeleton class="h-4 w-[124px]" />
+                  <Skeleton class="h-4 w-[124px]" />
                 </div>
               </div>
               <div class="report-content-load">
-                <Skeleton class="h-4 w-[300px]"> </Skeleton>
-                <Skeleton class="h-4 w-[300px]"> </Skeleton>
+                <Skeleton class="h-4 w-full"> </Skeleton>
+                <Skeleton class="h-4 w-full"> </Skeleton>
               </div>
             </div>
           </div>
@@ -514,9 +520,6 @@ fetchTodo(7);
   width: 44px;
   height: 44px;
   border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-right: 8px;
 }
 
