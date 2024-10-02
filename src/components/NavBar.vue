@@ -62,6 +62,7 @@ const isActiveTab = (tabPath: string) => {
   padding: 0 4%;
   bottom: 0;
   width: 100%;
+  max-width: 600px;
   height: 76px;
   display: flex;
   border-top: 1px solid var(--gray);
