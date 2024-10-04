@@ -1,14 +1,10 @@
 import { fileURLToPath, URL } from 'node:url';
-
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
-
 import { resolve } from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -17,11 +13,13 @@ export default defineConfig({
     }
   },
   css: {
+    devSourcemap: false, // CSS 소스맵 비활성화
     postcss: {
       plugins: [tailwindcss(), autoprefixer()]
     }
   },
   build: {
+    sourcemap: false,
     rollupOptions: {
       input: {
         app: resolve(__dirname, 'index.html'),
