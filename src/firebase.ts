@@ -43,16 +43,18 @@ export const onMessageListener = () =>
     onMessage(messaging, (payload) => {
       console.log('Received foreground message:', payload);
 
-      // 알림 생성
-      const notificationTitle = payload.notification?.title || '제목없음';
-      const notificationOptions = {
-        body: payload.notification?.body
-      };
+      if (document.visibilityState === 'visible') {
+        const notificationTitle = payload.notification?.title || '제목없음';
+        const notificationOptions = {
+          body: payload.notification?.body
+        };
 
-      // 알림 표시
-      new Notification(notificationTitle, notificationOptions);
-      // @ts-ignore
-      toast.success(notificationOptions?.body);
+        // 알림 표시
+        new Notification(notificationTitle, notificationOptions);
+        // @ts-ignore
+        toast.success(notificationOptions?.body);
+      }
+
       resolve(payload);
     });
   });
