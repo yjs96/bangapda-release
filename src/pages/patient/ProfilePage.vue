@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { isSupported } from 'firebase/messaging';
-import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
+import { requestForToken } from '@/firebase';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import HeadBar from '@/components/HeadBar.vue';
@@ -22,6 +22,7 @@ import TimeSelector from '@/components/TimeSelector.vue';
 import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
 
+// 은행 정보
 const banks = [
   { name: '국민은행', img: '/images/banks/kb-bank.png' },
   { name: '신한은행', img: '/images/banks/shinhan-bank.png' },
@@ -31,15 +32,20 @@ const banks = [
   { name: '기업은행', img: '/images/banks/ibk-bank.png' }
 ];
 
+// 계좌 관련 상태 및 함수
 const selectedBank = ref<{ name: string; img: string } | null>(null);
-const router = useRouter();
+const accountNumber = ref('');
+const accountPassword = ref('');
 
 const selectBank = (bank: { name: string; img: string }) => {
   selectedBank.value = bank;
 };
 
-const accountNumber = ref('');
-const accountPassword = ref('');
+const handlePasswordInput = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/\D/g, '').slice(0, 4);
+  accountPassword.value = input.value;
+};
 
 const isFormValid = computed(() => {
   return (
@@ -48,61 +54,6 @@ const isFormValid = computed(() => {
     accountPassword.value.length === 4
   );
 });
-
-const handlePasswordInput = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  input.value = input.value.replace(/\D/g, '').slice(0, 4);
-  accountPassword.value = input.value;
-};
-
-const mealTimeStore = useMealTimeStore();
-
-const breakfastTime = ref(mealTimeStore.breakfast);
-const lunchTime = ref(mealTimeStore.lunch);
-const dinnerTime = ref(mealTimeStore.dinner);
-
-const fcmToken = ref<string | null>(null);
-
-const updateMealTimes = () => {
-  mealTimeStore.updateAllMealTimes({
-    breakfast: breakfastTime.value,
-    lunch: lunchTime.value,
-    dinner: dinnerTime.value
-  });
-};
-
-const requestNotificationPermission = async () => {
-  try {
-    const isFirebaseMessagingSupported = await isSupported();
-    if (!isFirebaseMessagingSupported) {
-      console.log('이 브라우저는 Firebase 클라우드 메시징을 지원하지 않습니다.');
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await requestForToken();
-      if (token) {
-        fcmToken.value = token;
-        const patchToken = {
-          fcmNo: token
-        };
-        try {
-          const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken);
-          console.log(response);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    } else if (permission === 'denied') {
-      console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-    } else {
-      console.log('알림 권한 요청에 대한 응답을 받지 못했습니다.');
-    }
-  } catch (error) {
-    console.error('알림 권한을 얻는데 실패했습니다:', error);
-  }
-};
 
 const updateAccount = () => {
   if (isFormValid.value) {
@@ -114,12 +65,68 @@ const updateAccount = () => {
     // 여기에 실제 계좌 업데이트 로직을 구현하세요
   }
 };
+
+// 복약 시간 관련 상태 및 함수
+const mealTimeStore = useMealTimeStore();
+const breakfastTime = ref(mealTimeStore.breakfast);
+const lunchTime = ref(mealTimeStore.lunch);
+const dinnerTime = ref(mealTimeStore.dinner);
+
+const updateMealTimes = () => {
+  mealTimeStore.updateAllMealTimes({
+    breakfast: breakfastTime.value,
+    lunch: lunchTime.value,
+    dinner: dinnerTime.value
+  });
+};
+
+// 알림 관련 함수
+const fcmToken = ref<string | null>(null);
+
+const requestNotificationPermission = async () => {
+  try {
+    if (!(await isSupported())) {
+      console.log('이 브라우저는 Firebase 클라우드 메시징을 지원하지 않습니다.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const token = await requestForToken();
+      if (token) {
+        fcmToken.value = token;
+        // console.log('FCM 토큰:', token);
+        //  // 서버로 토큰 전송
+        //  await fetch('http://localhost:8080/api/fcm/save/token?userId=1', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     fcmNo: token,
+        //   }),
+        // });
+        // console.log('토큰이 서버로 전송되었습니다.');
+        try {
+          await axiosInstance.patch('api/fcm/save/token?userId=1', { fcmNo: token });
+        } catch (err) {
+          console.error('토큰 저장 중 오류 발생:', err);
+        }
+      }
+    } else {
+      console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+    }
+  } catch (error) {
+    console.error('알림 권한을 얻는데 실패했습니다:', error);
+  }
+};
 </script>
 
 <template>
   <HeadBar :bg-gray="true">마이페이지</HeadBar>
   <NavBar />
   <Main :headbar="true" :navbar="true" :bg-gray="true">
+    <!-- 계좌 정보 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">내 계좌 정보</div>
       <div class="settings-frame">
@@ -185,6 +192,8 @@ const updateAccount = () => {
         </Dialog>
       </div>
     </ShadowBox>
+
+    <!-- 복약 알림 설정 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">복약 알림 설정</div>
       <div class="settings-frame">
@@ -223,6 +232,8 @@ const updateAccount = () => {
         </Dialog>
       </div>
     </ShadowBox>
+
+    <!-- 알림 설정 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">알림 설정</div>
       <div class="settings-frame">
@@ -232,6 +243,8 @@ const updateAccount = () => {
         </div>
       </div>
     </ShadowBox>
+
+    <!-- 로그아웃 및 회원탈퇴 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-frame">
         <div class="settings-row">
@@ -306,26 +319,19 @@ const updateAccount = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 8%;
+  border-radius: 8px;
   border: 1px solid var(--gray);
   width: 30%;
   height: 96px;
   gap: 4px;
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .bank-list.selected {
   background-color: hsl(var(--primary));
   border-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  opacity: 1;
-}
-
-.bank-list:hover {
-  opacity: 1;
 }
 
 .bank-icon {
