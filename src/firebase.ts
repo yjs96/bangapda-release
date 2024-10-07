@@ -1,14 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyA4Ipq20llNkJEnfgEYYsnbZvudVU-jO0c',
-  authDomain: 'kbank-frontend.firebaseapp.com',
-  projectId: 'kbank-frontend',
-  storageBucket: 'kbank-frontend.appspot.com',
-  messagingSenderId: '880064059458',
-  appId: '1:880064059458:web:91a9f51ed525673e6235db',
-  measurementId: 'G-KL6RDGQ3VD'
+  apiKey: "AIzaSyAmE7eesdl5WLVKN-xoQD5JUcH4Vf1ex4s",
+  authDomain: "kbank-backend.firebaseapp.com",
+  projectId: "kbank-backend",
+  storageBucket: "kbank-backend.appspot.com",
+  messagingSenderId: "505325744639",
+  appId: "1:505325744639:web:04843f09853629d93437ca",
+  measurementId: "G-P4BPZ9LN1Y"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -20,25 +21,38 @@ export const requestForToken = async () => {
   try {
     const currentToken = await getToken(messaging, {
       vapidKey:
-        'BAzxo4c606TtwGazLvAX_S28ayIHUEe9CvLAR86AVxYL56Xggaf0_GrldmLaNsInBPyir-U-mHreSkMJTPw2jk8'
+        'BNCnOqfdBm_KSYG37G7TRtXeXU3TqZybnY9so-jIq3VIf37dVJRJrkveugdXGE8AVnsWTE3wVZ1Ic3Dzcoc8KPM'
     });
     if (currentToken) {
+      alert(`발급 성공 : ${currentToken}`)
       console.log('current token for client: ', currentToken);
       // 여기서 토큰을 서버로 전송하는 로직을 추가할 수 있습니다.
       return currentToken;
     } else {
+      alert('발급 실패')
       console.log('No registration token available. Request permission to generate one.');
     }
   } catch (err) {
     console.log('An error occurred while retrieving token. ', err);
   }
 };
-
 // 포그라운드 메시지 처리
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
       console.log('Received foreground message:', payload);
+      
+      // 알림 생성
+      const notificationTitle = payload.notification?.title || '제목없음';
+      const notificationOptions = {
+        body: payload.notification?.body
+      };
+      
+      // 알림 표시
+      new Notification(notificationTitle, notificationOptions);
+      // @ts-ignore
+      toast.success(notificationOptions?.body);
+
       resolve(payload);
     });
   });

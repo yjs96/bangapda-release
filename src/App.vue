@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
+import { isSupported } from 'firebase/messaging';
+import { Toaster } from '@steveyuowo/vue-hot-toast';
 
 const router = useRouter();
 const threshold = 176; // 새로고침을 트리거하는 당김 거리 (픽셀)
@@ -52,9 +55,20 @@ const rotationStyle = computed(() => ({
   transform: `rotate(${isOverThreshold.value ? 180 : 0}deg)`,
   transition: 'transform 0.3s ease'
 }));
+
+
+// 포그라운드 메시지 리스너 설정
+onMessageListener()
+  .then((payload: any) => {
+    console.log('Received message while app is in foreground:', payload);
+    // 여기에서 알림을 표시하거나 앱 UI를 업데이트하는 로직을 추가할 수 있습니다.
+  })
+  .catch((err: any) => console.log('Failed to receive foreground message:', err));
+
 </script>
 
 <template>
+  <Toaster />
   <div
     class="pull-to-refresh"
     @touchstart="onTouchStart"
