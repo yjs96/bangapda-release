@@ -2,13 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyA4Ipq20llNkJEnfgEYYsnbZvudVU-jO0c',
-  authDomain: 'kbank-frontend.firebaseapp.com',
-  projectId: 'kbank-frontend',
-  storageBucket: 'kbank-frontend.appspot.com',
-  messagingSenderId: '880064059458',
-  appId: '1:880064059458:web:91a9f51ed525673e6235db',
-  measurementId: 'G-KL6RDGQ3VD'
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'YOUR_AUTH_DOMAIN',
+  projectId: 'YOUR_PROJECT_ID',
+  storageBucket: 'YOUR_STORAGE_BUCKET',
+  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+  appId: 'YOUR_APP_ID',
+  measurementId: 'YOUR_MEASUREMENT_ID'
 };
 
 const app = initializeApp(firebaseConfig);
@@ -19,8 +19,7 @@ export const requestForToken = async (): Promise<string | null> => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       const currentToken = await getToken(messaging, {
-        vapidKey:
-          'BAzxo4c606TtwGazLvAX_S28ayIHUEe9CvLAR86AVxYL56Xggaf0_GrldmLaNsInBPyir-U-mHreSkMJTPw2jk8'
+        vapidKey: 'YOUR_VAPID_KEY'
       });
       if (currentToken) {
         console.log('FCM 토큰:', currentToken);
