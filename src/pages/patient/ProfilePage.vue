@@ -15,7 +15,9 @@ import {
   DialogContent,
   DialogFooter,
   DialogClose,
-  DialogTrigger
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription
 } from '@/components/ui/dialog';
 import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
@@ -146,7 +148,8 @@ const requestNotificationPermission = async () => {
             </div>
           </DialogTrigger>
           <DialogContent>
-            <div class="dialog-title">계좌 선택</div>
+            <DialogTitle>계좌 선택</DialogTitle>
+            <DialogDescription> 은행을 선택하고 계좌 정보를 입력하세요 </DialogDescription>
             <div class="bank-container">
               <div
                 v-for="bank in banks"
@@ -217,6 +220,8 @@ const requestNotificationPermission = async () => {
             </div>
           </DialogTrigger>
           <DialogContent>
+            <DialogTitle>복약 시간 수정</DialogTitle>
+            <DialogDescription> 아침, 점심, 저녁 복약 시간을 설정하세요. </DialogDescription>
             <TimeSelector title="아침" v-model="breakfastTime" />
             <TimeSelector title="점심" v-model="lunchTime" />
             <TimeSelector title="저녁" v-model="dinnerTime" />
@@ -341,7 +346,7 @@ const requestNotificationPermission = async () => {
 }
 
 .bank-info-container {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .bank-info-container label {
