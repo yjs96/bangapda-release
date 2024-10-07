@@ -30,6 +30,7 @@ export const requestForToken = async (): Promise<string | null> => {
     } else {
       alert('발급 실패');
       console.log('No registration token available. Request permission to generate one.');
+      return null;
     }
   } catch (err) {
     console.error('토큰 검색 중 오류 발생:', err);
@@ -52,7 +53,7 @@ export const onMessageListener = () =>
         // 알림 표시
         new Notification(notificationTitle, notificationOptions);
         // @ts-ignore
-        toast.success(notificationOptions?.body);
+        toast.success(notificationOptions?.body ?? '새로운 메시지가 도착했습니다');
       }
 
       resolve(payload);
