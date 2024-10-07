@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { isSupported } from 'firebase/messaging';
 import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import NotificationConsent from '@/components/NotificationConsent.vue';
-import { useMealTimeStore } from '@/stores/mealtime';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +19,41 @@ import {
 } from '@/components/ui/dialog';
 import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
-import axiosInstance from '@/api/instance'
+import { useMealTimeStore } from '@/stores/mealtime';
+import axiosInstance from '@/api/instance';
+
+const banks = [
+  { name: '국민은행', img: '/images/banks/kb-bank.png' },
+  { name: '신한은행', img: '/images/banks/shinhan-bank.png' },
+  { name: '하나은행', img: '/images/banks/hana-bank.png' },
+  { name: '농협은행', img: '/images/banks/nh-bank.png' },
+  { name: '우리은행', img: '/images/banks/woori-bank.png' },
+  { name: '기업은행', img: '/images/banks/ibk-bank.png' }
+];
+
+const selectedBank = ref<{ name: string; img: string } | null>(null);
+const router = useRouter();
+
+const selectBank = (bank: { name: string; img: string }) => {
+  selectedBank.value = bank;
+};
+
+const accountNumber = ref('');
+const accountPassword = ref('');
+
+const isFormValid = computed(() => {
+  return (
+    selectedBank.value !== null &&
+    accountNumber.value.trim() !== '' &&
+    accountPassword.value.length === 4
+  );
+});
+
+const handlePasswordInput = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/\D/g, '').slice(0, 4);
+  accountPassword.value = input.value;
+};
 
 const mealTimeStore = useMealTimeStore();
 
@@ -48,36 +84,34 @@ const requestNotificationPermission = async () => {
       const token = await requestForToken();
       if (token) {
         fcmToken.value = token;
-        // console.log('FCM 토큰:', token);
-        //  // 서버로 토큰 전송
-        //  await fetch('http://localhost:8080/api/fcm/save/token?userId=1', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     fcmNo: token,
-        //   }),
-        // });
-        // console.log('토큰이 서버로 전송되었습니다.');
         const patchToken = {
-          fcmNo : token
-        }
+          fcmNo: token
+        };
         try {
-          const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken)
-          console.log(response)
+          const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken);
+          console.log(response);
         } catch (err) {
-          console.log(err)
+          console.log(err);
         }
       }
     } else if (permission === 'denied') {
       console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-      // 사용자에게 브라우저 설정에서 권한을 허용하도록 안내하는 메시지를 표시
     } else {
       console.log('알림 권한 요청에 대한 응답을 받지 못했습니다.');
     }
   } catch (error) {
     console.error('알림 권한을 얻는데 실패했습니다:', error);
+  }
+};
+
+const updateAccount = () => {
+  if (isFormValid.value) {
+    console.log('계좌가 업데이트되었습니다:', {
+      bank: selectedBank.value,
+      accountNumber: accountNumber.value,
+      accountPassword: accountPassword.value
+    });
+    // 여기에 실제 계좌 업데이트 로직을 구현하세요
   }
 };
 </script>
@@ -97,10 +131,58 @@ const requestNotificationPermission = async () => {
           <div class="settings-key">계좌번호</div>
           <div class="settings-value">123-456-7890</div>
         </div>
-        <div class="settings-row">
-          <div class="settings-key">계좌수정</div>
-          <i class="fa-solid fa-chevron-right"></i>
-        </div>
+        <Dialog>
+          <DialogTrigger>
+            <div class="settings-row">
+              <div class="settings-key">계좌 수정</div>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </DialogTrigger>
+          <DialogContent>
+            <div class="dialog-title">계좌 선택</div>
+            <div class="bank-container">
+              <div
+                v-for="bank in banks"
+                :key="bank.name"
+                class="bank-list"
+                :class="{ selected: selectedBank?.name === bank.name }"
+                @click="selectBank(bank)"
+              >
+                <img :src="bank.img" class="bank-icon" alt="bank logo" />
+                {{ bank.name }}
+              </div>
+            </div>
+            <div>
+              <div class="bank-info-container">
+                <Label for="bank-id-input">계좌 번호</Label>
+                <Input
+                  type="text"
+                  inputmode="numeric"
+                  id="bank-id-input"
+                  v-model="accountNumber"
+                  placeholder="계좌번호를 입력해주세요."
+                />
+              </div>
+              <div class="bank-info-container">
+                <Label for="bank-password-input">계좌 비밀번호</Label>
+                <Input
+                  type="password"
+                  inputmode="numeric"
+                  id="bank-password-input"
+                  v-model="accountPassword"
+                  @input="handlePasswordInput"
+                  placeholder="(4자리)"
+                  maxlength="4"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose>
+                <Button size="lg" @click="updateAccount" :disabled="!isFormValid">계좌 변경</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ShadowBox>
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
@@ -202,13 +284,63 @@ const requestNotificationPermission = async () => {
   gap: 12px;
 }
 
-.modal-header {
-  margin-bottom: 12px;
+.dialog-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-.input-frame {
+.bank-container {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bank-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8%;
+  border: 1px solid var(--gray);
+  width: 30%;
+  height: 96px;
+  gap: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.bank-list.selected {
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  opacity: 1;
+}
+
+.bank-list:hover {
+  opacity: 1;
+}
+
+.bank-icon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.bank-info-container {
+  margin-bottom: 16px;
+}
+
+.bank-info-container label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 </style>
