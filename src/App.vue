@@ -3,7 +3,7 @@ import { computed, ref, provide } from 'vue';
 import { useRouter } from 'vue-router';
 import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
 import { isSupported } from 'firebase/messaging';
-import { Toaster } from '@steveyuowo/vue-hot-toast';
+import { Toaster, toast } from '@steveyuowo/vue-hot-toast';
 
 const router = useRouter();
 const threshold = 176; // 새로고침을 트리거하는 당김 거리 (픽셀)
@@ -98,3 +98,59 @@ onMessageListener()
   </div>
   <Toaster />
 </template>
+
+<style scoped>
+.pull-to-refresh {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  height: 100vh;
+}
+
+.pull-to-refresh__indicator {
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.15s ease;
+  z-index: 999;
+  top: 0 !important;
+}
+
+.content {
+  transition: margin-top 0.2s ease;
+}
+
+i {
+  margin-right: 4px;
+}
+
+.refreshing-message {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 16px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--white);
+  border-top: 2px solid var(--dark-gray);
+  border-radius: 100px;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
