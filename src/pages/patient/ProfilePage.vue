@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { isSupported } from 'firebase/messaging';
-import { app as firebaseApp, requestForToken, onMessageListener } from '../../firebase';
+import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
+import NotificationConsent from '@/components/NotificationConsent.vue';
 import { useMealTimeStore } from '@/stores/mealtime';
 import {
   Dialog,
@@ -79,7 +80,6 @@ const requestNotificationPermission = async () => {
     console.error('알림 권한을 얻는데 실패했습니다:', error);
   }
 };
-
 </script>
 
 <template>
@@ -142,11 +142,16 @@ const requestNotificationPermission = async () => {
       </div>
     </ShadowBox>
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
+      <div class="settings-title">알림 설정</div>
       <div class="settings-frame">
         <div class="settings-row">
-          <div class="settings-key">알림 권한 설정</div>
-          <Button @click="requestNotificationPermission">알림 권한 요청</Button>
+          <div class="settings-key">알림 수신 동의</div>
+          <NotificationConsent />
         </div>
+      </div>
+    </ShadowBox>
+    <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
+      <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key logout">로그아웃</div>
         </div>

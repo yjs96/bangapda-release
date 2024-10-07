@@ -15,9 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export { app, messaging };
-
-export const requestForToken = async () => {
+export const requestForToken = async (): Promise<string | null> => {
   try {
     const currentToken = await getToken(messaging, {
       vapidKey:
@@ -33,9 +31,11 @@ export const requestForToken = async () => {
       console.log('No registration token available. Request permission to generate one.');
     }
   } catch (err) {
-    console.log('An error occurred while retrieving token. ', err);
+    console.error('토큰 검색 중 오류 발생:', err);
+    return null;
   }
 };
+
 // 포그라운드 메시지 처리
 export const onMessageListener = () =>
   new Promise((resolve) => {
@@ -52,7 +52,8 @@ export const onMessageListener = () =>
       new Notification(notificationTitle, notificationOptions);
       // @ts-ignore
       toast.success(notificationOptions?.body);
-
       resolve(payload);
     });
   });
+
+export { app, messaging };
