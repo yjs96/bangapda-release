@@ -1,14 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyAmE7eesdl5WLVKN-xoQD5JUcH4Vf1ex4s",
+  authDomain: "kbank-backend.firebaseapp.com",
+  projectId: "kbank-backend",
+  storageBucket: "kbank-backend.appspot.com",
+  messagingSenderId: "505325744639",
+  appId: "1:505325744639:web:04843f09853629d93437ca",
+  measurementId: "G-P4BPZ9LN1Y"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -16,21 +17,18 @@ const messaging = getMessaging(app);
 
 export const requestForToken = async (): Promise<string | null> => {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const currentToken = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-      });
-      if (currentToken) {
-        console.log('FCM 토큰:', currentToken);
-        return currentToken;
-      } else {
-        console.log('토큰을 가져올 수 없습니다.');
-        return null;
-      }
+    const currentToken = await getToken(messaging, {
+      vapidKey:
+        'BNCnOqfdBm_KSYG37G7TRtXeXU3TqZybnY9so-jIq3VIf37dVJRJrkveugdXGE8AVnsWTE3wVZ1Ic3Dzcoc8KPM'
+    });
+    if (currentToken) {
+      alert(`발급 성공 : ${currentToken}`)
+      console.log('current token for client: ', currentToken);
+      // 여기서 토큰을 서버로 전송하는 로직을 추가할 수 있습니다.
+      return currentToken;
     } else {
-      console.log('알림 권한이 거부되었습니다.');
-      return null;
+      alert('발급 실패')
+      console.log('No registration token available. Request permission to generate one.');
     }
   } catch (err) {
     console.error('토큰 검색 중 오류 발생:', err);
@@ -38,10 +36,22 @@ export const requestForToken = async (): Promise<string | null> => {
   }
 };
 
-export const onMessageListener = (): Promise<any> =>
+// 포그라운드 메시지 처리
+export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
-      console.log('포그라운드 메시지 수신:', payload);
+      console.log('Received foreground message:', payload);
+      
+      // 알림 생성
+      const notificationTitle = payload.notification?.title || '제목없음';
+      const notificationOptions = {
+        body: payload.notification?.body
+      };
+      
+      // 알림 표시
+      new Notification(notificationTitle, notificationOptions);
+      // @ts-ignore
+      toast.success(notificationOptions?.body);
       resolve(payload);
     });
   });

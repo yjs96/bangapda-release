@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
+import axiosInstance from '@/api/instance'
 
 const mealTimeStore = useMealTimeStore();
 
@@ -34,19 +35,51 @@ const updateMealTimes = () => {
   });
 };
 
-onMounted(() => {
-  breakfastTime.value = mealTimeStore.breakfast;
-  lunchTime.value = mealTimeStore.lunch;
-  dinnerTime.value = mealTimeStore.dinner;
+const requestNotificationPermission = async () => {
+  try {
+    const isFirebaseMessagingSupported = await isSupported();
+    if (!isFirebaseMessagingSupported) {
+      console.log('이 브라우저는 Firebase 클라우드 메시징을 지원하지 않습니다.');
+      return;
+    }
 
-  // 포그라운드 메시지 리스너 설정
-  onMessageListener()
-    .then((payload: any) => {
-      console.log('Received message while app is in foreground:', payload);
-      // 여기에서 알림을 표시하거나 앱 UI를 업데이트하는 로직을 추가할 수 있습니다.
-    })
-    .catch((err: any) => console.log('Failed to receive foreground message:', err));
-});
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const token = await requestForToken();
+      if (token) {
+        fcmToken.value = token;
+        // console.log('FCM 토큰:', token);
+        //  // 서버로 토큰 전송
+        //  await fetch('http://localhost:8080/api/fcm/save/token?userId=1', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     fcmNo: token,
+        //   }),
+        // });
+        // console.log('토큰이 서버로 전송되었습니다.');
+        const patchToken = {
+          fcmNo : token
+        }
+        try {
+          const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken)
+          console.log(response)
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    } else if (permission === 'denied') {
+      console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+      // 사용자에게 브라우저 설정에서 권한을 허용하도록 안내하는 메시지를 표시
+    } else {
+      console.log('알림 권한 요청에 대한 응답을 받지 못했습니다.');
+    }
+  } catch (error) {
+    console.error('알림 권한을 얻는데 실패했습니다:', error);
+  }
+};
 </script>
 
 <template>
