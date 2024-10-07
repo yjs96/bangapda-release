@@ -63,7 +63,6 @@ const rotationStyle = computed(() => ({
   transition: 'transform 0.3s ease'
 }));
 
-
 // 포그라운드 메시지 리스너 설정
 onMessageListener()
   .then((payload: any) => {
@@ -71,7 +70,6 @@ onMessageListener()
     // 여기에서 알림을 표시하거나 앱 UI를 업데이트하는 로직을 추가할 수 있습니다.
   })
   .catch((err: any) => console.log('Failed to receive foreground message:', err));
-
 </script>
 
 <template>

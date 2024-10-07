@@ -2,13 +2,13 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAmE7eesdl5WLVKN-xoQD5JUcH4Vf1ex4s',
-  authDomain: 'kbank-backend.firebaseapp.com',
-  projectId: 'kbank-backend',
-  storageBucket: 'kbank-backend.appspot.com',
-  messagingSenderId: '505325744639',
-  appId: '1:505325744639:web:04843f09853629d93437ca',
-  measurementId: 'G-P4BPZ9LN1Y'
+  apiKey: 'AIzaSyA4Ipq20llNkJEnfgEYYsnbZvudVU-jO0c',
+  authDomain: 'kbank-frontend.firebaseapp.com',
+  projectId: 'kbank-frontend',
+  storageBucket: 'kbank-frontend.appspot.com',
+  messagingSenderId: '880064059458',
+  appId: '1:880064059458:web:91a9f51ed525673e6235db',
+  measurementId: 'G-KL6RDGQ3VD'
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -22,7 +22,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
       body: payload.notification.body,
-      icon: '' // 실제 아이콘 경로로 변경하세요
+      icon: '/images/bell.png' // 실제 아이콘 경로로 변경하세요
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
