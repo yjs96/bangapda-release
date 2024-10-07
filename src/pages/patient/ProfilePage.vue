@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { isSupported } from 'firebase/messaging';
-import { app as firebaseApp, requestForToken, onMessageListener } from '../../firebase';
+import { app as firebaseApp, requestForToken, onMessageListener } from '@/firebase';
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
+import NotificationConsent from '@/components/NotificationConsent.vue';
 import { useMealTimeStore } from '@/stores/mealtime';
 import {
   Dialog,
@@ -31,33 +32,6 @@ const updateMealTimes = () => {
     lunch: lunchTime.value,
     dinner: dinnerTime.value
   });
-};
-
-const requestNotificationPermission = async () => {
-  try {
-    const isFirebaseMessagingSupported = await isSupported();
-    if (!isFirebaseMessagingSupported) {
-      console.log('이 브라우저는 Firebase 클라우드 메시징을 지원하지 않습니다.');
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await requestForToken();
-      if (token) {
-        fcmToken.value = token;
-        console.log('FCM 토큰:', token);
-        // 여기서 토큰을 서버로 전송하거나 저장하는 로직을 추가할 수 있습니다.
-      }
-    } else if (permission === 'denied') {
-      console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-      // 사용자에게 브라우저 설정에서 권한을 허용하도록 안내하는 메시지를 표시
-    } else {
-      console.log('알림 권한 요청에 대한 응답을 받지 못했습니다.');
-    }
-  } catch (error) {
-    console.error('알림 권한을 얻는데 실패했습니다:', error);
-  }
 };
 
 onMounted(() => {
@@ -135,11 +109,16 @@ onMounted(() => {
       </div>
     </ShadowBox>
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
+      <div class="settings-title">알림 설정</div>
       <div class="settings-frame">
         <div class="settings-row">
-          <div class="settings-key">알림 권한 설정</div>
-          <Button @click="requestNotificationPermission">알림 권한 요청</Button>
+          <div class="settings-key">알림 수신 동의</div>
+          <NotificationConsent />
         </div>
+      </div>
+    </ShadowBox>
+    <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
+      <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key logout">로그아웃</div>
         </div>
