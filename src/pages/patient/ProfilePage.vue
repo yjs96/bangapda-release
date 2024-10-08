@@ -21,6 +21,8 @@ import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
 import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
+import { resolve } from 'path';
+import type { RefSymbol } from '@vue/reactivity';
 
 const banks = [
   { name: '국민은행', img: '/images/banks/kb-bank.png' },
@@ -39,12 +41,14 @@ const selectBank = (bank: { name: string; img: string }) => {
 };
 
 const accountNumber = ref('');
+const newAccountNumber = ref('');
 const accountPassword = ref('');
+const bank = ref('');
 
 const isFormValid = computed(() => {
   return (
     selectedBank.value !== null &&
-    accountNumber.value.trim() !== '' &&
+    newAccountNumber.value.trim() !== '' &&
     accountPassword.value.length === 4
   );
 });
@@ -63,12 +67,26 @@ const dinnerTime = ref(mealTimeStore.dinner);
 
 const fcmToken = ref<string | null>(null);
 
-const updateMealTimes = () => {
+/**약 알람 시간 변경 */
+const updateMealTimes = async () => {
   mealTimeStore.updateAllMealTimes({
     breakfast: breakfastTime.value,
     lunch: lunchTime.value,
     dinner: dinnerTime.value
   });
+
+  const updateAlarm = {
+    "morningAlarm": breakfastTime.value,
+    "lunchAlarm": lunchTime.value,
+    "dinnerAlarm": dinnerTime.value
+  };
+  console.log(updateAlarm)
+  try {
+    const response = await axiosInstance.patch('api/patient/modify/medicineTime?userId=1', updateAlarm);
+    console.log(response);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const requestNotificationPermission = async () => {
@@ -88,6 +106,7 @@ const requestNotificationPermission = async () => {
           fcmNo: token
         };
         try {
+
           const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken);
           console.log(response);
         } catch (err) {
@@ -104,16 +123,62 @@ const requestNotificationPermission = async () => {
   }
 };
 
-const updateAccount = () => {
-  if (isFormValid.value) {
-    console.log('계좌가 업데이트되었습니다:', {
-      bank: selectedBank.value,
-      accountNumber: accountNumber.value,
-      accountPassword: accountPassword.value
-    });
-    // 여기에 실제 계좌 업데이트 로직을 구현하세요
-  }
+const isPasswordValid = ref(false);
+const updateAccount = async() => {
+    try {
+      const updateData={
+        "bankNm": selectedBank.value?.name,
+        "accountNo": newAccountNumber.value,
+        "accountPw": accountPassword.value
+      };
+      
+      console.log(updateData)
+      const response = await axiosInstance.patch('/api/patient/modify/account?userId=1',updateData);
+      if (response.data === true) {
+        console.log('계좌 정보 업데이트 성공:', response.data);
+        isPasswordValid.value=true;
+    
+      } else {
+        console.error('계좌 정보 업데이트 실패: 서버 응답에서 false 반환');
+        // 실패 시 사용자에게 알림
+        alert('비밀번호 틀림.');
+      }
+
+    } catch (err) {
+      console.error('계좌 정보 업데이트 실패:', err);
+    } finally {
+      getUserInfo();
+    }
+  
 };
+
+/**시간 00:00 형식으로 변환 */
+const formatTime=(alarmArray)=>{
+  const hours= String(alarmArray[0]).padStart(2,'0');
+  const minutes = String(alarmArray[1]).padStart(2, '0'); // 분(minute)
+  return `${hours}:${minutes}`;
+}
+
+const getUserInfo = async () => {
+  try{
+    const response=await axiosInstance.get(`/api/patient/account?userId=2`);
+    isPasswordValid.value=true;
+    bank.value = response.data.data.bankNm;
+    accountNumber.value = response.data.data.accountNo;
+    breakfastTime.value= formatTime(response.data.data.morningAlarm);
+    lunchTime.value =formatTime(response.data.data.lunchAlarm);
+    dinnerTime.value = formatTime(response.data.data.dinnerAlarm);
+    console.log(response.data); // 응답 데이터를 출력해 확인
+    
+  }catch(err){
+      console.log(err)
+  }
+
+}
+
+onMounted(async()=>{
+  getUserInfo();
+})
 </script>
 
 <template>
@@ -122,14 +187,14 @@ const updateAccount = () => {
   <Main :headbar="true" :navbar="true" :bg-gray="true">
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">내 계좌 정보</div>
-      <div class="settings-frame">
-        <div class="settings-row">
+      <div class="settings-frame" >
+        <div class="settings-row" v-if="isPasswordValid">
           <div class="settings-key">은행명</div>
-          <div class="settings-value">국민은행</div>
+          <div class="settings-value">{{bank}}</div>
         </div>
-        <div class="settings-row">
+        <div class="settings-row" v-if="isPasswordValid">
           <div class="settings-key">계좌번호</div>
-          <div class="settings-value">123-456-7890</div>
+          <div class="settings-value">{{accountNumber}}</div>
         </div>
         <Dialog>
           <DialogTrigger>
@@ -159,7 +224,7 @@ const updateAccount = () => {
                   type="text"
                   inputmode="numeric"
                   id="bank-id-input"
-                  v-model="accountNumber"
+                  v-model="newAccountNumber"
                   placeholder="계좌번호를 입력해주세요."
                 />
               </div>
@@ -190,15 +255,15 @@ const updateAccount = () => {
       <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key">아침</div>
-          <div class="settings-value">{{ mealTimeStore.breakfast }}</div>
+          <div class="settings-value">{{ breakfastTime }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">점심</div>
-          <div class="settings-value">{{ mealTimeStore.lunch }}</div>
+          <div class="settings-value">{{ lunchTime }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">저녁</div>
-          <div class="settings-value">{{ mealTimeStore.dinner }}</div>
+          <div class="settings-value">{{ dinnerTime }}</div>
         </div>
         <Dialog>
           <DialogTrigger>
