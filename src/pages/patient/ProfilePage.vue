@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { isSupported } from 'firebase/messaging';
-import { requestForToken } from '@/firebase';
+import { ref, computed, onMounted } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import HeadBar from '@/components/HeadBar.vue';
@@ -23,8 +20,6 @@ import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
 import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
-import { resolve } from 'path';
-import type { RefSymbol } from '@vue/reactivity';
 import { toast } from '@steveyuowo/vue-hot-toast';
 
 // 은행 정보
@@ -39,13 +34,10 @@ const banks = [
 
 // 계좌 관련 상태 및 함수
 const selectedBank = ref<{ name: string; img: string } | null>(null);
-const accountNumber = ref('');
-const accountPassword = ref('');
 
 const selectBank = (bank: { name: string; img: string }) => {
   selectedBank.value = bank;
 };
-
 
 const accountNumber = ref('');
 const newAccountNumber = ref('');
@@ -58,7 +50,6 @@ const handlePasswordInput = (event: Event) => {
   accountPassword.value = input.value;
 };
 
-
 const isFormValid = computed(() => {
   return (
     selectedBank.value !== null &&
@@ -67,29 +58,14 @@ const isFormValid = computed(() => {
   );
 });
 
-const updateAccount = () => {
-  if (isFormValid.value) {
-    console.log('계좌가 업데이트되었습니다:', {
-      bank: selectedBank.value,
-      accountNumber: accountNumber.value,
-      accountPassword: accountPassword.value
-    });
-    // 여기에 실제 계좌 업데이트 로직을 구현하세요
-  }
-};
-
 // 복약 시간 관련 상태 및 함수
 const mealTimeStore = useMealTimeStore();
 const breakfastTime = ref(mealTimeStore.breakfast);
 const lunchTime = ref(mealTimeStore.lunch);
 const dinnerTime = ref(mealTimeStore.dinner);
 
-
-const fcmToken = ref<string | null>(null);
-
 /**약 알람 시간 변경 */
 const updateMealTimes = async () => {
-
   mealTimeStore.updateAllMealTimes({
     breakfast: breakfastTime.value,
     lunch: lunchTime.value,
@@ -97,13 +73,16 @@ const updateMealTimes = async () => {
   });
 
   const updateAlarm = {
-    "morningAlarm": breakfastTime.value,
-    "lunchAlarm": lunchTime.value,
-    "dinnerAlarm": dinnerTime.value
+    morningAlarm: breakfastTime.value,
+    lunchAlarm: lunchTime.value,
+    dinnerAlarm: dinnerTime.value
   };
-  console.log(updateAlarm)
+  console.log(updateAlarm);
   try {
-    const response = await axiosInstance.patch('api/patient/modify/medicineTime?userId=1', updateAlarm);
+    const response = await axiosInstance.patch(
+      'api/patient/modify/medicineTime?userId=1',
+      updateAlarm
+    );
     console.log(response);
   } catch (err) {
     console.log(err);
@@ -111,109 +90,56 @@ const updateMealTimes = async () => {
 };
 
 // 알림 관련 함수
-const fcmToken = ref<string | null>(null);
 
-const requestNotificationPermission = async () => {
+const updateAccount = async () => {
   try {
-    if (!(await isSupported())) {
-      console.log('이 브라우저는 Firebase 클라우드 메시징을 지원하지 않습니다.');
-      return;
+    const updateData = {
+      bankNm: selectedBank.value?.name,
+      accountNo: newAccountNumber.value,
+      accountPw: accountPassword.value
+    };
+
+    console.log(updateData);
+    const response = await axiosInstance.patch('/api/patient/modify/account?userId=1', updateData);
+    console.log(response.data);
+
+    // response.data가 정확히 boolean 값인지 확인
+    if (response.data.data === true) {
+      toast.success('업데이트를 성공했습니다');
+    } else if (response.data.data === false) {
+      toast.error('계좌 비밀번호 틀렸습니다.');
     }
-
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await requestForToken();
-      if (token) {
-        fcmToken.value = token;
-        // console.log('FCM 토큰:', token);
-        //  // 서버로 토큰 전송
-        //  await fetch('http://localhost:8080/api/fcm/save/token?userId=1', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     fcmNo: token,
-        //   }),
-        // });
-        // console.log('토큰이 서버로 전송되었습니다.');
-        try {
-
-
-          const response = await axiosInstance.patch('api/fcm/save/token?userId=1', patchToken);
-          console.log(response);
-
-          await axiosInstance.patch('api/fcm/save/token?userId=1', { fcmNo: token });
-
-        } catch (err) {
-          console.error('토큰 저장 중 오류 발생:', err);
-        }
-      }
-    } else {
-      console.log('알림 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-    }
-  } catch (error) {
-    console.error('알림 권한을 얻는데 실패했습니다:', error);
+  } catch (err) {
+    console.error('계좌 정보 업데이트 실패:', err);
+  } finally {
+    getUserInfo();
   }
 };
-
-
-const updateAccount = async() => {
-    try {
-      const updateData = {
-        bankNm: selectedBank.value?.name,
-        accountNo: newAccountNumber.value,
-        accountPw: accountPassword.value
-      };
-      
-      console.log(updateData);
-      const response = await axiosInstance.patch('/api/patient/modify/account?userId=1', updateData);
-      console.log(response.data);
-      
-      // response.data가 정확히 boolean 값인지 확인
-      if (response.data.data === true) {
-        toast.success('업데이트를 성공했습니다');
-      } else if (response.data.data === false) {
-        toast.error('계좌 비밀번호 틀렸습니다.');
-        
-      }
-
-    } catch (err) {
-      console.error('계좌 정보 업데이트 실패:', err);
-    } finally {
-      getUserInfo();
-    }
-};
-
-
 
 /**시간 00:00 형식으로 변환 */
-const formatTime=(alarmArray)=>{
-  const hours= String(alarmArray[0]).padStart(2,'0');
+const formatTime = (alarmArray: String[]) => {
+  const hours = String(alarmArray[0]).padStart(2, '0');
   const minutes = String(alarmArray[1]).padStart(2, '0'); // 분(minute)
   return `${hours}:${minutes}`;
-}
+};
 
 const getUserInfo = async () => {
-  try{
-    const response=await axiosInstance.get(`/api/patient/account?userId=1`);
+  try {
+    const response = await axiosInstance.get(`/api/patient/account?userId=1`);
     bank.value = response.data.data.bankNm;
     accountNumber.value = response.data.data.accountNo;
-    breakfastTime.value= formatTime(response.data.data.morningAlarm);
-    lunchTime.value =formatTime(response.data.data.lunchAlarm);
+    breakfastTime.value = formatTime(response.data.data.morningAlarm);
+    lunchTime.value = formatTime(response.data.data.lunchAlarm);
     dinnerTime.value = formatTime(response.data.data.dinnerAlarm);
     console.log(response.data); // 응답 데이터를 출력해 확인
-    
-  }catch(err){
-      console.log(err)
+  } catch (err) {
+    console.log(err);
   }
+};
 
-}
-
-onMounted(async()=>{
+onMounted(async () => {
   getUserInfo();
-})
-
+});
 </script>
 
 <template>
@@ -223,14 +149,14 @@ onMounted(async()=>{
     <!-- 계좌 정보 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">내 계좌 정보</div>
-      <div class="settings-frame" >
-        <div class="settings-row" >
+      <div class="settings-frame">
+        <div class="settings-row">
           <div class="settings-key">은행명</div>
-          <div class="settings-value">{{bank}}</div>
+          <div class="settings-value">{{ bank }}</div>
         </div>
-        <div class="settings-row" >
+        <div class="settings-row">
           <div class="settings-key">계좌번호</div>
-          <div class="settings-value">{{accountNumber}}</div>
+          <div class="settings-value">{{ accountNumber }}</div>
         </div>
         <Dialog>
           <DialogTrigger>
