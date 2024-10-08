@@ -23,6 +23,7 @@ import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
 import { resolve } from 'path';
 import type { RefSymbol } from '@vue/reactivity';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const banks = [
   { name: '국민은행', img: '/images/banks/kb-bank.png' },
@@ -123,25 +124,24 @@ const requestNotificationPermission = async () => {
   }
 };
 
-const isPasswordValid = ref(false);
 const updateAccount = async() => {
     try {
-      const updateData={
-        "bankNm": selectedBank.value?.name,
-        "accountNo": newAccountNumber.value,
-        "accountPw": accountPassword.value
+      const updateData = {
+        bankNm: selectedBank.value?.name,
+        accountNo: newAccountNumber.value,
+        accountPw: accountPassword.value
       };
       
-      console.log(updateData)
-      const response = await axiosInstance.patch('/api/patient/modify/account?userId=1',updateData);
-      if (response.data === true) {
-        console.log('계좌 정보 업데이트 성공:', response.data);
-        isPasswordValid.value=true;
-    
-      } else {
-        console.error('계좌 정보 업데이트 실패: 서버 응답에서 false 반환');
-        // 실패 시 사용자에게 알림
-        alert('비밀번호 틀림.');
+      console.log(updateData);
+      const response = await axiosInstance.patch('/api/patient/modify/account?userId=1', updateData);
+      console.log(response.data);
+      
+      // response.data가 정확히 boolean 값인지 확인
+      if (response.data.data === true) {
+        toast.success('업데이트를 성공했습니다');
+      } else if (response.data.data === false) {
+        toast.error('계좌 비밀번호 틀렸습니다.');
+        
       }
 
     } catch (err) {
@@ -149,8 +149,9 @@ const updateAccount = async() => {
     } finally {
       getUserInfo();
     }
-  
 };
+
+
 
 /**시간 00:00 형식으로 변환 */
 const formatTime=(alarmArray)=>{
@@ -161,8 +162,7 @@ const formatTime=(alarmArray)=>{
 
 const getUserInfo = async () => {
   try{
-    const response=await axiosInstance.get(`/api/patient/account?userId=2`);
-    isPasswordValid.value=true;
+    const response=await axiosInstance.get(`/api/patient/account?userId=1`);
     bank.value = response.data.data.bankNm;
     accountNumber.value = response.data.data.accountNo;
     breakfastTime.value= formatTime(response.data.data.morningAlarm);
@@ -188,11 +188,11 @@ onMounted(async()=>{
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title">내 계좌 정보</div>
       <div class="settings-frame" >
-        <div class="settings-row" v-if="isPasswordValid">
+        <div class="settings-row" >
           <div class="settings-key">은행명</div>
           <div class="settings-value">{{bank}}</div>
         </div>
-        <div class="settings-row" v-if="isPasswordValid">
+        <div class="settings-row" >
           <div class="settings-key">계좌번호</div>
           <div class="settings-value">{{accountNumber}}</div>
         </div>

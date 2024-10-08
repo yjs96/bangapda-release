@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/carousel';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import axiosInstance from '@/api/instance';
 
 const faceIdStore = useFaceIdStore();
 const userName = ref('임시');
@@ -63,41 +62,20 @@ const prescDetail = [
   }
 ];
 
+
 const claimRequested = ref(false);
 const medicineReceived = ref(false);
 
-//김성헌 
-//라우터에서 prescriptionId 가져오기
-import { useRoute } from 'vue-router';
-const route = useRoute();
-const prescriptionId = ref(route.params.id);
-const handleClaim = async () => {
+const handleClaim = () => {
   if (claimRequested.value) return;
-  toast.success('청구 신청이 완료되었습니다')
+  toast.success('청구 신청이 완료되었습니다');
   claimRequested.value = true;
-        try {
-    //시큐리로부터 userId 가져오는 코드 추가해야됨, 현재 처방전 id도 알아야됨
-    const response = await axiosInstance.patch(`/api/insurance/update/3?userId=1`); 
-
-    console.log(response);
-  } catch (err) {
-    console.log(err);
-  }
 };
 
-
-const handleReceived = async() => {
+const handleReceived = () => {
   if (medicineReceived.value) return;
   toast.success('약을 수령했습니다');
   medicineReceived.value = true;
-  try {
-    //시큐리로부터 userId 가져오는 코드 추가해야됨, 현재 처방전 id도 알아야됨
-    const response = await axiosInstance.patch(`/api/pharmacy/prescription/3?userId=1`); 
-
-    console.log(response);
-  } catch (err) {
-    console.log(err);
-  }
 };
 
 const saveAsImage = async (item: string) => {
