@@ -60,9 +60,9 @@ const isFormValid = computed(() => {
 
 // 복약 시간 관련 상태 및 함수
 const mealTimeStore = useMealTimeStore();
-const breakfastTime = ref(mealTimeStore.breakfast);
-const lunchTime = ref(mealTimeStore.lunch);
-const dinnerTime = ref(mealTimeStore.dinner);
+const breakfastTime = ref('');
+const lunchTime = ref('');
+const dinnerTime = ref('');
 
 /**약 알람 시간 변경 */
 const updateMealTimes = async () => {
@@ -81,8 +81,8 @@ const updateMealTimes = async () => {
   try {
     const response = await axiosInstance.patch(
       'api/patient/modify/medicineTime?userId=1',
-      updateAlarm
-    );
+      updateAlarm)
+    toast.success('알림시간을 수정했습니다.');
     console.log(response);
   } catch (err) {
     console.log(err);
@@ -105,7 +105,7 @@ const updateAccount = async () => {
 
     // response.data가 정확히 boolean 값인지 확인
     if (response.data.data === true) {
-      toast.success('업데이트를 성공했습니다');
+      toast.success('계좌정보를 수정했습니다');
     } else if (response.data.data === false) {
       toast.error('계좌 비밀번호 틀렸습니다.');
     }
@@ -122,6 +122,13 @@ const formatTime = (alarmArray: String[]) => {
   const minutes = String(alarmArray[1]).padStart(2, '0'); // 분(minute)
   return `${hours}:${minutes}`;
 };
+/**계좌정보 수정할 때 초기화해서 들어가게 하기 */
+const resetAccountForm = () => {
+  selectedBank.value = null;
+  newAccountNumber.value = '';
+  accountPassword.value = '';
+};
+
 
 const getUserInfo = async () => {
   try {
@@ -140,6 +147,8 @@ const getUserInfo = async () => {
 onMounted(async () => {
   getUserInfo();
 });
+
+
 </script>
 
 <template>
@@ -205,7 +214,7 @@ onMounted(async () => {
               </div>
             </div>
             <DialogFooter>
-              <DialogClose>
+              <DialogClose @click="resetAccountForm">
                 <Button size="lg" @click="updateAccount" :disabled="!isFormValid">계좌 변경</Button>
               </DialogClose>
             </DialogFooter>
