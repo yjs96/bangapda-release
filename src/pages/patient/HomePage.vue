@@ -340,7 +340,12 @@ onMounted(async () => {
       </ShadowBox>
       <div v-else class="blank-top">오늘도 건강한 하루 보내세요!</div>
     </div>
-    <div class="bottom-half">
+    <div
+      class="bottom-half"
+      :style="
+        NotRecievedPrescription ? 'height: calc(100% - 262.7px)' : 'height: calc(100% - 166.7px)'
+      "
+    >
       <div v-if="NotRecievedPrescription?.length" class="notice">
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
@@ -634,7 +639,7 @@ onMounted(async () => {
 
 .bottom-half {
   padding: 0 5.13% 40px;
-  height: calc(100% - 236px);
+  /* height: calc(100% - 236px);*/
   overflow-y: scroll;
   /* padding-top: 20px; */
   margin-top: 20px;
