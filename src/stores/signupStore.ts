@@ -116,13 +116,16 @@ export const useSignupStore = defineStore('signup', {
         const response = await axiosInstance.post(endpoint, data);
         if (response.data.success) {
           console.log('회원가입에 성공했어요', response.data);
+
           this.resetState(); // 상태 초기화
+
           return { success: true, nextRoute: this.getNextRoute() };
         } else {
           throw new Error(response.data.message || '회원가입에 실패했습니다.');
         }
       } catch (error) {
         console.error('회원가입에 실패했어요', error);
+
         return { success: false, nextRoute: '' };
       }
     },
