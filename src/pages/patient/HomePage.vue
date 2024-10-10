@@ -3,16 +3,13 @@ import { onMounted, ref } from 'vue';
 import { useFaceIdStore } from '@/stores/faceId';
 import { useMedicationStore } from '@/stores/medication';
 import { useThemeStore } from '@/stores/theme';
-import { Toaster } from '@steveyuowo/vue-hot-toast';
+import { Toaster, toast } from '@steveyuowo/vue-hot-toast';
 import '@/assets/toast.css';
 import QRCodeVue3 from 'qrcode-vue3';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import Badge from '@/components/Badge.vue';
-
-
-
 
 import {
   Dialog,
@@ -27,6 +24,76 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface Prescription {
+  prescriptionPk : number;
+  rescriptionNo : Number;
+  duration : Number;
+  description : string;
+  hospitalNm : string;
+  phamacyNm : string;
+  prescriptionSt : boolean;
+  insuranceSt : boolean; 
+  doctorId : Number;
+  userId : Number;
+  chemistId : Number;
+}
+
+interface MedicineIntake {
+  medInkPk: number; 
+  meal: MealType; 
+  day: []; 
+  eatSt: boolean; 
+  userId: number; 
+  medicineId: number;
+  intakeCnt: number; 
+  medicineNm: string; 
+  caution: string; 
+  time : TimeType;
+}
+
+interface InjectionIntake {
+  injInkPk: number; 
+  meal: MealType; 
+  eatSt: boolean; 
+  day: []; 
+  userId: number; 
+  injectionId: number; 
+  injectionNm: string; 
+  sideEffect: string;
+}
+
+interface Report {
+  reportPk : Number;
+  prescriptionPk : Number;
+  intakeMethod : string;
+  food : string;
+  exercise : string;
+}
+
+enum MealType {
+  ANYTIME = "ANYTIME",
+  BREAKFAST = "BREAKFAST",
+  LUNCH = "LUNCH",
+  DINNER = "DINNER"
+}
+
+// 타입 정의 예시
+const meals: Record<MealType, string> = {
+  ANYTIME: "아무 때나",
+  BREAKFAST: "아침",
+  LUNCH: "점심",
+  DINNER: "저녁"
+};
+
+enum TimeType {
+  AFTER = "AFTER",
+  BEFORE = "BEFORE"
+}
+
+const time: Record<TimeType, string> = {
+  "AFTER" : "식사 후",
+  "BEFORE" : "식사 전"
+}
 
 
 const themeStore = useThemeStore();
@@ -53,15 +120,9 @@ const handleFaceIdAuth = () => {
   faceIdStore.authenticate(userName.value);
 };
 
-const tabs = ref([
-  { id: 1, name: '병원이름 1' },
-  { id: 2, name: '병원이름 2' },
-  { id: 3, name: '병원이름 3' },
-  { id: 4, name: '병원이름 4' },
-  { id: 5, name: '병원이름 5' }
-]);
+const tabs = ref([]);
 
-const selectedTabId = ref(1);
+const selectedTabId = ref();
 
 const selectTab = (tabId: number) => {
   selectedTabId.value = tabId;
@@ -72,51 +133,138 @@ const base64Audio = 'data:audio/wav;base64,12';
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 const isPlaying = ref(false);
 
-const togglePlayPuase = () => {
-  if (audioPlayer.value) {
-    if (isPlaying.value) {
+const togglePlayPuase = async (content : string | undefined) => {
+  try {
+    // 오디오 변환 요청
+    const res = await axiosInstance.post(`http://localhost:8000/convert`, {
+      content: content,
+    });
+
+    // base64 데이터를 src로 설정
+    if(audioPlayer.value){
+      audioPlayer.value.src = `data:audio/wav;base64,${res.data.result}`; // 서버에서 제공하는 오디오 URL로 변경
+      //console.log(audioPlayer.value.src);
+    }
+
+    if (isPlaying.value && audioPlayer.value) {
       audioPlayer.value.pause();
     } else {
-      audioPlayer.value.play();
+      if(audioPlayer.value) {
+        await audioPlayer.value.play(); // play 호출
+      }
     }
+
+    isPlaying.value = !isPlaying.value; // 재생 상태 토글
+  } catch (err) {
+    console.error(err);
   }
 };
 
-onMounted(() => {
+
+onMounted(async () => {
   if (audioPlayer.value) {
     audioPlayer.value.src = base64Audio;
   }
   themeStore.setThemeColor('#FEDE5B');
+  getNotRecieved();
+  getIntake();
+  getRecent();
 });
 
 // axios Examples
 // https://jsonplaceholder.typicode.com/
 import axiosInstance from '@/api/instance';
+import { toDisplayString } from 'vue';
+import moment from 'moment';
 
-const todoExample = ref(null);
+const NotRecievedPrescription = ref<Prescription[]>();
 
-const getTodoExample = async (idx: number) => {
+const getNotRecieved = async () => {
+  await axiosInstance.get("/api/patient/prescription/new/list?userId=1")
+  .then(res => {
+    NotRecievedPrescription.value = res.data.data.prescriptionList;
+    const first = NotRecievedPrescription.value?.[0];
+    selectedTabId.value = first?.prescriptionPk;
+    getReport(selectedTabId.value);
+    console.log(res.data.data);
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+const receivedReport = ref<Report>();
+
+const getReport = async (id : number) => {
+  isLoaded.value = false; // 로딩중 화면 표시
+  await axiosInstance.get(`/api/patient/report/get/${id}?userId=1`)
+  .then(res => {
+    receivedReport.value = res.data.data;
+    isLoaded.value = true; // 로딩이 완전히 끝나면 로딩중 화면 끝내기.
+    //console.log(receivedReport.value);
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+const medicineIntake = ref<MedicineIntake[]>();
+const injectionIntake = ref<InjectionIntake[]>();
+
+const getIntake = async() => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+  const day = String(today.getDate()).padStart(2, '0');
+
+  const formattedDate = `${year}-${month}-${day}`;
+
+  await axiosInstance.get(`/api/medi/taking/list?userId=1&date=${formattedDate}`)
+  .then(res => {
+    medicineIntake.value = res.data.data.medicineIntakeList;
+  }).catch(err => {
+    console.log(err);
+  })
+
+  await axiosInstance.get(`/api/inj/taking/list?userId=1&date=${formattedDate}`)
+  .then(res => {
+    injectionIntake.value = res.data.data.injectionIntakeList;
+  }).catch(err => {
+    console.log(err);
+  })
+
+}
+
+const toggleMediEatSt = async(id:number, st:boolean) => {
   try {
-    const response = await axiosInstance.get(`todos/${idx}`);
-    todoExample.value = response.data.data;
-  } catch (err) {
+    const response = await axiosInstance.patch(`/api/medi/taking/comp/${id}?userId=1`);
+    if(medicineIntake.value){
+      const index = medicineIntake.value.findIndex((item : MedicineIntake) => item.medInkPk === id);
+      medicineIntake.value[index].eatSt = ! medicineIntake.value[index].eatSt; // 업데이트된 데이터로 교체
+    }
+
+    if (!st) {
+        toast.success(`약 복용 확인하였습니다`);
+      } else {
+        toast.error(`약 복용 취소하였습니다`);
+    }
+
+  } catch(err) {
     console.log(err);
   }
-};
-getTodoExample(7);
-
-// example 2
-import getTodoExampleTwo from '@/api/apiExample';
-
-const todoExampleTwo = ref(null);
-
-const fetchTodo = async (id: number) => {
-  todoExampleTwo.value = await getTodoExampleTwo(id);
-};
+}
 
 
+const recentPrescription = ref();
 
-fetchTodo(7);
+const getRecent = async() => {
+  await axiosInstance(`/api/patient/prescription/list?userId=1&pageIndex=0&pageSize=5`)
+  .then(res => {
+    recentPrescription.value = res.data.data.prescriptionList;
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+
 </script>
 
 <template>
@@ -129,8 +277,8 @@ fetchTodo(7);
       <ShadowBox :height="120" :margin-bottom="0">
         <div class="ticket-left">
           <div>
-            <div class="hospital-name">김성헌 내과의원</div>
-            <div class="hospital-address">서울시 광진구 능동로 195-16</div>
+            <div class="hospital-name">{{ NotRecievedPrescription?.[NotRecievedPrescription.length - 1].hospitalNm }}</div>
+            <div class="hospital-address">{{ NotRecievedPrescription?.[NotRecievedPrescription.length - 1].description }}</div>
           </div>
           <div class="ticket-date">
             <i class="fa-regular fa-calendar"></i>
@@ -147,7 +295,7 @@ fetchTodo(7);
           <DialogContent>
             <div class="qr-content-frame" v-if="faceIdStore.isAuthenticated">
               <QRCodeVue3
-                value="{userid=1,docno=12}"
+                :value="`{userid=1,prescriptionId=${NotRecievedPrescription?.[NotRecievedPrescription.length - 1].prescriptionPk}}`"
                 :qrOptions="{ typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' }"
                 :imageOptions="{ hideBackgroundDots: false, imageSize: 0, margin: 0 }"
                 :dotsOptions="{
@@ -181,11 +329,10 @@ fetchTodo(7);
       </ShadowBox>
     </div>
     <div class="bottom-half">
-      <div class="notice">
+      <div v-if="NotRecievedPrescription?.length" class="notice">
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
       </div>
-
       <div class="flex justify-between">
         <Button variant="destructive" @click="$router.push('/login')">로그인</Button>
         <Button variant="destructive" @click="$router.push('/pharmacist')">약사</Button>
@@ -195,19 +342,19 @@ fetchTodo(7);
       <div></div>
       <ShadowBox :padding-x="20" :padding-y="20">
         <div class="shadow-box-title">오늘 복용 확인</div>
-        <div class="daily-check-container">
+        <div v-for="intake in medicineIntake" class="daily-check-container">
           <div class="daily-check">
             <div class="daily-check-left">
-              <div class="daily-check-text">아침 식사 후 알약 3개</div>
-              <Badge>졸음</Badge>
+              <div class="daily-check-text">{{ meals[intake.meal] }} {{ time[intake.time] }} 알약 {{ intake.intakeCnt }}개</div>
+              <Badge v-for="c in intake.caution.split(',')">{{ c }}</Badge>
             </div>
             <Button
-              :variant="medicationStore.morning ? 'destructive' : 'default'"
-              @click="medicationStore.toggleMedication('morning')"
-              >{{ medicationStore.morning ? '취소' : '확인' }}</Button
-            >
+              :variant="intake.eatSt ? 'destructive' : 'default'"
+              @click="toggleMediEatSt(intake.medInkPk, intake.eatSt)"
+              >{{ intake.eatSt ? '취소' : '확인' }}
+            </Button>
           </div>
-          <div class="daily-check">
+          <!-- <div class="daily-check">
             <div class="daily-check-left">
               <div class="daily-check-text">점심 식사 후 알약 3개</div>
               <Badge>졸음</Badge>
@@ -228,25 +375,25 @@ fetchTodo(7);
               @click="medicationStore.toggleMedication('evening')"
               >{{ medicationStore.evening ? '취소' : '확인' }}</Button
             >
-          </div>
+          </div> -->
         </div>
       </ShadowBox>
 
       <ShadowBox :padding-x="20" :padding-y="20">
         <div>
           <div class="title-with-arrow" @click="handleSummaryDetail()">
-            <div class="shadow-box-title">최규찬님,</div>
+            <div class="shadow-box-title">최규찬님의 건강 리포트</div>
             <i class="fa-solid fa-chevron-down" :class="{ rotate: showSummaryDetail }"></i>
           </div>
           <div v-if="showSummaryDetail">
             <div class="tab-select-container">
               <span
-                v-for="tab in tabs"
-                :key="tab.id"
+                v-for="tab in NotRecievedPrescription"
+                :key="tab.prescriptionPk"
                 class="tab"
-                :class="{ selected: tab.id === selectedTabId }"
-                @click="selectTab(tab.id)"
-                >{{ tab.name }}</span
+                :class="{ selected: tab.prescriptionPk === selectedTabId }"
+                @click="selectTab(tab.prescriptionPk), getReport(selectedTabId)"
+                >{{ tab.hospitalNm }} : {{ tab.prescriptionPk }}</span
               >
             </div>
             <div v-if="isLoaded">
@@ -257,19 +404,60 @@ fetchTodo(7);
                   </div>
                   <div class="flex flex-col justify-center">
                     <span class="report-title">약 복용방법</span>
-                    <span class="date-and-time">어떤 설명인지에 대한 설명</span>
+                    <span class="date-and-time">약에 대한 주의사항을 알려드려요.</span>
                   </div>
                 </div>
                 <img
                   src="/images/report-speaker.svg"
                   alt="speaker"
-                  @click="togglePlayPuase"
+                  @click="togglePlayPuase(receivedReport?.intakeMethod)"
                   :class="{ playing: isPlaying }"
                 />
               </div>
               <div class="report-content">
-                1일 3회, 식후 30분에 물과 함께 복용하세요. 3일간 꾸준히 드시고, 증상이 지속되면
-                의사와 상담하세요. 약을 삼키기 어려우면 물에 녹여 드셔도 됩니다.
+                {{ receivedReport?.intakeMethod }}
+              </div>
+              <hr class="report-content-bottom"/>
+              <div class="report-top">
+                <div class="flex">
+                  <div class="report-icon">
+                    <img src="/images/report-workout.svg" alt="" />
+                  </div>
+                  <div class="flex flex-col justify-center">
+                    <span class="report-title">운동 요령</span>
+                    <span class="date-and-time">이런 활동을 하면 좋아요.</span>
+                  </div>
+                </div>
+                <img
+                  src="/images/report-speaker.svg"
+                  alt="speaker"
+                  @click="togglePlayPuase(receivedReport?.exercise)"
+                  :class="{ playing: isPlaying }"
+                />
+              </div>
+              <div class="report-content">
+                {{ receivedReport?.exercise }}
+              </div>
+              <hr class="report-content-bottom"/>
+              <div class="report-top">
+                <div class="flex">
+                  <div class="report-icon">
+                    <img src="/images/report-food.svg" alt="" />
+                  </div>
+                  <div class="flex flex-col justify-center">
+                    <span class="report-title">식이요법 추천</span>
+                    <span class="date-and-time">이런 음식은 피하고 주의하세요.</span>
+                  </div>
+                </div>
+                <img
+                  src="/images/report-speaker.svg"
+                  alt="speaker"
+                  @click="togglePlayPuase(receivedReport?.food)"
+                  :class="{ playing: isPlaying }"
+                />
+              </div>
+              <div class="report-content">
+                {{ receivedReport?.food }}
               </div>
             </div>
 
@@ -288,7 +476,7 @@ fetchTodo(7);
             </div>
           </div>
           <div v-else class="summary-short-text">
-            이것저것하고 이것저것 활동하고 이것저것 드세요
+            처방전을 기반으로 여러 주의사항들을 알려드려요.
           </div>
         </div>
       </ShadowBox>
@@ -299,17 +487,17 @@ fetchTodo(7);
           <i class="fa-solid fa-chevron-right"></i>
         </div>
         <div class="prescription-container">
-          <div>
+          <div v-for="prescription in recentPrescription">
             <div class="flex justify-between">
               <div class="flex items-center">
                 <div class="middot"></div>
-                <span class="history-title">최규찬 정형외과의원</span>
+                <span class="history-title">{{ prescription.hospitalNm }} : {{ prescription.prescriptionPk }}</span>
               </div>
-              <div class="history-title" :class="{ received: false }">수령완료</div>
+              <div class="history-title" :class="{ received : !prescription.prescriptionSt }">{{ prescription.prescriptionSt ? "수령완료" : "미수령" }}</div>
             </div>
             <div class="history-date">24. 09. 10 | 오후 4:18</div>
           </div>
-          <div>
+          <!-- <div>
             <div class="flex justify-between">
               <div class="flex items-center">
                 <div class="middot"></div>
@@ -318,7 +506,7 @@ fetchTodo(7);
               <div class="history-title" :class="{ received: true }">미수령</div>
             </div>
             <div class="history-date">24. 09. 10 | 오후 4:18</div>
-          </div>
+          </div> -->
         </div>
       </ShadowBox>
     </div>
@@ -600,4 +788,9 @@ fetchTodo(7);
 .report-top img.playing {
   transform: scale(1.2);
 }
+
+.report-content-bottom {
+  margin : 10px;
+}
+
 </style>
