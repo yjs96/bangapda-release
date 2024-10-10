@@ -345,11 +345,11 @@ onMounted(async () => {
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
       </div>
-      <!-- <div class="flex justify-between">
+      <div class="flex justify-between">
         <Button variant="destructive" @click="$router.push('/login')">로그인</Button>
         <Button variant="destructive" @click="$router.push('/pharmacist')">약사</Button>
         <Button variant="destructive" @click="$router.push('/doctor')">의사</Button>
-      </div> -->
+      </div>
       <div></div>
       <div></div>
       <ShadowBox :padding-x="20" :padding-y="20">
