@@ -21,7 +21,7 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
-const memberType = ref('일반 회원');
+const memberType = ref('');
 const name = ref('');
 const phoneNumber = ref('');
 const phoneCarrier = ref('');
