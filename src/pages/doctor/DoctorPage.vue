@@ -65,7 +65,7 @@ const newInjection = ref<Injection>({
 const name = ref('');
 const residentNumFront = ref('');
 const residentNumBack = ref('');
-const diseaseCode = ref<string>('');  // diseaseCode를 string으로 설정
+const diseaseCode = ref<string>('');  
 const description=ref('');
 const medicines = ref<Medicine[]>([]);
 
@@ -85,7 +85,6 @@ const router = useRouter();
 
 
 const addMedicine = () => {
-  console.log("추가될 약 정보:", newMedicine.value.name);  // 추가될 약 정보 콘솔 출력
   medicines.value.push({ ...newMedicine.value });
   newMedicine.value = { name: '',medicinePk:'', morning: 0, afternoon: 0, evening: 0, days: 0, memo: '' };
   showMedicineModal.value = false;
@@ -110,22 +109,24 @@ const isFormValid = computed(
   () =>
     name.value.trim() !== '' &&
     residentNumFront.value.length === 6 &&
-    residentNumBack.value.length === 1 &&
+    residentNumBack.value.length === 7 &&
     medicines.value.length > 0
 );
 
+
 const handleResidentNumBackInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
-  input.value = input.value.replace(/\D/g, '').slice(0, 1);
-  residentNumBack.value = input.value;
+  const cleanedValue = input.value.replace(/\D/g, ''); // 숫자만 허용
+  residentNumBack.value = cleanedValue.slice(0, 7); // 최대 7자리 숫자만 저장
 };
+
 
 const handleNextButtonClick = async() => {
   try{
     const data = {
       userNm: name.value,  // 사용자의 이름
       firstNo: residentNumFront.value,  // 주민등록번호 앞자리
-      lastNo: residentNumBack.value,  // 주민등록번호 뒷자리 첫 숫자
+      lastNo: residentNumBack.value,  // 주민등록번호 뒷자리 
       duration: 3,  // 처방전 기간
       description: description.value,  // 처방전 설명
 
@@ -139,7 +140,7 @@ const handleNextButtonClick = async() => {
         dosePerMorning: medicine.morning,
         dosePerLunch: medicine.afternoon,
         dosePerDinner: medicine.evening,
-        method: medicine.memo || '경구 투여'
+        method: medicine.memo || ''
       })) : null,
 
       // injectionIntakeInfoList: 주사제 목록이 있을 경우 처리
@@ -149,20 +150,20 @@ const handleNextButtonClick = async() => {
         dosePerMorning: injection.dosePerMorning,
         dosePerLunch: injection.dosePerLunch,
         dosePerDinner: injection.dosePerDinner,
-        method: injection.method || '근육 주사'
+        method: injection.method || ''
       })) : null
     };
 
     console.log(data);  // 디버그를 위한 데이터 확인
     const response = await axiosInstance.post('/api/patient/prescription/post?doctorId=1', data);
     if (response.data.data === true) {
-      toast.success('처방전을 등록했습니다');
+      toast.success('처방전을 등록했습니다.');
     }
     if (isFormValid.value) {
     router.push('/doctor/check');
   }
   }catch(err){
-    console.error('처방전 등록 실패',err);
+    toast.error('존재하지 않는 사용자입니다.');
   }
 };
 
@@ -195,15 +196,16 @@ const handleNextButtonClick = async() => {
               <div>-</div>
               <div class="resident-num-back">
                 <Input
-                  type="text"
+                  type="password"
                   id="resident-num-back"
                   v-model="residentNumBack"
                   @input="handleResidentNumBackInput"
+                  placeholder="ex) 1111222"
                   inputmode="numeric"
-                  maxlength="1"
-                  class="w-10"
+                  maxlength="7"
+
                 />
-                <div>* * * * * *</div>
+       
               </div>
             </div>
           </div>
@@ -211,12 +213,6 @@ const handleNextButtonClick = async() => {
           <div class="prescription-info">
             <Label for="disease-code">질병 코드 등록</Label>
             <DiseaseSelector v-model="diseaseCode" />
-            <!-- <Input
-              type="text"
-              id="disease-code"
-              v-model="diseaseCode"
-              placeholder="질병 코드를 입력하세요"
-            /> -->
           </div>
 
           <div class="prescription-info">
@@ -249,7 +245,8 @@ const handleNextButtonClick = async() => {
 
                   <div class="medicine-form">
                     <Label for="medicine-name">약 이름</Label>
-                    <MedicineSelector v-model="newMedicine.medicinePk"/>
+                    <MedicineSelector v-model="newMedicine.medicinePk"
+                    @update:medicineName="newMedicine.name=$event"/>
                     <!-- <Input
                       id="medicine-name"
                       v-model="newMedicine.name"
@@ -343,7 +340,8 @@ const handleNextButtonClick = async() => {
                   <!-- 주사제 이름 입력 -->
                   <div class="medicine-form">
                     <Label for="injection-name">주사제 이름</Label>
-                    <InjectionSelector v-model="newInjection.injectionPk" />
+                    <InjectionSelector v-model="newInjection.injectionPk" 
+                    @update:injectionName="newInjection.name=$event"/>
                   </div>
 
                   <!-- 주사제 복용량 입력 -->
@@ -410,8 +408,7 @@ const handleNextButtonClick = async() => {
                 </DialogContent>
               </Dialog>
             </div>
-          </div>
-                    <!-- 등록된 주사제 리스트 -->
+              <!-- 등록된 주사제 리스트 -->
           <div class="divider"></div>
           <div v-if="injections.length > 0" class="medicine-list">
             <div v-for="(injection, index) in injections" :key="index" class="medicine-item">
@@ -428,6 +425,8 @@ const handleNextButtonClick = async() => {
               </Button>
             </div>
           </div>
+          </div>
+                  
 
 
         </ShadowBox>
