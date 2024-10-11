@@ -30,8 +30,7 @@ import { Button } from '@/components/ui/button';
 const faceIdStore = useFaceIdStore();
 const userName = ref('임시');
 
-  
-faceIdStore.isAuthenticated = false;
+faceIdStore.isAuthenticated = true;
 const handleFaceIdAuth = () => {
   faceIdStore.authenticate(userName.value);
 };

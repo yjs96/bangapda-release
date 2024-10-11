@@ -122,6 +122,12 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'Error404',
       component: Error404
+
+    },
+    {
+      path: '/doctor/check/:id',  // URL에서 :id 부분이 params로 전달됨
+      name: 'DoctorFinalCheck',
+      component: DoctorFinalCheck
     }
   ]
 });
