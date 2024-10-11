@@ -32,16 +32,17 @@ import InjectionSelector from '@/components/InjectionSelector.vue';
 
 interface Medicine {
   name: string;
-  medicinePk : string;
+  medicinePk: string;
   morning: number;
   afternoon: number;
   evening: number;
   days: number;
   memo: string;
 }
+
 interface Injection {
   name: string;
-  injectionPk :string;
+  injectionPk: string;
   dosePerMorning: number;
   dosePerLunch: number;
   dosePerDinner: number;
@@ -49,11 +50,11 @@ interface Injection {
   method: string;
 }
 
-const showInjectionModal=ref(false);
-const injections = ref<Injection[]>([]);  // 주사제 리스트
+const showInjectionModal = ref(false);
+const injections = ref<Injection[]>([]); // 주사제 리스트
 const newInjection = ref<Injection>({
   name: '',
-  injectionPk:'',
+  injectionPk: '',
   dosePerMorning: 0,
   dosePerLunch: 0,
   dosePerDinner: 0,
@@ -61,18 +62,17 @@ const newInjection = ref<Injection>({
   method: ''
 });
 
-
 const name = ref('');
 const residentNumFront = ref('');
 const residentNumBack = ref('');
-const diseaseCode = ref<string>('');  
-const description=ref('');
+const diseaseCode = ref<string>('');
+const description = ref('');
 const medicines = ref<Medicine[]>([]);
 
 const showMedicineModal = ref(false);
 const newMedicine = ref<Medicine>({
   name: '',
-  medicinePk:'',
+  medicinePk: '',
   morning: 0,
   afternoon: 0,
   evening: 0,
@@ -82,11 +82,17 @@ const newMedicine = ref<Medicine>({
 
 const router = useRouter();
 
-
-
 const addMedicine = () => {
   medicines.value.push({ ...newMedicine.value });
-  newMedicine.value = { name: '',medicinePk:'', morning: 0, afternoon: 0, evening: 0, days: 0, memo: '' };
+  newMedicine.value = {
+    name: '',
+    medicinePk: '',
+    morning: 0,
+    afternoon: 0,
+    evening: 0,
+    days: 0,
+    memo: ''
+  };
   showMedicineModal.value = false;
 };
 
@@ -96,14 +102,21 @@ const removeMedicine = (index: number) => {
 
 const addInjection = () => {
   injections.value.push({ ...newInjection.value });
-  newInjection.value = { name: '',injectionPk:'', dosePerMorning: 0, dosePerLunch: 0, dosePerDinner: 0, totalDay: 0, method: '' };
+  newInjection.value = {
+    name: '',
+    injectionPk: '',
+    dosePerMorning: 0,
+    dosePerLunch: 0,
+    dosePerDinner: 0,
+    totalDay: 0,
+    method: ''
+  };
   showInjectionModal.value = false;
 };
 
 const removeInjection = (index: number) => {
   injections.value.splice(index, 1);
 };
-
 
 const isFormValid = computed(
   () =>
@@ -113,60 +126,63 @@ const isFormValid = computed(
     medicines.value.length > 0
 );
 
-
 const handleResidentNumBackInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
   const cleanedValue = input.value.replace(/\D/g, ''); // 숫자만 허용
   residentNumBack.value = cleanedValue.slice(0, 7); // 최대 7자리 숫자만 저장
 };
 
-
-const handleNextButtonClick = async() => {
-  try{
+const handleNextButtonClick = async () => {
+  try {
     const data = {
-      userNm: name.value,  // 사용자의 이름
-      firstNo: residentNumFront.value,  // 주민등록번호 앞자리
-      lastNo: residentNumBack.value,  // 주민등록번호 뒷자리 
-      duration: 3,  // 처방전 기간
-      description: description.value,  // 처방전 설명
+      userNm: name.value, // 사용자의 이름
+      firstNo: residentNumFront.value, // 주민등록번호 앞자리
+      lastNo: residentNumBack.value, // 주민등록번호 뒷자리
+      duration: 3, // 처방전 기간
+      description: description.value, // 처방전 설명
 
       // diseaseCode가 비어있지 않으면 parseInt로 변환하고, 그렇지 않으면 빈 배열 처리
-      diseasePkList: diseaseCode.value ? [parseInt(diseaseCode.value)] : [],  
+      diseasePkList: diseaseCode.value ? [parseInt(diseaseCode.value)] : [],
 
       // medicineIntakeInfoList: 약 목록이 있을 경우 처리
-      medicineIntakeInfoList: medicines.value.length > 0 ? medicines.value.map(medicine => ({
-        medicinePk: medicine.medicinePk ? parseInt(medicine.medicinePk) : null,  // 약의 PK 값을 number로 변환, 빈 값 처리
-        totalDay: medicine.days,
-        dosePerMorning: medicine.morning,
-        dosePerLunch: medicine.afternoon,
-        dosePerDinner: medicine.evening,
-        method: medicine.memo || ''
-      })) : null,
+      medicineIntakeInfoList:
+        medicines.value.length > 0
+          ? medicines.value.map((medicine) => ({
+              medicinePk: medicine.medicinePk ? parseInt(medicine.medicinePk) : null, // 약의 PK 값을 number로 변환, 빈 값 처리
+              totalDay: medicine.days,
+              dosePerMorning: medicine.morning,
+              dosePerLunch: medicine.afternoon,
+              dosePerDinner: medicine.evening,
+              method: medicine.memo || ''
+            }))
+          : null,
 
       // injectionIntakeInfoList: 주사제 목록이 있을 경우 처리
-      injectionIntakeInfoList: injections.value.length > 0 ? injections.value.map(injection => ({
-        injectionPk: injection.injectionPk ? parseInt(injection.injectionPk) : null,  // 주사제 PK 값을 number로 변환, 빈 값 처리
-        totalDay: injection.totalDay,
-        dosePerMorning: injection.dosePerMorning,
-        dosePerLunch: injection.dosePerLunch,
-        dosePerDinner: injection.dosePerDinner,
-        method: injection.method || ''
-      })) : null
+      injectionIntakeInfoList:
+        injections.value.length > 0
+          ? injections.value.map((injection) => ({
+              injectionPk: injection.injectionPk ? parseInt(injection.injectionPk) : null, // 주사제 PK 값을 number로 변환, 빈 값 처리
+              totalDay: injection.totalDay,
+              dosePerMorning: injection.dosePerMorning,
+              dosePerLunch: injection.dosePerLunch,
+              dosePerDinner: injection.dosePerDinner,
+              method: injection.method || ''
+            }))
+          : null
     };
 
-    console.log(data);  // 디버그를 위한 데이터 확인
+    console.log(data); // 디버그를 위한 데이터 확인
     const response = await axiosInstance.post('/api/patient/prescription/post?doctorId=1', data);
     if (response.data.data === true) {
       toast.success('처방전을 등록했습니다.');
     }
     if (isFormValid.value) {
-    router.push('/doctor/check');
-  }
-  }catch(err){
+      router.push('/doctor/check');
+    }
+  } catch (err) {
     toast.error('존재하지 않는 사용자입니다.');
   }
 };
-
 </script>
 
 <template>
@@ -203,9 +219,7 @@ const handleNextButtonClick = async() => {
                   placeholder="ex) 1111222"
                   inputmode="numeric"
                   maxlength="7"
-
                 />
-       
               </div>
             </div>
           </div>
@@ -239,14 +253,15 @@ const handleNextButtonClick = async() => {
                     <DialogTitle>약 등록</DialogTitle>
                     <DialogDescription>새로운 약을 등록하세요.</DialogDescription>
                   </DialogHeader>
-                  
 
                   <div class="divider"></div>
 
                   <div class="medicine-form">
                     <Label for="medicine-name">약 이름</Label>
-                    <MedicineSelector v-model="newMedicine.medicinePk"
-                    @update:medicineName="newMedicine.name=$event"/>
+                    <MedicineSelector
+                      v-model="newMedicine.medicinePk"
+                      @update:medicineName="newMedicine.name = $event"
+                    />
                     <!-- <Input
                       id="medicine-name"
                       v-model="newMedicine.name"
@@ -297,7 +312,6 @@ const handleNextButtonClick = async() => {
                 </DialogContent>
               </Dialog>
             </div>
-            
 
             <div class="divider"></div>
 
@@ -316,10 +330,9 @@ const handleNextButtonClick = async() => {
                   <i class="fa-solid fa-trash"></i>
                 </Button>
               </div>
-            
             </div>
           </div>
-                    <!-- 주사제 등록 모달 -->
+          <!-- 주사제 등록 모달 -->
           <div class="prescription-info">
             <div class="pill-container">
               <Label>주사제 등록</Label>
@@ -340,8 +353,10 @@ const handleNextButtonClick = async() => {
                   <!-- 주사제 이름 입력 -->
                   <div class="medicine-form">
                     <Label for="injection-name">주사제 이름</Label>
-                    <InjectionSelector v-model="newInjection.injectionPk" 
-                    @update:injectionName="newInjection.name=$event"/>
+                    <InjectionSelector
+                      v-model="newInjection.injectionPk"
+                      @update:injectionName="newInjection.name = $event"
+                    />
                   </div>
 
                   <!-- 주사제 복용량 입력 -->
@@ -408,31 +423,28 @@ const handleNextButtonClick = async() => {
                 </DialogContent>
               </Dialog>
             </div>
-              <!-- 등록된 주사제 리스트 -->
-          <div class="divider"></div>
-          <div v-if="injections.length > 0" class="medicine-list">
-            <div v-for="(injection, index) in injections" :key="index" class="medicine-item">
-              <div class="medicine-info">
-                <div class="medicine-name">{{ injection.name }}</div>
-                <div class="medicine-dosage">
-                  아침: {{ injection.dosePerMorning }} / 점심: {{ injection.dosePerLunch }} / 저녁: {{ injection.dosePerDinner }}
+
+            <!-- 등록된 주사제 리스트 -->
+            <div class="divider"></div>
+            <div v-if="injections.length > 0" class="medicine-list">
+              <div v-for="(injection, index) in injections" :key="index" class="medicine-item">
+                <div class="medicine-info">
+                  <div class="medicine-name">{{ injection.name }}</div>
+                  <div class="medicine-dosage">
+                    아침: {{ injection.dosePerMorning }} / 점심: {{ injection.dosePerLunch }} /
+                    저녁: {{ injection.dosePerDinner }}
+                  </div>
+                  <div>{{ injection.totalDay }} 일</div>
+                  <div v-if="injection.method" class="medicine-memo">{{ injection.method }}</div>
                 </div>
-                <div>{{ injection.totalDay }} 일</div>
-                <div v-if="injection.method" class="medicine-memo">{{ injection.method }}</div>
+                <Button variant="ghost" size="icon" @click="removeInjection(index)">
+                  <i class="fa-solid fa-trash"></i>
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" @click="removeInjection(index)">
-                <i class="fa-solid fa-trash"></i>
-              </Button>
             </div>
           </div>
-          </div>
-                  
-
-
         </ShadowBox>
       </div>
-
-      
 
       <div class="fixed-button">
         <Button size="lg" :disabled="!isFormValid" @click="handleNextButtonClick"

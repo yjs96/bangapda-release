@@ -1,40 +1,64 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import { Button } from '@/components/ui/button';
+import axiosInstance from '@/api/instance';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
+// Vue Router와 현재 라우트 정보를 사용하기 위한 설정
 const router = useRouter();
 const route = useRoute();
+
+// 결제 상세 정보 표시 여부를 관리하는 ref
 const showPaymentDetail = ref(false);
 
-const medicineList = ref([
-  { name: '약품 A', price: 12000 },
-  { name: '약품 B', price: 15000 },
-  { name: '약품 C', price: 8000 }
-]);
+// 처방전 상세 정보와 약품 목록을 저장하는 ref
+const prescriptionDetails = ref(null);
+const medicineList = ref([]);
 
+// 총 가격을 계산하는 computed 속성
 const totalPrice = computed(() => {
   return medicineList.value.reduce((sum, item) => sum + item.price, 0);
 });
 
+// 결제 상세 정보 표시 토글 함수
 const handlePaymentDetail = () => {
   showPaymentDetail.value = !showPaymentDetail.value;
 };
 
-const handlePaymentRequest = () => {
-  // 결제 처리 로직을 여기에 추가
-
-  router.push({ name: '/pharmacist' });
+// 결제 요청 처리 함수
+const handlePaymentRequest = async () => {
+  try {
+    await axiosInstance.post('/api/pay', { prescriptionId: route.params.id });
+    toast.success('결제가 완료되었습니다.');
+    router.push('/pharmacist');
+  } catch (error) {
+    toast.error('결제 처리 중 오류가 발생했습니다.');
+  }
 };
+
+// 컴포넌트가 마운트될 때 처방전 정보를 가져옵니다.
+onMounted(async () => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/pharmacy/prescription/detail/${route.params.id}`
+    );
+    prescriptionDetails.value = response.data;
+    medicineList.value = response.data.medicines; // 약품 목록 설정
+  } catch (error) {
+    toast.error('처방전 정보를 불러오는 데 실패했습니다.');
+    router.push('/pharmacist');
+  }
+});
 </script>
 
 <template>
   <HeadBar :back-button="true">처방전 상세</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="true">
-    <div class="notice">
+    <div class="notice" v-if="prescriptionDetails?.status === 'COMPLETED'">
       <i class="fa-regular fa-circle-check"></i>
       <div>결제 완료된 처방전이에요</div>
     </div>
@@ -43,7 +67,7 @@ const handlePaymentRequest = () => {
       <div class="prescription-title">처방전</div>
       <div class="prescription-info">
         처방전 ID: {{ route.params.id }}
-        <!-- 여기에 추가적인 처방전 정보를 표시할 수 있습니다 -->
+        <!-- 추가적인 처방전 정보 표시 -->
       </div>
     </ShadowBox>
 
@@ -56,7 +80,7 @@ const handlePaymentRequest = () => {
       <div class="divider"></div>
 
       <div v-if="showPaymentDetail">
-        <div class="pill-list" v-for="(medicine, index) in medicineList" :key="index">
+        <div class="pill-list" v-for="medicine in medicineList" :key="medicine.id">
           <div class="pill-cost">
             <div>{{ medicine.name }}</div>
             <div>{{ medicine.price.toLocaleString() }}원</div>
@@ -70,7 +94,12 @@ const handlePaymentRequest = () => {
       </div>
     </ShadowBox>
 
-    <Button size="lg" @click="handlePaymentRequest">결제 요청</Button>
+    <Button
+      size="lg"
+      @click="handlePaymentRequest"
+      v-if="prescriptionDetails?.status !== 'COMPLETED'"
+      >결제 요청</Button
+    >
   </Main>
 </template>
 
