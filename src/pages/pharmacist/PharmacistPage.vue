@@ -72,6 +72,7 @@ async function validateQRInfo(userId: string, prescriptionId: string) {
 async function fetchRecentPrescriptions() {
   try {
     const response = await axiosInstance.get('/api/pharmacy/prescription');
+    // @ts-ignore
     recentPrescriptions.value = response.data.map((prescription) => ({
       id: prescription.prescriptionId,
       name: prescription.patientName,
@@ -117,7 +118,7 @@ onMounted(fetchRecentPrescriptions);
         </DialogContent>
       </Dialog>
 
-      <ShadowBox :padding-x="20" :padding-y="20" :margin-bottom="0">
+      <!-- <ShadowBox :padding-x="20" :padding-y="20" :margin-bottom="0">
         <div class="recent-list-title">
           <div>최근 처방전 내역</div>
         </div>
@@ -141,7 +142,7 @@ onMounted(fetchRecentPrescriptions);
             </div>
           </div>
         </div>
-      </ShadowBox>
+      </ShadowBox> -->
     </div>
   </Main>
 </template>
