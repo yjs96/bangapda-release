@@ -18,6 +18,7 @@ import PharmacistPageScanPayment from '@/pages/pharmacist/PharmacistPageScanPaym
 import DoctorPage from '@/pages/doctor/DoctorPage.vue';
 import DoctorFinalCheck from '@/pages/doctor/DoctorFinalCheck.vue';
 import LoginPagePharmacist2 from '@/pages/login/LoginPagePharmacist2.vue';
+import Error404 from '@/pages/Error404.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -116,6 +117,11 @@ const router = createRouter({
       path: '/prescription/:id',
       name: 'PrescriptionDetail',
       component: PrescriptionDetail
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'Error404',
+      component: Error404
     }
   ]
 });
