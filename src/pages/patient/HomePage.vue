@@ -34,6 +34,11 @@ interface Prescription {
   doctorId: Number;
   userId: Number;
   chemistId: Number;
+  createYmd: string;
+  hospitalSi: string;
+  hospitalGu: string;
+  hospitalDong: string;
+  hospitalDetailAddress: string | null;
 }
 
 interface MedicineIntake {
@@ -147,16 +152,18 @@ const togglePlayPuase = async (content: string | undefined) => {
 };
 
 import axiosInstance from '@/api/instance';
-// import moment from 'moment';
+import moment from 'moment';
+import 'moment/locale/ko';
 
-const NotRecievedPrescription = ref<Prescription[]>();
+const NotRecievedPrescription = ref<Prescription>();
 
 const getNotRecieved = async () => {
   await axiosInstance
     .get('/api/patient/prescription/new/list?userId=1')
     .then((res) => {
-      NotRecievedPrescription.value = res.data.data.prescriptionList;
-      // console.log(res.data.data);
+      const temp = res.data.data.prescriptionList;
+      NotRecievedPrescription.value = temp[temp.length - 1];
+      console.log(NotRecievedPrescription.value);
     })
     .catch((err) => {
       console.log(err);
@@ -282,18 +289,19 @@ onMounted(async () => {
         <div class="ticket-left">
           <div>
             <div class="hospital-name">
-              {{
-                NotRecievedPrescription?.[NotRecievedPrescription.length - 1].hospitalNm ??
-                '병원 이름'
-              }}
+              {{ NotRecievedPrescription.hospitalNm }}
             </div>
             <div class="hospital-address">
-              {{ NotRecievedPrescription?.[NotRecievedPrescription.length - 1].description }}
+              {{ NotRecievedPrescription.hospitalSi }} {{ NotRecievedPrescription.hospitalGu }}
+              {{ NotRecievedPrescription.hospitalDong }}
+              {{ NotRecievedPrescription.hospitalDetailAddress }}
             </div>
           </div>
           <div class="ticket-date">
             <i class="fa-regular fa-calendar"></i>
-            <div class="date-and-time">24. 09. 10</div>
+            <div class="date-and-time">
+              {{ moment(NotRecievedPrescription?.createYmd).format('YY. M. DD. | hh:mm') }}
+            </div>
           </div>
         </div>
         <Dialog>
@@ -306,7 +314,7 @@ onMounted(async () => {
           <DialogContent>
             <div class="qr-content-frame" v-if="faceIdStore.isAuthenticated">
               <QRCodeVue3
-                :value="`{userid=1,prescriptionId=${NotRecievedPrescription?.[NotRecievedPrescription.length - 1].prescriptionPk}}`"
+                :value="`{userid=1,prescriptionId=${NotRecievedPrescription?.prescriptionPk}}`"
                 :qrOptions="{ typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' }"
                 :imageOptions="{ hideBackgroundDots: false, imageSize: 0, margin: 0 }"
                 :dotsOptions="{
@@ -346,7 +354,7 @@ onMounted(async () => {
         NotRecievedPrescription ? 'height: calc(100% - 262.7px)' : 'height: calc(100% - 166.7px)'
       "
     >
-      <div v-if="NotRecievedPrescription?.length" class="notice">
+      <div v-if="NotRecievedPrescription" class="notice">
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
       </div>
