@@ -21,6 +21,7 @@ const medicineList = ref([]);
 
 // 총 가격을 계산하는 computed 속성
 const totalPrice = computed(() => {
+  // @ts-ignore
   return medicineList.value.reduce((sum, item) => sum + item.price, 0);
 });
 
@@ -58,10 +59,10 @@ onMounted(async () => {
 <template>
   <HeadBar :back-button="true">처방전 상세</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="true">
-    <div class="notice" v-if="prescriptionDetails?.status === 'COMPLETED'">
+    <!-- <div class="notice" v-if="prescriptionDetails?.status === 'COMPLETED'">
       <i class="fa-regular fa-circle-check"></i>
       <div>결제 완료된 처방전이에요</div>
-    </div>
+    </div> -->
 
     <ShadowBox :padding-x="20" :padding-y="20" class="prescription-container">
       <div class="prescription-title">처방전</div>
@@ -79,14 +80,14 @@ onMounted(async () => {
 
       <div class="divider"></div>
 
-      <div v-if="showPaymentDetail">
+      <!-- <div v-if="showPaymentDetail">
         <div class="pill-list" v-for="medicine in medicineList" :key="medicine.id">
           <div class="pill-cost">
             <div>{{ medicine.name }}</div>
             <div>{{ medicine.price.toLocaleString() }}원</div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="pill-arrow" style="margin-bottom: 0">
         <div class="title-text">총 가격</div>
@@ -94,12 +95,12 @@ onMounted(async () => {
       </div>
     </ShadowBox>
 
-    <Button
+    <!-- <Button
       size="lg"
       @click="handlePaymentRequest"
       v-if="prescriptionDetails?.status !== 'COMPLETED'"
       >결제 요청</Button
-    >
+    > -->
   </Main>
 </template>
 
