@@ -13,7 +13,7 @@ const props = defineProps<{
   modelValue: string;  // modelValue를 string 타입으로 설정
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue','update:injectionName']);
 
 // 주사 리스트를 저장하는 ref
 const injections = ref<Injection[]>([]);
@@ -21,7 +21,11 @@ const injections = ref<Injection[]>([]);
 // 선택된 주사를 관리하는 computed 속성
 const selectedInjection = computed({
   get: () => props.modelValue,  // string 타입으로 받음
-  set: (value: string) => emit('update:modelValue', value),  // string 타입으로 emit
+  set: (value: string) => {
+    const selectedInjection=injections.value.find(m=>m.injectionPk.toString()===value);
+    emit('update:modelValue', value),  // string 타입으로 emit
+    emit('update:injectionName',selectedInjection?.injectionNm||'');
+  }
 });
 
 // 백엔드에서 주사 리스트를 가져오는 함수
