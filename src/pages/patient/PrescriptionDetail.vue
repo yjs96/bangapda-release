@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import moment from 'moment';
 import { useFaceIdStore } from '@/stores/faceId';
+import { toast } from '@steveyuowo/vue-hot-toast';
+import axiosInstance from '@/api/instance';
+import html2canvas from 'html2canvas';
+import moment from 'moment';
 import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
-import html2canvas from 'html2canvas';
-import { toast } from '@steveyuowo/vue-hot-toast';
 import '@/assets/toast.css';
 import {
   Dialog,
@@ -29,7 +30,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import axiosInstance from '@/api/instance';
 
 interface HospitalBill {
   createYmd: number[];
@@ -119,6 +119,22 @@ interface Disease {
   diseaseCd: string;
 }
 
+interface Medicine {
+  medicineNm: string;
+  unit: string;
+  dayCnt: string;
+  totalDay: string;
+  method: string;
+}
+
+interface Injection {
+  injectionNm: string;
+  unit: string;
+  dayCnt: string;
+  totalDay: string;
+  method: string;
+}
+
 // interface MedicalSystem {
 //   doctor: Doctor;
 //   prescription: Prescription;
@@ -140,8 +156,9 @@ const prescUser = ref<User | null>();
 const prescPharmacy = ref<Pharmacy | null>();
 const prescHospital = ref<Hospital | null>();
 const prescChemist = ref<Chemist | null>();
-const medicineList = ref([]);
-const diseaseList = ref<Disease[] | null>();
+const preMedicineList = ref<Medicine[]>([]);
+const preInjectionList = ref<Injection[]>([]);
+const diseaseList = ref<Disease | null>();
 
 const hospitalBill = ref<HospitalBill | null>();
 const pharmacyBill = ref<PharmacyBill | null>();
@@ -161,6 +178,9 @@ const getPrescriptionDetail = async () => {
     prescPharmacy.value = responseData.pharmacy;
     prescHospital.value = responseData.hospital;
     prescChemist.value = responseData.chemist;
+    diseaseList.value = responseData.diseaseList[0];
+    preMedicineList.value = responseData.preMedicineList;
+    preInjectionList.value = responseData.preInjectionList;
   } catch (err) {
     console.log(err);
   }
@@ -222,7 +242,7 @@ const prescDetail = computed(() => [
   },
   {
     name: '처방약',
-    info: `${medicineList.value.length}개` || '0개'
+    info: ''
   }
 ]);
 
@@ -304,12 +324,6 @@ const saveAsImage = async (item: string) => {
   }
 };
 
-const formatNumber = (id: number) => {
-  // ID를 5자리로 포맷 (숫자가 5자리가 되도록 앞에 0을 추가)
-  const formattedId = String(id).padStart(5, '0');
-  return `제 ${formattedId} 호`;
-};
-
 onMounted(() => {
   getPrescriptionDetail();
   getHospitalBill();
@@ -329,7 +343,7 @@ onMounted(() => {
           </div>
           <div class="misc-info-text">
             <span class="misc-info-title">보험금 간편 청구</span>
-            <span class="misc-info-desc">{서비스명}이 복잡한 과정을 대신 해드려요</span>
+            <span class="misc-info-desc">방갑다가 복잡한 과정을 대신 해드려요</span>
           </div>
         </div>
         <Button
@@ -345,7 +359,7 @@ onMounted(() => {
           </div>
           <div class="misc-info-text">
             <span class="misc-info-title">약 수령 확인</span>
-            <span class="misc-info-desc">{서비스명}을 사용하지 않았어도 바꿀 수 있어요</span>
+            <span class="misc-info-desc">방갑다를 사용하지 않았어도 바꿀 수 있어요</span>
           </div>
         </div>
         <Button
@@ -365,12 +379,17 @@ onMounted(() => {
         </div>
         <Popover v-else>
           <PopoverTrigger>
-            <Button variant="outline">3개</Button>
+            <Button variant="outline"
+              >{{ preMedicineList.length + preInjectionList.length }}개</Button
+            >
           </PopoverTrigger>
           <PopoverContent class="me-4 flex flex-col gap-2 text-sm text-cssblack">
-            <div>약이름 1</div>
-            <div>약이름 2</div>
-            <div>약이름 3</div>
+            <div v-for="(medicine, index) in preMedicineList" :key="index">
+              {{ medicine.medicineNm }}
+            </div>
+            <div v-for="(injection, index) in preInjectionList" :key="index">
+              {{ injection.injectionNm }}
+            </div>
           </PopoverContent>
         </Popover>
       </div>
@@ -424,7 +443,7 @@ onMounted(() => {
             <tbody>
               <tr>
                 <td rowspan="2">질병<br />분류<br />기호</td>
-                <td rowspan="2">수정필요</td>
+                <td rowspan="2">{{ diseaseList?.diseaseCd }}</td>
                 <td rowspan="2">처방<br />의료인의<br />성명</td>
                 <td rowspan="2">{{ prescDoctor?.doctorNm }}</td>
                 <td colspan="2">면허종별</td>
@@ -453,26 +472,12 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colspan="2" class="left">프레드포로트점안액(외용)</td>
-                <td>1</td>
-                <td>6</td>
-                <td>1</td>
-                <td colspan="2" class="left">2시간마다</td>
-              </tr>
-              <tr>
-                <td colspan="2" class="left">파오시드정 20mb(내복)</td>
-                <td>1</td>
-                <td>3</td>
-                <td>2</td>
-                <td colspan="2" class="left">식후30분</td>
-              </tr>
-              <tr>
-                <td colspan="2" class="left">슬로젠정(내복)</td>
-                <td>2</td>
-                <td>3</td>
-                <td>2</td>
-                <td colspan="2" class="left">식후30분</td>
+              <tr v-for="(medicine, index) in preMedicineList" :key="index">
+                <td colspan="2" class="left">{{ medicine.medicineNm || '' }}</td>
+                <td>{{ medicine.unit || '' }}</td>
+                <td>{{ medicine.dayCnt || '' }}</td>
+                <td>{{ medicine.totalDay || '' }}</td>
+                <td colspan="2" class="left">{{ medicine.method || '' }}</td>
               </tr>
               <tr>
                 <td colspan="2"></td>
@@ -509,12 +514,12 @@ onMounted(() => {
                 <td colspan="5">주사제 처방내역 (원내조제 , 원외처방)</td>
                 <td colspan="2"></td>
               </tr>
-              <tr>
-                <td colspan="2"></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td colspan="2"></td>
+              <tr v-for="(injection, index) in preInjectionList" :key="index">
+                <td colspan="2" class="left">{{ injection.injectionNm || '' }}</td>
+                <td>{{ injection.unit || '' }}</td>
+                <td>{{ injection.dayCnt || '' }}</td>
+                <td>{{ injection.totalDay || '' }}</td>
+                <td colspan="2" class="left">{{ injection.method || '' }}</td>
               </tr>
               <tr>
                 <td colspan="2"></td>
@@ -604,9 +609,7 @@ onMounted(() => {
                 <div class="receipt-info-line">
                   <div class="receipt-info-left">승인일시</div>
                   <div>
-                    {{
-                      `${hospitalBill?.createYmd[0]}-${hospitalBill?.createYmd[1]}-${hospitalBill?.createYmd[2]} ${hospitalBill?.createYmd[3]}:${hospitalBill?.createYmd[4]}`
-                    }}
+                    {{ moment(hospitalBill?.createYmd).format('YYYY-MM-DD HH:MM') }}
                   </div>
                 </div>
                 <div class="receipt-info-line">
@@ -651,9 +654,7 @@ onMounted(() => {
                 <div class="receipt-info-line">
                   <div class="receipt-info-left">승인일시</div>
                   <div>
-                    {{
-                      `${pharmacyBill?.createYmd[0]}-${pharmacyBill?.createYmd[1]}-${pharmacyBill?.createYmd[2]} ${pharmacyBill?.createYmd[3]}:${pharmacyBill?.createYmd[4]}`
-                    }}
+                    {{ moment(pharmacyBill?.createYmd).format('YYYY-MM-DD HH:MM') }}
                   </div>
                 </div>
                 <div class="receipt-info-line">

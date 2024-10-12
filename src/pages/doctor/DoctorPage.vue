@@ -173,14 +173,13 @@ const handleNextButtonClick = async () => {
 
     console.log(data); // 디버그를 위한 데이터 확인
     const response = await axiosInstance.post('/api/patient/prescription/post?doctorId=1', data);
-    console.log(response.data);  // PK 값을 확인할 수 있는 부분
+    console.log(response.data.data); // PK 값을 확인할 수 있는 부분
     if (response.data.data === true) {
       toast.success('처방전을 등록했습니다.');
       // 라우터로 prescriptionId를 params로 넘김
-     
     }
     if (isFormValid.value) {
-      router.push('/doctor/check');
+      router.push(`/doctor/check/${response.data.data}`);
     }
   } catch (err) {
     toast.error('존재하지 않는 사용자입니다.');

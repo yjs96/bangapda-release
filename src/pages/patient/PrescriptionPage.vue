@@ -17,11 +17,11 @@ interface Prescription {
   hospitalNm: string;
   maxDate: number;
   pharmacyNm: string;
-  diseaseList: DiseaseList[] | null;
+  diseaseList: DiseaseList[];
 }
 
 interface DiseaseList {
-  temp: 0;
+  diseaseNm: string;
 }
 
 const prescriptions = ref<Prescription[]>([]);
@@ -115,7 +115,7 @@ onUnmounted(() => {
         <div class="type-date">
           <div class="type">
             <i class="fa-solid fa-virus"></i>
-            <span>{{ prescription.diseaseList }}</span>
+            <span>{{ prescription.diseaseList[0].diseaseNm }}</span>
           </div>
           <span>{{ moment(prescription.createYmd).format('YY. M. DD. | HH:MM') }}</span>
         </div>

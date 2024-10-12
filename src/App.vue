@@ -102,7 +102,6 @@ onMessageListener()
       <RouterView />
     </div>
   </div>
-  <Toaster />
 
   <!-- <BanggabdaScreen v-if="isLoading" @loading-finished="finishLoading" /> -->
 </template>

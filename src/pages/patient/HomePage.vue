@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useFaceIdStore } from '@/stores/faceId';
 import { useThemeStore } from '@/stores/theme';
 import { toast } from '@steveyuowo/vue-hot-toast';
@@ -159,11 +159,12 @@ const NotRecievedPrescription = ref<Prescription>();
 
 const getNotRecieved = async () => {
   await axiosInstance
-    .get('/api/patient/prescription/new/list?userId=1')
+    .get('/api/patient/prescription/new/list?userId=2')
     .then((res) => {
       const temp = res.data.data.prescriptionList;
+      console.log(temp);
       NotRecievedPrescription.value = temp[temp.length - 1];
-      console.log(NotRecievedPrescription.value);
+      // console.log(NotRecievedPrescription.value);
     })
     .catch((err) => {
       console.log(err);
@@ -269,6 +270,12 @@ const getRecent = async () => {
   }
 };
 
+const qrData = computed(() => ({
+  userId: 1,
+  prescriptionId: NotRecievedPrescription.value?.prescriptionPk,
+  hello: 'weBangapda'
+}));
+
 onMounted(async () => {
   if (audioPlayer.value) {
     audioPlayer.value.src = base64Audio;
@@ -294,7 +301,6 @@ onMounted(async () => {
             <div class="hospital-address">
               {{ NotRecievedPrescription.hospitalSi }} {{ NotRecievedPrescription.hospitalGu }}
               {{ NotRecievedPrescription.hospitalDong }}
-              {{ NotRecievedPrescription.hospitalDetailAddress }}
             </div>
           </div>
           <div class="ticket-date">
@@ -314,7 +320,7 @@ onMounted(async () => {
           <DialogContent>
             <div class="qr-content-frame" v-if="faceIdStore.isAuthenticated">
               <QRCodeVue3
-                :value="`{userid=1,prescriptionId=${NotRecievedPrescription?.prescriptionPk}}`"
+                :value="JSON.stringify(qrData)"
                 :qrOptions="{ typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'H' }"
                 :imageOptions="{ hideBackgroundDots: false, imageSize: 0, margin: 0 }"
                 :dotsOptions="{
@@ -350,9 +356,7 @@ onMounted(async () => {
     </div>
     <div
       class="bottom-half"
-      :style="
-        NotRecievedPrescription ? 'height: calc(100% - 262.7px)' : 'height: calc(100% - 166.7px)'
-      "
+      :style="NotRecievedPrescription ? 'height: calc(100% - 252px)' : 'height: calc(100% - 156px)'"
     >
       <div v-if="NotRecievedPrescription" class="notice">
         <img src="/images/tada.svg" />
