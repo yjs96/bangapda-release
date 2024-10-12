@@ -20,6 +20,7 @@ import { toast } from '@steveyuowo/vue-hot-toast';
 interface QRData {
   userId: string;
   prescriptionId: string;
+  hello: string;
 }
 
 // Vue Router를 사용하기 위한 설정
@@ -37,15 +38,15 @@ async function onDetect(detectedCodes: Array<{ rawValue: string }>) {
   console.log(qrDataString);
   const qrData = JSON.parse(qrDataString);
   console.log(qrData);
+  let isValid = false;
   if (qrData) {
     try {
-      const userId = qrData.userId;
-      const prescriptionId = qrData.prescriptionId;
-      // QR 정보 유효성 검사
-      const isValid = await validateQRInfo(userId, prescriptionId);
+      if (qrData.hello === 'weBangapda') {
+        isValid = await validateQRInfo(qrData);
+      }
       if (isValid) {
         isDialogOpen.value = false;
-        router.push(`/pharmacist/${prescriptionId}`);
+        router.push(`/pharmacist/${qrData.prescriptionId}`);
       } else {
         toast.error('잘못된 QR 코드입니다.');
       }
@@ -63,9 +64,9 @@ function onError(err: Error) {
 }
 
 // QR 정보 유효성 검사 함수 (실제 구현 필요)
-async function validateQRInfo(userId: string, prescriptionId: string) {
-  // TODO: 실제 API를 호출하여 QR 정보 유효성 검사
-  return true; // 임시로 항상 true 반환
+async function validateQRInfo(qrData: QRData) {
+  if (qrData.prescriptionId && qrData.userId) return true;
+  return false;
 }
 
 // 최근 처방전 목록을 가져오는 함수
@@ -117,6 +118,7 @@ onMounted(fetchRecentPrescriptions);
           <QrcodeStream @detect="onDetect" @error="onError" />
         </DialogContent>
       </Dialog>
+      {{}}
 
       <!-- <ShadowBox :padding-x="20" :padding-y="20" :margin-bottom="0">
         <div class="recent-list-title">
