@@ -268,7 +268,7 @@ const handleReceived = async () => {
   }
 
   try {
-    const response = await axiosInstance.patch(`/api/pharmacy/prescription/${prescId}?userId=1`);
+    const response = await axiosInstance.patch(`/api/patient/prescription/${prescId}?userId=1`);
     console.log(response);
     toast.success('약을 수령했습니다');
     getPrescriptionDetail();

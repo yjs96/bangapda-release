@@ -3,14 +3,13 @@ import HeadBar from '@/components/HeadBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
 import { Button } from '@/components/ui/button';
-import { ref, onMounted} from 'vue';
-import { useRoute } from 'vue-router'; 
-import { useRouter } from 'vue-router'; 
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import axiosInstance from '@/api/instance';
 
-const route = useRoute();  
-const router=useRouter();
-
+const route = useRoute();
+const router = useRouter();
 
 interface PrescriptionData {
   preMedicineList: Medicine[];
@@ -47,7 +46,7 @@ interface User {
 interface Prescription {
   createYmd: string;
   description: string;
-  duration:number
+  duration: number;
 }
 
 interface Disease {
@@ -77,9 +76,8 @@ const disease = ref<Disease | null>(null);
 const hospital = ref<Hospital | null>(null);
 const doctor = ref<Doctor | null>(null);
 
-
 onMounted(() => {
-  prescriptionId.value = Number(route.params.id);  // 라우터 params에서 id 값을 가져와 할당
+  prescriptionId.value = Number(route.params.id); // 라우터 params에서 id 값을 가져와 할당
   console.log('전달된 처방전 ID:', prescriptionId.value);
   getUserInfo(prescriptionId.value);
 });
@@ -87,9 +85,9 @@ onMounted(() => {
 const getUserInfo = async (id: number) => {
   try {
     const response = await axiosInstance.get(`/api/patient/prescription/detail/${id}`);
-    const data=response.data.data;
+    const data = response.data.data;
     console.log(response.data); // 응답 데이터를 출력해 확인
-  
+
     preMedicineList.value = data.preMedicineList;
     preInjectionList.value = data.preInjectionList;
     user.value = data.user;
@@ -98,15 +96,15 @@ const getUserInfo = async (id: number) => {
     hospital.value = data.hospital;
     doctor.value = data.doctor;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 };
 
 // 날짜 포맷을 'YYYY년 MM월 DD일'로 변환하는 함수
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);  // 문자열을 Date 객체로 변환
+  const date = new Date(dateString); // 문자열을 Date 객체로 변환
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');  // 월은 0부터 시작하므로 +1
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
   const day = String(date.getDate()).padStart(2, '0');
 
   return `${year}년 ${month}월 ${day}일`;
@@ -127,184 +125,187 @@ const goToDoctorPage = () => {
   <HeadBar :back-button="true">처방전 보내기</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="true">
     <ShadowBox :padding-x="20" :padding-y="20" class="prescription-container">
-  <div class="prescription-title">처방전</div>
-  <div class="presc-frame">
-    <div class="text-right px-1 mt-1">(환자보관용)</div>
-    <div class="presc-header">처&nbsp;&nbsp;&nbsp; 방&nbsp;&nbsp;&nbsp; 전</div>
-    <div class="flex justify-between px-1 mb-1">
-      <div>보험유형 : 건강보험</div>
-      <div>요양기관번호 : {{hospital?.hospitalNo}}</div>
-    </div>
-    <table v-if="prescription && hospital && doctor && user">
-      <thead>
-        <tr>
-          <th colspan="2" rowspan="2">교부번호</th>
-          <th colspan="2" rowspan="2">{{formatDate(prescription.createYmd)}}<br />{{formatNumber(prescriptionId)}}</th>
-          <th rowspan="4">의료기관</th>
-          <th>명칭</th>
-          <th>{{hospital.hospitalNm}}</th>
-        </tr>
-        <tr>
-          <th>전화번호</th>
-          <th>{{hospital.phoneNo}}</th>
-        </tr>
-        <tr>
-          <th rowspan="2">환자</th>
-          <th>성명</th>
-          <th colspan="2">{{user.userNm}}</th>
-          <th>팩스번호</th>
-          <th>{{hospital.faxNo}}</th>
-        </tr>
-        <tr>
-          <th>주민등록번호</th>
-          <th colspan="2">{{user.firstNo}}-{{user.lastNo}}</th>
-          <th>e-mail주소</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td rowspan="2">질병<br />분류<br />기호</td>
-          <td rowspan="2">{{disease?.diseaseCd}}</td>
-          <td rowspan="2">처방<br />의료인의<br />성명</td>
-          <td rowspan="2">{{doctor.doctorNm}}</td>
-          <td colspan="2">면허종별</td>
-          <td>{{doctor.tp}}</td>
-        </tr>
-        <tr>
-          <td colspan="2">면허번호</td>
-          <td>{{formatNumber(doctor.doctorNo)}}</td>
-        </tr>
-        <tr>
-          <td colspan="7" class="left">
-            * 환자의 요구가 있는 때에는 질병분류기호를 기재하지 아니합니다.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div class="prescription-title">처방전</div>
+      <div class="presc-frame">
+        <div class="text-right px-1 mt-1">(환자보관용)</div>
+        <div class="presc-header">처&nbsp;&nbsp;&nbsp; 방&nbsp;&nbsp;&nbsp; 전</div>
+        <div class="flex justify-between px-1 mb-1">
+          <div>보험유형 : 건강보험</div>
+          <div>요양기관번호 : {{ hospital?.hospitalNo }}</div>
+        </div>
+        <table v-if="prescription && hospital && doctor && user">
+          <thead>
+            <tr>
+              <th colspan="2" rowspan="2">교부번호</th>
+              <th colspan="2" rowspan="2">
+                {{ formatDate(prescription.createYmd) }}<br />{{ formatNumber(prescriptionId) }}
+              </th>
+              <th rowspan="4">의료기관</th>
+              <th>명칭</th>
+              <th>{{ hospital.hospitalNm }}</th>
+            </tr>
+            <tr>
+              <th>전화번호</th>
+              <th>{{ hospital.phoneNo }}</th>
+            </tr>
+            <tr>
+              <th rowspan="2">환자</th>
+              <th>성명</th>
+              <th colspan="2">{{ user.userNm }}</th>
+              <th>팩스번호</th>
+              <th>{{ hospital.faxNo }}</th>
+            </tr>
+            <tr>
+              <th>주민등록번호</th>
+              <th colspan="2">{{ user.firstNo }}-{{ user.lastNo }}</th>
+              <th>e-mail주소</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2">질병<br />분류<br />기호</td>
+              <td rowspan="2">{{ disease?.diseaseCd }}</td>
+              <td rowspan="2">처방<br />의료인의<br />성명</td>
+              <td rowspan="2">{{ doctor.doctorNm }}</td>
+              <td colspan="2">면허종별</td>
+              <td>{{ doctor.tp }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">면허번호</td>
+              <td>{{ formatNumber(doctor.doctorNo) }}</td>
+            </tr>
+            <tr>
+              <td colspan="7" class="left">
+                * 환자의 요구가 있는 때에는 질병분류기호를 기재하지 아니합니다.
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-    <table class="presc-pill-list">
-      <thead class="bg-blue-100">
-        <tr>
-          <th colspan="2">처 방 의 약 품 의 명 칭</th>
-          <th>1회<br />투여량</th>
-          <th>1일<br />투여횟수</th>
-          <th>투약<br />일수</th>
-          <th colspan="2">용 법</th>
-        </tr>
-      </thead>
-    
-      <tbody>
-        <!-- 각 의약품 리스트 출력 -->
-        <tr v-for="(medicine, index) in preMedicineList" :key="index">
-          <td colspan="2" class="left">{{ medicine.medicineNm || '' }}</td>
-          <td>{{ medicine.unit || '' }}</td>
-          <td>{{ medicine.dayCnt || '' }}</td>
-          <td>{{ medicine.totalDay || '' }}</td>
-          <td colspan="2" class="left">{{ medicine.method || '' }}</td>
-        </tr>
-        <!-- 빈칸을 유지하는 기본 행 -->
-        <tr>
-          <td colspan="2"></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td colspan="2"></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td colspan="2"></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td colspan="2"></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td colspan="2">조 제 시 참 고 사 항</td>
-        </tr>
-        <tr>
-          <td colspan="5">주사제 처방내역 (원내조제 , 원외처방)</td>
-          <td colspan="2">{{prescription?.description}}</td>
-        </tr>
-        <tr v-for="(injection, index) in preInjectionList" :key="index">
-          <td colspan="2" class="left">{{ injection.injectionNm || '' }}</td>
-          <td>{{ injection.unit || '' }}</td>
-          <td>{{ injection.dayCnt || '' }}</td>
-          <td>{{ injection.totalDay || '' }}</td>
-          <td colspan="2" class="left">{{ injection.method || '' }}</td>
-        </tr>
-        <tr>
-          <td colspan="2"></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td colspan="2"></td>
-        </tr>
-      </tbody>
-    </table>
-    <table class="no-border-top">
-      <thead>
-        <tr>
-          <td>사용기간</td>
-          <td colspan="5">교부일로부터 ( &nbsp;&nbsp;{{prescription?.duration}}&nbsp;&nbsp; )일간</td>
-          <td colspan="5">*사용기간내에 약국에 제출하여야 합니다.</td>
-        </tr>
-      </thead>
-    </table>
+        <table class="presc-pill-list">
+          <thead class="bg-blue-100">
+            <tr>
+              <th colspan="2">처 방 의 약 품 의 명 칭</th>
+              <th>1회<br />투여량</th>
+              <th>1일<br />투여횟수</th>
+              <th>투약<br />일수</th>
+              <th colspan="2">용 법</th>
+            </tr>
+          </thead>
 
-    <table style="border-bottom: none">
-      <thead class="bg-blue-100">
-        <tr>
-          <th colspan="12">의 약 품&nbsp;&nbsp;조 제 내 역</th>
-        </tr>
-      </thead>
-      <tbody class="presc-medicine-table">
-        <tr>
-          <td rowspan="4" class="no-border-bottom">조<br />제<br />내<br />역</td>
-          <td colspan="2">조제기관의명칭</td>
-          <td colspan="5"></td>
-          <td colspan="4" rowspan="2">처방전의 변경, 수정, 확인<br />대체 시 그 내용 등</td>
-        </tr>
-        <tr>
-          <td colspan="2">조제약사</td>
-          <td>성명</td>
-          <td colspan="4" style="border-right: 0.8px solid var(--blue)">
-            &nbsp;임준수 &nbsp;&nbsp;&nbsp;(서명 또는 날인)
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2">조제량</td>
-          <td colspan="5"></td>
-          <td colspan="4" rowspan="2" class="no-border-bottom"></td>
-        </tr>
-        <tr>
-          <td colspan="2" class="no-border-bottom">조제년월일</td>
-          <td
-            colspan="5"
-            class="no-border-bottom"
-            style="border-right: 0.8px solid var(--blue)"
-          ></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</ShadowBox>
+          <tbody>
+            <!-- 각 의약품 리스트 출력 -->
+            <tr v-for="(medicine, index) in preMedicineList" :key="index">
+              <td colspan="2" class="left">{{ medicine.medicineNm || '' }}</td>
+              <td>{{ medicine.unit || '' }}</td>
+              <td>{{ medicine.dayCnt || '' }}</td>
+              <td>{{ medicine.totalDay || '' }}</td>
+              <td colspan="2" class="left">{{ medicine.method || '' }}</td>
+            </tr>
+            <!-- 빈칸을 유지하는 기본 행 -->
+            <tr>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td colspan="2">조 제 시 참 고 사 항</td>
+            </tr>
+            <tr>
+              <td colspan="5">주사제 처방내역 (원내조제 , 원외처방)</td>
+              <td colspan="2">{{ prescription?.description }}</td>
+            </tr>
+            <tr v-for="(injection, index) in preInjectionList" :key="index">
+              <td colspan="2" class="left">{{ injection.injectionNm || '' }}</td>
+              <td>{{ injection.unit || '' }}</td>
+              <td>{{ injection.dayCnt || '' }}</td>
+              <td>{{ injection.totalDay || '' }}</td>
+              <td colspan="2" class="left">{{ injection.method || '' }}</td>
+            </tr>
+            <tr>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="no-border-top">
+          <thead>
+            <tr>
+              <td>사용기간</td>
+              <td colspan="5">
+                교부일로부터 ( &nbsp;&nbsp;{{ prescription?.duration }}&nbsp;&nbsp; )일간
+              </td>
+              <td colspan="5">*사용기간내에 약국에 제출하여야 합니다.</td>
+            </tr>
+          </thead>
+        </table>
 
+        <table style="border-bottom: none">
+          <thead class="bg-blue-100">
+            <tr>
+              <th colspan="12">의 약 품&nbsp;&nbsp;조 제 내 역</th>
+            </tr>
+          </thead>
+          <tbody class="presc-medicine-table">
+            <tr>
+              <td rowspan="4" class="no-border-bottom">조<br />제<br />내<br />역</td>
+              <td colspan="2">조제기관의명칭</td>
+              <td colspan="5"></td>
+              <td colspan="4" rowspan="2">처방전의 변경, 수정, 확인<br />대체 시 그 내용 등</td>
+            </tr>
+            <tr>
+              <td colspan="2">조제약사</td>
+              <td>성명</td>
+              <td colspan="4" style="border-right: 0.8px solid var(--blue)">
+                &nbsp;임준수 &nbsp;&nbsp;&nbsp;(서명 또는 날인)
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">조제량</td>
+              <td colspan="5"></td>
+              <td colspan="4" rowspan="2" class="no-border-bottom"></td>
+            </tr>
+            <tr>
+              <td colspan="2" class="no-border-bottom">조제년월일</td>
+              <td
+                colspan="5"
+                class="no-border-bottom"
+                style="border-right: 0.8px solid var(--blue)"
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ShadowBox>
 
-    <Button size="lg"  @click="goToDoctorPage">처방전 확인</Button>
+    <Button size="lg" @click="goToDoctorPage">처방전 확인</Button>
   </Main>
 </template>
 
@@ -320,7 +321,8 @@ const goToDoctorPage = () => {
 .prescription-title {
   font-size: 24px;
   font-weight: 600;
-}.misc-func-frame {
+}
+.misc-func-frame {
   margin-top: 24px;
   margin-bottom: 32px;
   display: flex;

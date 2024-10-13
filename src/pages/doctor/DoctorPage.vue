@@ -579,8 +579,8 @@ const handleNextButtonClick = async () => {
 }
 
 .fixed-button {
-  position: fixed;
-  bottom: 20px;
+  position: absolute;
+  bottom: 40px;
   left: 20px;
   right: 20px;
   z-index: 10;
