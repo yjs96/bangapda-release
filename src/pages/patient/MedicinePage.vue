@@ -133,8 +133,8 @@ const toggleMediEatSt = async (id: number, st: boolean) => {
     if (
       today.format('YYYY-MM-DD') !==
       medicineIntakeList.value[index].day
-        .map((num: Number) => String(num).padStart(2, '0'))
-        .join('-')
+        // .map((num: Number) => String(num).padStart(2, '0'))
+        // .join('-')
     ) {
       toast.error('다른 날짜는 처리할 수 없습니다.');
       return;

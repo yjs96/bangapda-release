@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import axiosInstance from '@/api/instance';
+  import { useTokenStore } from '@/stores/tokenControl';
  
       const router = useRouter();
       const route = useRoute();
@@ -18,28 +18,32 @@
           await router.push('/login');
         }
       };
+
+      const tokenStore = useTokenStore();
   
-      onMounted(() => {
+      onMounted(async() => {
         const token = route.query.accessToken?.toString() ?? "";
         const role = route.query.role?.toString()  ?? "";
         const state = route.query.state?.toString();
-        localStorage.setItem("accessToken", token);
-        if(state === "user") {
-            router.push('/');
-            return;
-        }
-        else if(state === "chemist") {
-            router.push('/pharmacist');
-            return;
-        }
-        else if(state === "doctor") {
-            router.push('/doctor');
-            return;
-        } 
-        else if(state === "register"){
-            handleOAuthKakao(token, role);
-        }
+        tokenStore.accessToken = token;
 
+        if(token) {
+          if(state === "user") {
+            await router.push('/');
+            return;
+          }
+          else if(state === "chemist") {
+            await router.push('/pharmacist');
+            return;
+          }
+          else if(state === "doctor") {
+            await router.push('/doctor');
+            return;
+          } 
+          else if(state === "register"){
+            handleOAuthKakao(token, role);
+          }
+        }
         else {
           alert("다시시도.");
           router.push('/login');

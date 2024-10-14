@@ -31,7 +31,7 @@ import DiseaseSelector from '@/components/DiseaseSelector.vue';
 import InjectionSelector from '@/components/InjectionSelector.vue';
 
 interface Medicine {
-  name: string;
+  medicineNm: string;
   medicinePk: string;
   morning: number;
   afternoon: number;
@@ -41,8 +41,8 @@ interface Medicine {
 }
 
 interface Injection {
-  name: string;
   injectionPk: string;
+  injectionNm: string;
   dosePerMorning: number;
   dosePerLunch: number;
   dosePerDinner: number;
@@ -53,7 +53,7 @@ interface Injection {
 const showInjectionModal = ref(false);
 const injections = ref<Injection[]>([]); // 주사제 리스트
 const newInjection = ref<Injection>({
-  name: '',
+  injectionNm: '',
   injectionPk: '',
   dosePerMorning: 0,
   dosePerLunch: 0,
@@ -71,7 +71,7 @@ const medicines = ref<Medicine[]>([]);
 
 const showMedicineModal = ref(false);
 const newMedicine = ref<Medicine>({
-  name: '',
+  medicineNm: '',
   medicinePk: '',
   morning: 0,
   afternoon: 0,
@@ -85,7 +85,7 @@ const router = useRouter();
 const addMedicine = () => {
   medicines.value.push({ ...newMedicine.value });
   newMedicine.value = {
-    name: '',
+    medicineNm: '',
     medicinePk: '',
     morning: 0,
     afternoon: 0,
@@ -103,7 +103,7 @@ const removeMedicine = (index: number) => {
 const addInjection = () => {
   injections.value.push({ ...newInjection.value });
   newInjection.value = {
-    name: '',
+    injectionNm: '',
     injectionPk: '',
     dosePerMorning: 0,
     dosePerLunch: 0,
@@ -262,7 +262,7 @@ const handleNextButtonClick = async () => {
                     <Label for="medicine-name">약 이름</Label>
                     <MedicineSelector
                       v-model="newMedicine.medicinePk"
-                      @update:medicineName="newMedicine.name = $event"
+                      @update:medicineName="newMedicine.medicineNm = $event"
                     />
                     <!-- <Input
                       id="medicine-name"
@@ -320,7 +320,7 @@ const handleNextButtonClick = async () => {
             <div v-if="medicines.length > 0" class="medicine-list">
               <div v-for="(medicine, index) in medicines" :key="index" class="medicine-item">
                 <div class="medicine-info">
-                  <div class="medicine-name">{{ medicine.name }}</div>
+                  <div class="medicine-name">{{ medicine.medicineNm }}</div>
                   <div class="medicine-dosage">
                     아침: {{ medicine.morning }} 정 / 점심: {{ medicine.afternoon }} 정 / 저녁:
                     {{ medicine.evening }} 정
@@ -357,7 +357,7 @@ const handleNextButtonClick = async () => {
                     <Label for="injection-name">주사제 이름</Label>
                     <InjectionSelector
                       v-model="newInjection.injectionPk"
-                      @update:injectionName="newInjection.name = $event"
+                      @update:injectionName="newInjection.injectionNm = $event"
                     />
                   </div>
 
@@ -431,7 +431,7 @@ const handleNextButtonClick = async () => {
             <div v-if="injections.length > 0" class="medicine-list">
               <div v-for="(injection, index) in injections" :key="index" class="medicine-item">
                 <div class="medicine-info">
-                  <div class="medicine-name">{{ injection.name }}</div>
+                  <div class="medicine-name">{{ injection.injectionNm }}</div>
                   <div class="medicine-dosage">
                     아침: {{ injection.dosePerMorning }} / 점심: {{ injection.dosePerLunch }} /
                     저녁: {{ injection.dosePerDinner }}
