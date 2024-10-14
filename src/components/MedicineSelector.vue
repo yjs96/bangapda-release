@@ -69,7 +69,7 @@ onMounted(() => {
         variant="outline"
         role="combobox"
         :aria-expanded="isOpen"
-        class="w-full justify-between h-10 border-border"
+        class="w-full justify-between h-10 border-input font-medium text-sm text-muted-foreground"
       >
         {{
           selectedMedicine

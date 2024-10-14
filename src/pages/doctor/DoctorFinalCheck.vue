@@ -167,6 +167,7 @@ const requestPayment = async () => {
 // 의사 페이지로 이동하는 함수
 const goToDoctorPage = () => {
   router.push('/doctor');
+  toast.success('처방전이 환자에게 전송되었어요');
 };
 </script>
 
