@@ -22,21 +22,21 @@ const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수 정의
 const memberType = ref('');
-const name = ref('');
-const phoneNumber = ref('');
+const userNm = ref('');
+const phoneNo = ref('');
 const phoneCarrier = ref('');
-const residentNumberFront = ref('');
-const residentNumberBack = ref('');
+const firstNo = ref('');
+const lastNo = ref('');
 
 // 폼 유효성 검사를 위한 computed 속성 정의
 const isFormValid = computed(
   () =>
     memberType.value !== '' &&
-    name.value !== '' &&
-    phoneNumber.value !== '' &&
+    userNm.value !== '' &&
+    phoneNo.value !== '' &&
     phoneCarrier.value !== '' &&
-    residentNumberFront.value.length === 6 &&
-    residentNumberBack.value.length === 7
+    firstNo.value.length === 6 &&
+    lastNo.value.length === 7
 );
 
 // 회원 유형 선택 함수
@@ -51,11 +51,11 @@ const handleSubmit = async () => {
     signupStore.setUserInfo({
       memberType: memberType.value,
       commonInfo: {
-        userNm: name.value,
-        phoneNo: phoneNumber.value,
+        userNm: userNm.value,
+        phoneNo: phoneNo.value,
         phoneCarrier: phoneCarrier.value,
-        firstNo: residentNumberFront.value,
-        lastNo: residentNumberBack.value
+        firstNo: firstNo.value,
+        lastNo: lastNo.value
       }
     });
 
@@ -105,7 +105,7 @@ const handleSubmit = async () => {
       </div>
 
       <Label for="name-input">이름</Label>
-      <Input type="text" id="name-input" v-model="name" placeholder="이름을 입력해주세요." />
+      <Input type="text" id="name-input" v-model="userNm" placeholder="이름을 입력해주세요." />
 
       <Label for="phone-number-input">전화번호</Label>
       <div class="phone-num-tong">
@@ -125,7 +125,7 @@ const handleSubmit = async () => {
           type="text"
           inputmode="numeric"
           id="phone-number-input"
-          v-model="phoneNumber"
+          v-model="phoneNo"
           placeholder="전화번호를 입력해주세요."
           maxlength="11"
         />
@@ -137,7 +137,7 @@ const handleSubmit = async () => {
           type="text"
           inputmode="numeric"
           id="resident-number-input-front"
-          v-model="residentNumberFront"
+          v-model="firstNo"
           placeholder="ex) 990909"
           maxlength="6"
         />
@@ -146,7 +146,7 @@ const handleSubmit = async () => {
           type="password"
           inputmode="numeric"
           id="resident-number-input-back"
-          v-model="residentNumberBack"
+          v-model="lastNo"
           maxlength="7"
         />
       </div>

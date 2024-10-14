@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignupStore } from '@/stores/signupStore';
 import HeadBar from '@/components/HeadBar.vue';
@@ -8,6 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CheckCircle2 } from 'lucide-vue-next';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { toast } from '@steveyuowo/vue-hot-toast';
 
 // Vue Router와 Signup 스토어 인스턴스를 생성합니다.
@@ -17,6 +25,8 @@ const signupStore = useSignupStore();
 // 입력 필드를 위한 반응형 변수들을 생성합니다.
 const doctorNo = ref('');
 const isLicenseVerified = ref(false);
+const type = ref('');
+const hospitalPhone = ref('');
 
 // 면허 번호를 확인하는 함수를 정의합니다.
 const verifyLicense = async () => {
@@ -28,7 +38,7 @@ const verifyLicense = async () => {
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
 const isFormValid = computed(() => {
-  return isLicenseVerified.value && doctorNo.value.trim() !== '';
+  return isLicenseVerified.value && type.value.trim() !== '' && hospitalPhone.value.trim() !== '';
 });
 
 // '다음' 버튼 클릭 핸들러를 정의합니다.
@@ -36,7 +46,9 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       doctorInfo: {
-        doctorNo: doctorNo.value
+        doctorNo: doctorNo.value,
+        tp: type.value,
+        hospitalPhoneNo: hospitalPhone.value
       }
     });
 
@@ -55,6 +67,10 @@ const handleNextButtonClick = async () => {
     toast.error('모든 필드를 올바르게 입력해주세요.');
   }
 };
+
+onMounted(() => {
+  // 필요한 경우 여기에 초기화 로직을 추가하세요.
+});
 </script>
 
 <template>
@@ -77,6 +93,48 @@ const handleNextButtonClick = async () => {
           <Button @click="verifyLicense" :disabled="isLicenseVerified">등록하기</Button>
           <CheckCircle2 v-if="isLicenseVerified" class="text-yellow-500" />
         </div>
+      </div>
+
+      <div class="input-group">
+        <Label for="license-type">면허 종별</Label>
+        <Select v-model="type">
+          <SelectTrigger>
+            <SelectValue placeholder="면허 종별" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="GENERAL_PRACTITIONER">일반의</SelectItem>
+              <SelectItem value="INTERNIST">내과 의사</SelectItem>
+              <SelectItem value="SURGEON">외과 의사</SelectItem>
+              <SelectItem value="PEDIATRICIAN">소아과 의사</SelectItem>
+              <SelectItem value="GYNECOLOGIST">산부인과 의사</SelectItem>
+              <SelectItem value="DERMATOLOGIST">피부과 의사</SelectItem>
+              <SelectItem value="PSYCHIATRIST">정신과 의사</SelectItem>
+              <SelectItem value="ORTHOPEDIC_SURGEON">정형외과 의사</SelectItem>
+              <SelectItem value="RADIOLOGIST">방사선과 의사</SelectItem>
+              <SelectItem value="CARDIOLOGIST">심장내과 의사</SelectItem>
+              <SelectItem value="NEUROLOGIST">신경과 의사</SelectItem>
+              <SelectItem value="OPHTHALMOLOGIST">안과 의사</SelectItem>
+              <SelectItem value="ENT_SPECIALIST">이비인후과 의사</SelectItem>
+              <SelectItem value="DENTIST">치과 의사</SelectItem>
+              <SelectItem value="VETERINARIAN">수의사</SelectItem>
+              <SelectItem value="PHARMACIST">약사</SelectItem>
+              <SelectItem value="UNLICENSED">무면허</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div class="input-group">
+        <Label for="hospital-tel">병원 연락처</Label>
+        <Input
+          type="text"
+          inputmode="numeric"
+          id="hospital-tel"
+          v-model="hospitalPhone"
+          placeholder="ex) 021234567"
+          maxlength="11"
+        ></Input>
       </div>
     </div>
 

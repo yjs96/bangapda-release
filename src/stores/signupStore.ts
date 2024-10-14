@@ -25,7 +25,6 @@ interface DoctorInfo {
     detail: string;
   };
   tp: string;
-
   hospitalDong: string;
   hospitalDetailAdress: string;
   hospitalNm: string;
@@ -124,7 +123,6 @@ export const useSignupStore = defineStore('signup', {
 
         // 약관 동의 정보 추가 (알림 수신 동의 포함)
         data.terms = this.terms;
-
         // API 요청 전송
         const response = await axiosInstance.post(endpoint, data, {
           headers: {

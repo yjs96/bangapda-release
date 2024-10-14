@@ -17,7 +17,7 @@ const router = useRouter();
 const route = useRoute();
 const signupStore = useSignupStore();
 
-// 은행 정보 가져오기
+// 스토어에서 은행 이름을 가져오고, 라우트 쿼리에서 은행 이미지 URL을 가져옵니다.
 const bankName = computed(() => signupStore.patientInfo.bankNm);
 const bankImg = computed(() => route.query.bankImg as string);
 
