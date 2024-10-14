@@ -25,8 +25,7 @@ interface DoctorInfo {
     detail: string;
   };
   tp: string;
-  
-  hospitalDong : string;
+  hospitalDong: string;
   hospitalDetailAdress: string;
   hospitalNm: string;
   hospitalType: string;
@@ -42,17 +41,21 @@ interface PharmacistInfo {
     neighborhood: string;
     detail: string;
   };
-  pharmacyDong : string;
+  pharmacyDong: string;
   pharmacyDetailAddress: string;
-  pharmacyNm: string; 
+  pharmacyNm: string;
   pharmacyPhoneNo: string;
   representativeName: string;
 }
 
+// 약관 동의 인터페이스 수정
 interface Terms {
   service: boolean;
   privacy: boolean;
-  marketing: boolean;
+  medicalInfo: boolean;
+  ePrescription: boolean;
+  sensitiveInfo: boolean;
+  notification: boolean;
 }
 
 // Pinia 스토어 정의
@@ -95,8 +98,8 @@ export const useSignupStore = defineStore('signup', {
 
     // 회원가입 제출 액션
     async submitSignup() {
+      const token = sessionStorage.getItem('token');
       try {
-        const token = sessionStorage.getItem('token');
         let endpoint = '';
         let data: any = { ...this.commonInfo };
 
@@ -118,19 +121,21 @@ export const useSignupStore = defineStore('signup', {
             throw new Error('잘못된 회원 유형입니다.');
         }
 
+        // 약관 동의 정보 추가 (알림 수신 동의 포함)
         data.terms = this.terms;
         // API 요청 전송
         const response = await axiosInstance.post(endpoint, data, {
           headers: {
-              'Content-Type': 'application/json',
-              'Authorization' : `Bearer ${token}`
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
           }
         });
         if (response.data) {
           console.log(response);
-          localStorage.setItem("accessToken", response.data.data.accessToken)
+          localStorage.setItem('accessToken', response.data.data.accessToken);
           console.log('회원가입에 성공했어요');
-          const type = this.memberType
+          const type = this.memberType;
+
           this.resetState(); // 상태 초기화
 
           return { success: true, nextRoute: this.getNextRoute(type) };
@@ -139,14 +144,12 @@ export const useSignupStore = defineStore('signup', {
         }
       } catch (error) {
         console.error('회원가입에 실패했어요', error);
-
         return { success: false, nextRoute: '' };
       }
     },
 
     // 회원 유형에 따른 다음 라우트 반환
-    getNextRoute(member : string = '일반 회원') {
-
+    getNextRoute(member: string = '일반 회원') {
       switch (member) {
         case '일반 회원':
           return '/';

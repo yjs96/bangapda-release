@@ -15,18 +15,19 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { toast } from '@steveyuowo/vue-hot-toast';
 import axiosInstance from '@/api/instance';
 
 interface gu {
-  gu_nm : string;
-  gu_pk : number;
-  gu_si_fk : number;
+  gu_nm: string;
+  gu_pk: number;
+  gu_si_fk: number;
 }
 
 interface dong {
-  dong_nm : string;
-  dong_pk : number;
-  dong_gu_fk : number;
+  dong_nm: string;
+  dong_pk: number;
+  dong_gu_fk: number;
 }
 
 // Vue Router와 Signup 스토어 인스턴스를 생성합니다.
@@ -41,20 +42,18 @@ const neighborhood = ref('');
 const detailAddress = ref('');
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
-const isFormValid = computed(() => {
-  return (
+const isFormValid = computed(
+  () =>
     pharmacyName.value.trim() !== '' &&
     city.value !== '' &&
     district.value !== '' &&
     neighborhood.value !== '' &&
     detailAddress.value.trim() !== ''
-  );
-});
+);
 
 // '다음' 버튼 클릭 핸들러를 정의합니다.
-const handleNextButtonClick = () => {
+const handleNextButtonClick = async () => {
   if (isFormValid.value) {
-    // 입력된 약사 정보를 Pinia 스토어에 저장합니다.
     signupStore.setUserInfo({
       pharmacistInfo: {
         pharmacyNm: pharmacyName.value,
@@ -64,49 +63,52 @@ const handleNextButtonClick = () => {
           neighborhood: neighborhood.value,
           detail: detailAddress.value
         },
-        pharmacyDong : neighborhood.value,
-        pharmacyDetailAddress:detailAddress.value
+        pharmacyDong: neighborhood.value,
+        pharmacyDetailAddress: detailAddress.value
       }
     });
-    // 다음 페이지(약사 면허 입력 페이지)로 이동합니다.
-    router.push('/login/pharmacist/license');
+
+    try {
+      const { success } = await signupStore.submitSignup();
+      if (success) {
+        router.push('/success');
+      } else {
+        toast.error('회원가입에 실패했습니다. 다시 시도해 주세요.');
+      }
+    } catch (error) {
+      console.error('회원가입 처리 중 오류가 발생했습니다:', error);
+      toast.error('회원가입 처리 중 오류가 발생했습니다.');
+    }
   } else {
-    console.error('폼이 유효하지 않습니다.');
-    // TODO: 사용자에게 유효성 검사 실패 메시지 표시
+    toast.error('모든 필드를 올바르게 입력해주세요.');
   }
 };
 
-
 const guList = ref<gu[]>([]);
 
-const getGuBySi = async (si : string) => {
-  await axiosInstance.get(`/api/address/get/gu/${si}`)
-  .then(res => {
-    guList.value = res.data.data.sort((a: any, b: any) => {
-        return a.gu_nm.localeCompare(b.gu_nm);
-      });
-    //console.log(guList.value);
-  }).catch(err => {
-    console.log(err);
-  })
-}
+const getGuBySi = async (si: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/address/get/gu/${si}`);
+    guList.value = response.data.data.sort((a: gu, b: gu) => a.gu_nm.localeCompare(b.gu_nm));
+  } catch (err) {
+    console.error(err);
+    toast.error('구 정보를 가져오는데 실패했습니다.');
+  }
+};
 
 const dongList = ref<dong[]>([]);
 
-const getDongByGu = async (gu : string) => {
-  await axiosInstance.get(`/api/address/get/dong/${gu}`)
-  .then(res => {
-    dongList.value = res.data.data.sort((a: any, b: any) => {
-        return a.dong_nm.localeCompare(b.dong_nm);
-      });
-    //console.log(dongList.value);
-  }).catch(err => {
-    console.log(err);
-  })
-}
-
-
-
+const getDongByGu = async (gu: string) => {
+  try {
+    const response = await axiosInstance.get(`/api/address/get/dong/${gu}`);
+    dongList.value = response.data.data.sort((a: dong, b: dong) =>
+      a.dong_nm.localeCompare(b.dong_nm)
+    );
+  } catch (err) {
+    console.error(err);
+    toast.error('동 정보를 가져오는데 실패했습니다.');
+  }
+};
 </script>
 
 <template>
@@ -143,8 +145,10 @@ const getDongByGu = async (gu : string) => {
               <SelectValue placeholder="구" />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup >
-                <SelectItem v-for="gu in guList" :value=gu.gu_nm> {{ gu.gu_nm }} </SelectItem>
+              <SelectGroup>
+                <SelectItem v-for="gu in guList" :key="gu.gu_pk" :value="gu.gu_nm">
+                  {{ gu.gu_nm }}
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -154,7 +158,9 @@ const getDongByGu = async (gu : string) => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem v-for="dong in dongList" :value=dong.dong_nm> {{ dong.dong_nm }} </SelectItem>
+                <SelectItem v-for="dong in dongList" :key="dong.dong_pk" :value="dong.dong_nm">
+                  {{ dong.dong_nm }}
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -166,13 +172,10 @@ const getDongByGu = async (gu : string) => {
           placeholder="(상세주소)"
         />
       </div>
+    </div>
 
-      <Button
-        class="next-button"
-        variant="default"
-        :disabled="!isFormValid"
-        @click="handleNextButtonClick"
-      >
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextButtonClick">
         다음
       </Button>
     </div>
@@ -210,12 +213,6 @@ const getDongByGu = async (gu : string) => {
   margin-bottom: 8px;
 }
 
-.pharmacy-container {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
 .license-container {
   display: flex;
   align-items: center;
@@ -223,9 +220,11 @@ const getDongByGu = async (gu : string) => {
 }
 
 .next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 </style>

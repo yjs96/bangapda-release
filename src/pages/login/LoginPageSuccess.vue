@@ -20,7 +20,9 @@ const handleConfirm = () => {
       <div class="success-info">회원 가입이<br />완료되었어요</div>
     </div>
 
-    <Button class="success-button" @click="handleConfirm">확인</Button>
+    <div class="success-button">
+      <Button size="lg" @click="handleConfirm">확인</Button>
+    </div>
   </Main>
 </template>
 
@@ -119,9 +121,11 @@ const handleConfirm = () => {
 }
 
 .success-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 </style>

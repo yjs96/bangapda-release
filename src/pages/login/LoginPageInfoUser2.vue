@@ -9,8 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@steveyuowo/vue-hot-toast';
+import { requestForToken } from '@/firebase';
+import axiosInstance from '@/api/instance';
 
-// Vue Router와 Route, Signup 스토어 인스턴스를 생성합니다.
+// Vue Router와 Store 인스턴스 생성
 const router = useRouter();
 const route = useRoute();
 const signupStore = useSignupStore();
@@ -19,60 +21,137 @@ const signupStore = useSignupStore();
 const bankName = computed(() => signupStore.patientInfo.bankNm);
 const bankImg = computed(() => route.query.bankImg as string);
 
-// 폼 입력값을 위한 반응형 변수들을 생성합니다.
+// 폼 입력값 및 약관 동의 상태
 const accountNumber = ref('');
 const accountPassword = ref('');
 const allTermsChecked = ref(false);
 const serviceTerms = ref(false);
 const privacyTerms = ref(false);
-const marketingTerms = ref(false);
+const medicalInfoTerms = ref(false);
+const ePrescriptionTerms = ref(false);
+const sensitiveInfoTerms = ref(false);
+const notificationTerms = ref(false);
 
-// 폼의 유효성을 검사하는 computed 속성을 정의합니다.
+// FCM 토큰 상태
+const fcmToken = ref<string | null>(null);
+const isTokenLoading = ref(false);
+
+// 폼 유효성 검사
 const isFormValid = computed(
   () =>
     accountNumber.value !== '' &&
     accountPassword.value.length === 4 &&
     serviceTerms.value &&
-    privacyTerms.value
+    privacyTerms.value &&
+    medicalInfoTerms.value &&
+    ePrescriptionTerms.value &&
+    sensitiveInfoTerms.value &&
+    notificationTerms.value &&
+    fcmToken.value !== null
 );
 
 // 모든 약관 동의 체크박스 핸들러
-const handleAllTermsChange = (checked: boolean) => {
+const handleAllTermsChange = async (checked: boolean) => {
   allTermsChecked.value = checked;
   serviceTerms.value = checked;
   privacyTerms.value = checked;
-  marketingTerms.value = checked;
+  medicalInfoTerms.value = checked;
+  ePrescriptionTerms.value = checked;
+  sensitiveInfoTerms.value = checked;
+  notificationTerms.value = checked;
+
+  if (checked) {
+    await getAndSendFirebaseToken();
+  }
 };
 
 // 개별 약관 동의 체크박스 핸들러
-const handleIndividualTermChange = () => {
-  allTermsChecked.value = serviceTerms.value && privacyTerms.value && marketingTerms.value;
+const handleIndividualTermChange = async (termName: string, checked: boolean) => {
+  if (termName === 'notification' && checked) {
+    await getAndSendFirebaseToken();
+  }
+
+  // 각 약관 상태 업데이트
+  switch (termName) {
+    case 'service':
+      serviceTerms.value = checked;
+      break;
+    case 'privacy':
+      privacyTerms.value = checked;
+      break;
+    case 'medicalInfo':
+      medicalInfoTerms.value = checked;
+      break;
+    case 'ePrescription':
+      ePrescriptionTerms.value = checked;
+      break;
+    case 'sensitiveInfo':
+      sensitiveInfoTerms.value = checked;
+      break;
+    case 'notification':
+      notificationTerms.value = checked;
+      break;
+  }
+
+  allTermsChecked.value =
+    serviceTerms.value &&
+    privacyTerms.value &&
+    medicalInfoTerms.value &&
+    ePrescriptionTerms.value &&
+    sensitiveInfoTerms.value &&
+    notificationTerms.value;
 };
 
-// 계좌 비밀번호 입력 핸들러 (숫자만 입력 가능하도록 제한)
+// 계좌 비밀번호 입력 핸들러
 const handlePasswordInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
   input.value = input.value.replace(/\D/g, '').slice(0, 4);
   accountPassword.value = input.value;
 };
 
+// Firebase 토큰 요청 및 서버로 전송하는 함수
+const getAndSendFirebaseToken = async () => {
+  isTokenLoading.value = true;
+  try {
+    const token = await requestForToken();
+    if (token) {
+      fcmToken.value = token;
+      await axiosInstance.post('/api/save-firebase-token', { token });
+      console.log('Firebase 토큰이 서버로 전송되었습니다.');
+      toast.success('알림 수신 동의가 완료되었습니다.');
+    } else {
+      throw new Error('알림 권한을 허용해주세요.');
+    }
+  } catch (error) {
+    console.error('Firebase 토큰 처리 중 오류:', error);
+    toast.error('알림 설정 중 오류가 발생했습니다. 다시 시도해주세요.');
+    notificationTerms.value = false;
+  } finally {
+    isTokenLoading.value = false;
+  }
+};
+
 // '다음' 버튼 클릭 핸들러
 const handleNextClick = async () => {
   if (isFormValid.value) {
-    signupStore.setUserInfo({
-      patientInfo: {
-        accountNo: accountNumber.value,
-        accountPw: accountPassword.value
-      },
-      terms: {
-        service: serviceTerms.value,
-        privacy: privacyTerms.value,
-        marketing: marketingTerms.value
-      }
-    });
-
     try {
-      const { success, nextRoute } = await signupStore.submitSignup();
+      signupStore.setUserInfo({
+        patientInfo: {
+          bankNm: bankName.value,
+          accountNo: accountNumber.value,
+          accountPw: accountPassword.value
+        },
+        terms: {
+          service: serviceTerms.value,
+          privacy: privacyTerms.value,
+          medicalInfo: medicalInfoTerms.value,
+          ePrescription: ePrescriptionTerms.value,
+          sensitiveInfo: sensitiveInfoTerms.value,
+          notification: notificationTerms.value
+        }
+      });
+
+      const { success } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
@@ -126,10 +205,7 @@ const handleNextClick = async () => {
             v-model:checked="allTermsChecked"
             @update:checked="handleAllTermsChange"
           />
-          <label
-            for="all-terms"
-            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
+          <label for="all-terms" class="text-sm font-medium leading-none">
             <div class="term-info">전체 이용 약관 동의</div>
           </label>
         </div>
@@ -139,12 +215,9 @@ const handleNextClick = async () => {
           <Checkbox
             id="service-terms"
             v-model:checked="serviceTerms"
-            @update:checked="handleIndividualTermChange"
+            @update:checked="(checked) => handleIndividualTermChange('service', checked)"
           />
-          <label
-            for="service-terms"
-            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
+          <label for="service-terms" class="text-sm font-medium leading-none">
             <div class="term-info">[필수] 서비스 이용 약관</div>
           </label>
         </div>
@@ -153,35 +226,68 @@ const handleNextClick = async () => {
           <Checkbox
             id="privacy-terms"
             v-model:checked="privacyTerms"
-            @update:checked="handleIndividualTermChange"
+            @update:checked="(checked) => handleIndividualTermChange('privacy', checked)"
           />
-          <label
-            for="privacy-terms"
-            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            <div class="term-info">[필수] 개인정보 수집 및 이용약관</div>
+          <label for="privacy-terms" class="text-sm font-medium leading-none">
+            <div class="term-info">[필수] 개인정보 수집 및 이용 동의</div>
           </label>
         </div>
 
         <div class="flex items-center space-x-2">
           <Checkbox
-            id="marketing-terms"
-            v-model:checked="marketingTerms"
-            @update:checked="handleIndividualTermChange"
+            id="medical-info-terms"
+            v-model:checked="medicalInfoTerms"
+            @update:checked="(checked) => handleIndividualTermChange('medicalInfo', checked)"
           />
-          <label
-            for="marketing-terms"
-            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            <div class="term-info">[선택] E-mail 및 SMS 광고성 정보 수신 동의</div>
+          <label for="medical-info-terms" class="text-sm font-medium leading-none">
+            <div class="term-info">[필수] 의료정보 처리 동의</div>
+          </label>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <Checkbox
+            id="e-prescription-terms"
+            v-model:checked="ePrescriptionTerms"
+            @update:checked="(checked) => handleIndividualTermChange('ePrescription', checked)"
+          />
+          <label for="e-prescription-terms" class="text-sm font-medium leading-none">
+            <div class="term-info">[필수] 전자처방전 이용 동의</div>
+          </label>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <Checkbox
+            id="sensitive-info-terms"
+            v-model:checked="sensitiveInfoTerms"
+            @update:checked="(checked) => handleIndividualTermChange('sensitiveInfo', checked)"
+          />
+          <label for="sensitive-info-terms" class="text-sm font-medium leading-none">
+            <div class="term-info">[필수] 민감정보 처리 동의</div>
+          </label>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <Checkbox
+            id="notification-terms"
+            v-model:checked="notificationTerms"
+            @update:checked="(checked) => handleIndividualTermChange('notification', checked)"
+            :disabled="isTokenLoading"
+          />
+          <label for="notification-terms" class="text-sm font-medium leading-none">
+            <div class="term-info">
+              [필수] 알림 수신 동의
+              <span v-if="isTokenLoading"> (처리 중...)</span>
+            </div>
           </label>
         </div>
       </div>
     </div>
 
-    <Button class="next-button" variant="default" :disabled="!isFormValid" @click="handleNextClick">
-      다음
-    </Button>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextClick">
+        다음
+      </Button>
+    </div>
   </Main>
 </template>
 
@@ -218,13 +324,13 @@ const handleNextClick = async () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 }
 
 .terms-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .term-info {
@@ -239,9 +345,11 @@ const handleNextClick = async () => {
 }
 
 .next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 </style>

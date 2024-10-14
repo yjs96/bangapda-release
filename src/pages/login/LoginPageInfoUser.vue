@@ -67,14 +67,11 @@ const handleNextButtonClick = async () => {
       <Button variant="destructive" size="lg" class="extra-button">기타</Button>
     </div>
 
-    <Button
-      class="next-button"
-      variant="default"
-      :disabled="!selectedBank"
-      @click="handleNextButtonClick"
-    >
-      다음
-    </Button>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!selectedBank" @click="handleNextButtonClick">
+        다음
+      </Button>
+    </div>
   </Main>
 </template>
 
@@ -133,11 +130,12 @@ const handleNextButtonClick = async () => {
 }
 
 .next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
-  transition: all 0.3s ease;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 
 .next-button:not(:disabled):hover {

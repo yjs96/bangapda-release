@@ -54,7 +54,7 @@ const handleSubmit = async () => {
         userNm: userNm.value,
         phoneNo: phoneNo.value,
         phoneCarrier: phoneCarrier.value,
-        firstNo : firstNo.value,
+        firstNo: firstNo.value,
         lastNo: lastNo.value
       }
     });
@@ -152,9 +152,11 @@ const handleSubmit = async () => {
       </div>
     </div>
 
-    <Button class="next-button" variant="default" :disabled="!isFormValid" @click="handleSubmit">
-      다음
-    </Button>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleSubmit">
+        다음
+      </Button>
+    </div>
   </Main>
 </template>
 
@@ -215,10 +217,12 @@ const handleSubmit = async () => {
 }
 
 .next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 
 label {

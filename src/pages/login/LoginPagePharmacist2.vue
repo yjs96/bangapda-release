@@ -15,7 +15,7 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
-const licenseNumber = ref('');
+const chemistNo = ref('');
 const isLicenseVerified = ref(false);
 const representativeName = ref('');
 const pharmacyPhone = ref('');
@@ -23,7 +23,7 @@ const pharmacyPhone = ref('');
 // 면허 번호 확인 함수
 const verifyLicense = () => {
   // 실제 구현에서는 서버에 확인 요청을 보내야 합니다.
-  if (licenseNumber.value.trim() !== '') {
+  if (chemistNo.value.trim() !== '') {
     isLicenseVerified.value = true;
   }
 };
@@ -32,6 +32,7 @@ const verifyLicense = () => {
 const isFormValid = computed(
   () =>
     isLicenseVerified.value &&
+    chemistNo.value.trim() !== '' &&
     representativeName.value.trim() !== '' &&
     pharmacyPhone.value.trim() !== ''
 );
@@ -41,14 +42,14 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       pharmacistInfo: {
-        chemistNo: licenseNumber.value,
+        chemistNo: chemistNo.value,
         representativeName: representativeName.value,
         pharmacyPhoneNo: pharmacyPhone.value
       }
     });
 
     try {
-      const { success, nextRoute } = await signupStore.submitSignup();
+      const { success } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
@@ -68,7 +69,6 @@ const handleNextButtonClick = async () => {
   <HeadBar :back-button="true">회원가입</HeadBar>
   <Main :headbar="true" :navbar="false" :padded="true" :bg-gray="false">
     <div class="login-pharmacist">약사 정보를 <br />입력해주세요</div>
-
     <div class="pharmacist-container">
       <div class="input-group">
         <Label for="pharmacist-license">면허 번호</Label>
@@ -76,7 +76,7 @@ const handleNextButtonClick = async () => {
           <Input
             type="text"
             id="pharmacist-license"
-            v-model="licenseNumber"
+            v-model="chemistNo"
             placeholder="면허 번호를 입력하세요"
             maxlength="6"
           />
@@ -84,82 +84,29 @@ const handleNextButtonClick = async () => {
           <CheckCircle2 v-if="isLicenseVerified" class="text-yellow-500" />
         </div>
       </div>
-
       <div class="input-group">
-        <Label for="pharmacist-representative">대표 약사 성명</Label>
+        <Label for="representative-name">대표 약사 성명</Label>
         <Input
           type="text"
-          id="pharmacist-representative"
+          id="representative-name"
           v-model="representativeName"
-          placeholder="대표 약사 성명을 입력"
+          placeholder="대표 약사 성명을 입력하세요"
         />
       </div>
-
       <div class="input-group">
-        <Label for="pharmacy-tel">약국 연락처</Label>
+        <Label for="pharmacy-phone">약국 연락처</Label>
         <Input
-          type="text"
-          inputmode="numeric"
-          id="pharmacy-tel"
+          type="tel"
+          id="pharmacy-phone"
           v-model="pharmacyPhone"
-          placeholder="ex) 021234567"
-          maxlength="11"
+          placeholder="약국 연락처를 입력하세요"
         />
       </div>
     </div>
-
-    <Button
-      class="next-button"
-      variant="default"
-      :disabled="!isFormValid"
-      @click="handleNextButtonClick"
-    >
-      다음
-    </Button>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextButtonClick">
+        다음
+      </Button>
+    </div>
   </Main>
 </template>
-
-<style scoped>
-.login-pharmacist {
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  font-size: 24px;
-  font-weight: 600;
-  margin-top: 40px;
-  margin-bottom: 60px;
-  margin-left: 20px;
-}
-
-.pharmacist-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: left;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 60px;
-}
-
-.input-group label {
-  margin-bottom: 8px;
-}
-
-.license-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
-}
-</style>

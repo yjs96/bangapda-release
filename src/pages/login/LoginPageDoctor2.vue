@@ -23,14 +23,14 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 입력 필드를 위한 반응형 변수들을 생성합니다.
-const licenseNumber = ref('');
+const doctorNo = ref('');
 const isLicenseVerified = ref(false);
-const representativeName = ref('');
+const type = ref('');
 const hospitalPhone = ref('');
 
 // 면허 번호를 확인하는 함수를 정의합니다.
 const verifyLicense = async () => {
-  if (licenseNumber.value.trim() !== '') {
+  if (doctorNo.value.trim() !== '') {
     // 실제 구현에서는 서버에 확인 요청을 보내야 합니다.
     isLicenseVerified.value = true;
   }
@@ -38,11 +38,7 @@ const verifyLicense = async () => {
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
 const isFormValid = computed(() => {
-  return (
-    isLicenseVerified.value &&
-    type.value.trim() !== '' &&
-    hospitalPhone.value.trim() !== ''
-  );
+  return isLicenseVerified.value && type.value.trim() !== '' && hospitalPhone.value.trim() !== '';
 });
 
 // '다음' 버튼 클릭 핸들러를 정의합니다.
@@ -50,15 +46,14 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       doctorInfo: {
-        doctorNo: licenseNumber.value,
-        representativeName: representativeName.value,
-        hospitalPhoneNo: hospitalPhone.value,
-        tp : type.value
+        doctorNo: doctorNo.value,
+        tp: type.value,
+        hospitalPhoneNo: hospitalPhone.value
       }
     });
 
     try {
-      const { success, nextRoute } = await signupStore.submitSignup();
+      const { success } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
@@ -73,13 +68,9 @@ const handleNextButtonClick = async () => {
   }
 };
 
-const type = ref("");
-
-
 onMounted(() => {
-  
-})
-
+  // 필요한 경우 여기에 초기화 로직을 추가하세요.
+});
 </script>
 
 <template>
@@ -95,7 +86,7 @@ onMounted(() => {
             type="text"
             inputmode="numeric"
             id="doctor-license"
-            v-model="licenseNumber"
+            v-model="doctorNo"
             placeholder="면허 번호 입력하세요"
             maxlength="6"
           ></Input>
@@ -105,40 +96,33 @@ onMounted(() => {
       </div>
 
       <div class="input-group">
-        <!-- <Label for="doctor-representative">대표 원장 성명</Label>
-        <Input
-          type="text"
-          id="doctor-representative"
-          v-model="representativeName"
-          placeholder="대표 원장 성명 입력"
-        ></Input> -->
         <Label for="license-type">면허 종별</Label>
-        <Select v-model="type" >
-            <SelectTrigger>
-              <SelectValue placeholder="면허 종별" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="GENERAL_PRACTITIONER">일반의</SelectItem>
-                <SelectItem value="INTERNIST">내과 의사</SelectItem>
-                <SelectItem value="SURGEON">외과 의사</SelectItem>
-                <SelectItem value="PEDIATRICIAN">소아과 의사</SelectItem>
-                <SelectItem value="GYNECOLOGIST">산부인과 의사</SelectItem>
-                <SelectItem value="DERMATOLOGIST">피부과 의사</SelectItem>
-                <SelectItem value="PSYCHIATRIST">정신과 의사</SelectItem>
-                <SelectItem value="ORTHOPEDIC_SURGEON">정형외과 의사</SelectItem>
-                <SelectItem value="RADIOLOGIST">방사선과 의사</SelectItem>
-                <SelectItem value="CARDIOLOGIST">심장내과 의사</SelectItem>
-                <SelectItem value="NEUROLOGIST">신경과 의사</SelectItem>
-                <SelectItem value="OPHTHALMOLOGIST">안과 의사</SelectItem>
-                <SelectItem value="ENT_SPECIALIST">이비인후과 의사</SelectItem>
-                <SelectItem value="DENTIST">치과 의사</SelectItem>
-                <SelectItem value="VETERINARIAN">수의사</SelectItem>
-                <SelectItem value="PHARMACIST">약사</SelectItem>
-                <SelectItem value="UNLICENSED">무면허</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <Select v-model="type">
+          <SelectTrigger>
+            <SelectValue placeholder="면허 종별" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="GENERAL_PRACTITIONER">일반의</SelectItem>
+              <SelectItem value="INTERNIST">내과 의사</SelectItem>
+              <SelectItem value="SURGEON">외과 의사</SelectItem>
+              <SelectItem value="PEDIATRICIAN">소아과 의사</SelectItem>
+              <SelectItem value="GYNECOLOGIST">산부인과 의사</SelectItem>
+              <SelectItem value="DERMATOLOGIST">피부과 의사</SelectItem>
+              <SelectItem value="PSYCHIATRIST">정신과 의사</SelectItem>
+              <SelectItem value="ORTHOPEDIC_SURGEON">정형외과 의사</SelectItem>
+              <SelectItem value="RADIOLOGIST">방사선과 의사</SelectItem>
+              <SelectItem value="CARDIOLOGIST">심장내과 의사</SelectItem>
+              <SelectItem value="NEUROLOGIST">신경과 의사</SelectItem>
+              <SelectItem value="OPHTHALMOLOGIST">안과 의사</SelectItem>
+              <SelectItem value="ENT_SPECIALIST">이비인후과 의사</SelectItem>
+              <SelectItem value="DENTIST">치과 의사</SelectItem>
+              <SelectItem value="VETERINARIAN">수의사</SelectItem>
+              <SelectItem value="PHARMACIST">약사</SelectItem>
+              <SelectItem value="UNLICENSED">무면허</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       <div class="input-group">
@@ -154,14 +138,11 @@ onMounted(() => {
       </div>
     </div>
 
-    <Button
-      class="next-button"
-      variant="default"
-      :disabled="!isFormValid"
-      @click="handleNextButtonClick"
-    >
-      다음
-    </Button>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextButtonClick">
+        다음
+      </Button>
+    </div>
   </Main>
 </template>
 
@@ -203,9 +184,11 @@ onMounted(() => {
 }
 
 .next-button {
-  left: 5.13%;
-  right: 5.13%;
-  bottom: 80px;
-  position: absolute;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 10px 0;
 }
 </style>

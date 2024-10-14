@@ -3,20 +3,18 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { toast } from '@steveyuowo/vue-hot-toast';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAmE7eesdl5WLVKN-xoQD5JUcH4Vf1ex4s",
-  authDomain: "kbank-backend.firebaseapp.com",
-  projectId: "kbank-backend",
-  storageBucket: "kbank-backend.appspot.com",
-  messagingSenderId: "505325744639",
-  appId: "1:505325744639:web:04843f09853629d93437ca",
-  measurementId: "G-P4BPZ9LN1Y"
+  apiKey: 'AIzaSyAmE7eesdl5WLVKN-xoQD5JUcH4Vf1ex4s',
+  authDomain: 'kbank-backend.firebaseapp.com',
+  projectId: 'kbank-backend',
+  storageBucket: 'kbank-backend.appspot.com',
+  messagingSenderId: '505325744639',
+  appId: '1:505325744639:web:04843f09853629d93437ca',
+  measurementId: 'G-P4BPZ9LN1Y'
 };
-
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// @ts-ignore
 export const requestForToken = async (): Promise<string | null> => {
   try {
     const currentToken = await getToken(messaging, {
