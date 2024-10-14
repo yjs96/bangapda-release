@@ -19,7 +19,7 @@ export const useFaceIdStore = defineStore('faceId', {
           publicKey: {
             challenge: new Uint8Array(32), // 서버에서 생성된 챌린지를 사용해야 합니다
             rp: {
-              name: '어플리케이션이름',
+              name: '방갑다',
               id: location.hostname
             },
             user: {
