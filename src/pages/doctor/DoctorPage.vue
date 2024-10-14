@@ -23,13 +23,11 @@ import {
   NumberFieldIncrement,
   NumberFieldInput
 } from '@/components/ui/number-field';
-
 import axiosInstance from '@/api/instance';
 import { toast } from '@steveyuowo/vue-hot-toast';
-import MedicineSelector from '@/components/MedicineSelector.vue';
 import DiseaseSelector from '@/components/DiseaseSelector.vue';
-import InjectionSelector from '@/components/InjectionSelector.vue';
 
+// 약물 정보 인터페이스 정의
 interface Medicine {
   name: string;
   medicinePk: string;
@@ -40,6 +38,7 @@ interface Medicine {
   memo: string;
 }
 
+// 주사제 정보 인터페이스 정의
 interface Injection {
   name: string;
   injectionPk: string;
@@ -50,8 +49,10 @@ interface Injection {
   method: string;
 }
 
+// 상태 변수 정의
+const router = useRouter();
 const showInjectionModal = ref(false);
-const injections = ref<Injection[]>([]); // 주사제 리스트
+const injections = ref<Injection[]>([]);
 const newInjection = ref<Injection>({
   name: '',
   injectionPk: '',
@@ -80,8 +81,7 @@ const newMedicine = ref<Medicine>({
   memo: ''
 });
 
-const router = useRouter();
-
+// 약물 추가 함수
 const addMedicine = () => {
   medicines.value.push({ ...newMedicine.value });
   newMedicine.value = {
@@ -96,10 +96,12 @@ const addMedicine = () => {
   showMedicineModal.value = false;
 };
 
+// 약물 제거 함수
 const removeMedicine = (index: number) => {
   medicines.value.splice(index, 1);
 };
 
+// 주사제 추가 함수
 const addInjection = () => {
   injections.value.push({ ...newInjection.value });
   newInjection.value = {
@@ -114,10 +116,12 @@ const addInjection = () => {
   showInjectionModal.value = false;
 };
 
+// 주사제 제거 함수
 const removeInjection = (index: number) => {
   injections.value.splice(index, 1);
 };
 
+// 폼 유효성 검사
 const isFormValid = computed(
   () =>
     name.value.trim() !== '' &&
@@ -126,29 +130,27 @@ const isFormValid = computed(
     medicines.value.length > 0
 );
 
+// 주민번호 뒷자리 입력 처리
 const handleResidentNumBackInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
-  const cleanedValue = input.value.replace(/\D/g, ''); // 숫자만 허용
-  residentNumBack.value = cleanedValue.slice(0, 7); // 최대 7자리 숫자만 저장
+  const cleanedValue = input.value.replace(/\D/g, '');
+  residentNumBack.value = cleanedValue.slice(0, 7);
 };
 
+// 처방전 등록 함수
 const handleNextButtonClick = async () => {
   try {
     const data = {
-      userNm: name.value, // 사용자의 이름
-      firstNo: residentNumFront.value, // 주민등록번호 앞자리
-      lastNo: residentNumBack.value, // 주민등록번호 뒷자리
-      duration: 3, // 처방전 기간
-      description: description.value, // 처방전 설명
-
-      // diseaseCode가 비어있지 않으면 parseInt로 변환하고, 그렇지 않으면 빈 배열 처리
+      userNm: name.value,
+      firstNo: residentNumFront.value,
+      lastNo: residentNumBack.value,
+      duration: 3,
+      description: description.value,
       diseasePkList: diseaseCode.value ? [parseInt(diseaseCode.value)] : [],
-
-      // medicineIntakeInfoList: 약 목록이 있을 경우 처리
       medicineIntakeInfoList:
         medicines.value.length > 0
           ? medicines.value.map((medicine) => ({
-              medicinePk: medicine.medicinePk ? parseInt(medicine.medicinePk) : null, // 약의 PK 값을 number로 변환, 빈 값 처리
+              medicinePk: medicine.medicinePk ? parseInt(medicine.medicinePk) : null,
               totalDay: medicine.days,
               dosePerMorning: medicine.morning,
               dosePerLunch: medicine.afternoon,
@@ -156,12 +158,10 @@ const handleNextButtonClick = async () => {
               method: medicine.memo || ''
             }))
           : null,
-
-      // injectionIntakeInfoList: 주사제 목록이 있을 경우 처리
       injectionIntakeInfoList:
         injections.value.length > 0
           ? injections.value.map((injection) => ({
-              injectionPk: injection.injectionPk ? parseInt(injection.injectionPk) : null, // 주사제 PK 값을 number로 변환, 빈 값 처리
+              injectionPk: injection.injectionPk ? parseInt(injection.injectionPk) : null,
               totalDay: injection.totalDay,
               dosePerMorning: injection.dosePerMorning,
               dosePerLunch: injection.dosePerLunch,
@@ -171,12 +171,11 @@ const handleNextButtonClick = async () => {
           : null
     };
 
-    console.log(data); // 디버그를 위한 데이터 확인
+    console.log(data);
     const response = await axiosInstance.post('/api/patient/prescription/post?doctorId=1', data);
-    console.log(response.data.data); // PK 값을 확인할 수 있는 부분
+    console.log(response.data.data);
     if (response.data.data === true) {
       toast.success('처방전을 등록했습니다.');
-      // 라우터로 prescriptionId를 params로 넘김
     }
     if (isFormValid.value) {
       router.push(`/doctor/check/${response.data.data}`);
@@ -260,15 +259,15 @@ const handleNextButtonClick = async () => {
 
                   <div class="medicine-form">
                     <Label for="medicine-name">약 이름</Label>
-                    <MedicineSelector
+                    <!-- <MedicineSelector
                       v-model="newMedicine.medicinePk"
                       @update:medicineName="newMedicine.name = $event"
-                    />
-                    <!-- <Input
+                    /> -->
+                    <Input
                       id="medicine-name"
                       v-model="newMedicine.name"
                       placeholder="약 이름을 입력하세요"
-                    /> -->
+                    />
                   </div>
                   <div class="medicine-form">
                     <div class="dosage-inputs">
@@ -290,6 +289,7 @@ const handleNextButtonClick = async () => {
                       </div>
                     </div>
                   </div>
+
                   <div class="medicine-form">
                     <NumberField id="dosage-days" :min="0" v-model="newMedicine.days">
                       <Label for="medicine-days">복용 일수</Label>
@@ -300,6 +300,7 @@ const handleNextButtonClick = async () => {
                       </NumberFieldContent>
                     </NumberField>
                   </div>
+
                   <div class="medicine-form">
                     <Label for="medicine-memo">복용 방법</Label>
                     <Textarea
@@ -334,6 +335,7 @@ const handleNextButtonClick = async () => {
               </div>
             </div>
           </div>
+
           <!-- 주사제 등록 모달 -->
           <div class="prescription-info">
             <div class="pill-container">
@@ -355,9 +357,14 @@ const handleNextButtonClick = async () => {
                   <!-- 주사제 이름 입력 -->
                   <div class="medicine-form">
                     <Label for="injection-name">주사제 이름</Label>
-                    <InjectionSelector
+                    <!-- <InjectionSelector
                       v-model="newInjection.injectionPk"
                       @update:injectionName="newInjection.name = $event"
+                    /> -->
+                    <Input
+                      id="injection-name"
+                      v-model="newInjection.name"
+                      placeholder="주사제를 입력하세요"
                     />
                   </div>
 
@@ -579,10 +586,17 @@ const handleNextButtonClick = async () => {
 }
 
 .fixed-button {
-  position: absolute;
-  bottom: 40px;
+  position: fixed;
+  bottom: 20px;
   left: 20px;
   right: 20px;
-  z-index: 10;
+  z-index: 100;
+  background-color: var(--bg-gray); /* Main 컴포넌트의 배경색과 일치시킵니다 */
+  padding: 10px 0;
+}
+
+/* 컨텐츠가 fixed 버튼에 가려지지 않도록 패딩 추가 */
+.prescription-container {
+  padding-bottom: 80px; /* 버튼의 높이 + 여유 공간 */
 }
 </style>
