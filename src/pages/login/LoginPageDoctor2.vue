@@ -23,14 +23,14 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 입력 필드를 위한 반응형 변수들을 생성합니다.
-const doctorNo = ref('');
+const licenseNumber = ref('');
 const isLicenseVerified = ref(false);
-const type = ref('');
+const representativeName = ref('');
 const hospitalPhone = ref('');
 
 // 면허 번호를 확인하는 함수를 정의합니다.
 const verifyLicense = async () => {
-  if (doctorNo.value.trim() !== '') {
+  if (licenseNumber.value.trim() !== '') {
     // 실제 구현에서는 서버에 확인 요청을 보내야 합니다.
     isLicenseVerified.value = true;
   }
@@ -46,14 +46,15 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       doctorInfo: {
-        doctorNo: doctorNo.value,
-        tp: type.value,
-        hospitalPhoneNo: hospitalPhone.value
+        doctorNo: licenseNumber.value,
+        representativeName: representativeName.value,
+        hospitalPhoneNo: hospitalPhone.value,
+        tp: type.value
       }
     });
 
     try {
-      const { success } = await signupStore.submitSignup();
+      const { success, nextRoute } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
@@ -68,9 +69,9 @@ const handleNextButtonClick = async () => {
   }
 };
 
-onMounted(() => {
-  // 필요한 경우 여기에 초기화 로직을 추가하세요.
-});
+const type = ref('');
+
+onMounted(() => {});
 </script>
 
 <template>
@@ -86,7 +87,7 @@ onMounted(() => {
             type="text"
             inputmode="numeric"
             id="doctor-license"
-            v-model="doctorNo"
+            v-model="licenseNumber"
             placeholder="면허 번호 입력하세요"
             maxlength="6"
           ></Input>
@@ -96,6 +97,13 @@ onMounted(() => {
       </div>
 
       <div class="input-group">
+        <!-- <Label for="doctor-representative">대표 원장 성명</Label>
+        <Input
+          type="text"
+          id="doctor-representative"
+          v-model="representativeName"
+          placeholder="대표 원장 성명 입력"
+        ></Input> -->
         <Label for="license-type">면허 종별</Label>
         <Select v-model="type">
           <SelectTrigger>
