@@ -51,10 +51,11 @@ const handleSubmit = async () => {
     signupStore.setUserInfo({
       memberType: memberType.value,
       commonInfo: {
-        name: name.value,
-        phoneNumber: phoneNumber.value,
+        userNm: name.value,
+        phoneNo: phoneNumber.value,
         phoneCarrier: phoneCarrier.value,
-        residentNumber: residentNumberFront.value + residentNumberBack.value
+        firstNo: residentNumberFront.value,
+        lastNo: residentNumberBack.value
       }
     });
 

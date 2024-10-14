@@ -21,22 +21,26 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
-const hospitalName = ref('');
+const hospitalNm = ref('');
 const city = ref('');
 const district = ref('');
 const neighborhood = ref('');
 const detailAddress = ref('');
 const hospitalType = ref('');
+const hospitalPhoneNo = ref('');
+const representativeName = ref('');
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
 const isFormValid = computed(() => {
   return (
-    hospitalName.value.trim() !== '' &&
+    hospitalNm.value.trim() !== '' &&
     city.value !== '' &&
     district.value !== '' &&
     neighborhood.value !== '' &&
     detailAddress.value.trim() !== '' &&
-    hospitalType.value.trim() !== ''
+    hospitalType.value.trim() !== '' &&
+    hospitalPhoneNo.value.trim() !== '' &&
+    representativeName.value.trim() !== ''
   );
 });
 
@@ -46,14 +50,16 @@ const handleNextButtonClick = () => {
     // 입력된 병원 정보를 Pinia 스토어에 저장합니다.
     signupStore.setUserInfo({
       doctorInfo: {
-        hospitalName: hospitalName.value,
+        hospitalNm: hospitalNm.value,
         hospitalAddress: {
           city: city.value,
           district: district.value,
           neighborhood: neighborhood.value,
           detail: detailAddress.value
         },
-        hospitalType: hospitalType.value
+        hospitalType: hospitalType.value,
+        hospitalPhoneNo: hospitalPhoneNo.value,
+        representativeName: representativeName.value
       }
     });
     // 다음 페이지(의사 면허 입력 페이지)로 이동합니다.
@@ -76,7 +82,7 @@ const handleNextButtonClick = () => {
         <Input
           type="text"
           id="hospital-name"
-          v-model="hospitalName"
+          v-model="hospitalNm"
           placeholder="병원명 입력"
         ></Input>
       </div>
@@ -141,6 +147,26 @@ const handleNextButtonClick = () => {
           id="hospital-type"
           v-model="hospitalType"
           placeholder="병원 분류 입력"
+        ></Input>
+      </div>
+
+      <div class="input-group">
+        <Label for="hospital-phone">병원 전화번호</Label>
+        <Input
+          type="tel"
+          id="hospital-phone"
+          v-model="hospitalPhoneNo"
+          placeholder="병원 전화번호 입력"
+        ></Input>
+      </div>
+
+      <div class="input-group">
+        <Label for="representative-name">대표자 성명</Label>
+        <Input
+          type="text"
+          id="representative-name"
+          v-model="representativeName"
+          placeholder="대표자 성명 입력"
         ></Input>
       </div>
     </div>

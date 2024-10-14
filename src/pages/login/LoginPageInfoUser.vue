@@ -33,7 +33,7 @@ const handleNextButtonClick = async () => {
   if (selectedBank.value) {
     // 선택된 은행 정보를 Pinia 스토어에 저장합니다.
     signupStore.setUserInfo({
-      patientInfo: { bankName: selectedBank.value.name }
+      patientInfo: { bankNm: selectedBank.value.name }
     });
 
     // 다음 페이지로 이동하며, 은행 이미지 정보를 쿼리 파라미터로 전달합니다.

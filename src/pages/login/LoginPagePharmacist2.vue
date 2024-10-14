@@ -15,40 +15,31 @@ const router = useRouter();
 const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
-const licenseNumber = ref('');
+const chemistNo = ref('');
 const isLicenseVerified = ref(false);
-const representativeName = ref('');
-const pharmacyPhone = ref('');
 
 // 면허 번호 확인 함수
 const verifyLicense = () => {
   // 실제 구현에서는 서버에 확인 요청을 보내야 합니다.
-  if (licenseNumber.value.trim() !== '') {
+  if (chemistNo.value.trim() !== '') {
     isLicenseVerified.value = true;
   }
 };
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
-const isFormValid = computed(
-  () =>
-    isLicenseVerified.value &&
-    representativeName.value.trim() !== '' &&
-    pharmacyPhone.value.trim() !== ''
-);
+const isFormValid = computed(() => isLicenseVerified.value && chemistNo.value.trim() !== '');
 
 // '다음' 버튼 클릭 핸들러를 정의합니다.
 const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       pharmacistInfo: {
-        licenseNumber: licenseNumber.value,
-        representativeName: representativeName.value,
-        pharmacyPhone: pharmacyPhone.value
+        chemistNo: chemistNo.value
       }
     });
 
     try {
-      const { success, nextRoute } = await signupStore.submitSignup();
+      const { success } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
@@ -76,35 +67,13 @@ const handleNextButtonClick = async () => {
           <Input
             type="text"
             id="pharmacist-license"
-            v-model="licenseNumber"
+            v-model="chemistNo"
             placeholder="면허 번호를 입력하세요"
             maxlength="6"
           />
           <Button @click="verifyLicense" :disabled="isLicenseVerified">등록하기</Button>
           <CheckCircle2 v-if="isLicenseVerified" class="text-yellow-500" />
         </div>
-      </div>
-
-      <div class="input-group">
-        <Label for="pharmacist-representative">대표 약사 성명</Label>
-        <Input
-          type="text"
-          id="pharmacist-representative"
-          v-model="representativeName"
-          placeholder="대표 약사 성명을 입력"
-        />
-      </div>
-
-      <div class="input-group">
-        <Label for="pharmacy-tel">약국 연락처</Label>
-        <Input
-          type="text"
-          inputmode="numeric"
-          id="pharmacy-tel"
-          v-model="pharmacyPhone"
-          placeholder="ex) 021234567"
-          maxlength="11"
-        />
       </div>
     </div>
 

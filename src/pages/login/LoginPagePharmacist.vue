@@ -7,57 +7,50 @@ import Main from '@/components/Main.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { CheckCircle2 } from 'lucide-vue-next';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 // Vue Router와 Signup 스토어 인스턴스를 생성합니다.
 const router = useRouter();
 const signupStore = useSignupStore();
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
-const pharmacyName = ref('');
-const city = ref('');
-const district = ref('');
-const neighborhood = ref('');
-const detailAddress = ref('');
+const chemistNo = ref('');
+const isLicenseVerified = ref(false);
+
+// 면허 번호 확인 함수
+const verifyLicense = () => {
+  // 실제 구현에서는 서버에 확인 요청을 보내야 합니다.
+  if (chemistNo.value.trim() !== '') {
+    isLicenseVerified.value = true;
+  }
+};
 
 // 폼의 유효성을 검사하는 computed 속성을 정의합니다.
-const isFormValid = computed(() => {
-  return (
-    pharmacyName.value.trim() !== '' &&
-    city.value !== '' &&
-    district.value !== '' &&
-    neighborhood.value !== '' &&
-    detailAddress.value.trim() !== ''
-  );
-});
+const isFormValid = computed(() => isLicenseVerified.value && chemistNo.value.trim() !== '');
 
 // '다음' 버튼 클릭 핸들러를 정의합니다.
-const handleNextButtonClick = () => {
+const handleNextButtonClick = async () => {
   if (isFormValid.value) {
-    // 입력된 약사 정보를 Pinia 스토어에 저장합니다.
     signupStore.setUserInfo({
       pharmacistInfo: {
-        pharmacyName: pharmacyName.value,
-        pharmacyAddress: {
-          city: city.value,
-          district: district.value,
-          neighborhood: neighborhood.value,
-          detail: detailAddress.value
-        }
+        chemistNo: chemistNo.value
       }
     });
-    // 다음 페이지(약사 면허 입력 페이지)로 이동합니다.
-    router.push('/login/pharmacist/license');
+
+    try {
+      const { success } = await signupStore.submitSignup();
+      if (success) {
+        router.push('/success');
+      } else {
+        toast.error('회원가입에 실패했습니다. 다시 시도해 주세요.');
+      }
+    } catch (error) {
+      console.error('회원가입 처리 중 오류가 발생했습니다:', error);
+      toast.error('회원가입 처리 중 오류가 발생했습니다.');
+    }
   } else {
-    console.error('폼이 유효하지 않습니다.');
-    // TODO: 사용자에게 유효성 검사 실패 메시지 표시
+    toast.error('모든 필드를 올바르게 입력해주세요.');
   }
 };
 </script>
@@ -69,73 +62,25 @@ const handleNextButtonClick = () => {
 
     <div class="pharmacist-container">
       <div class="input-group">
-        <Label for="pharmacy-name">약국명</Label>
-        <Input
-          type="text"
-          id="pharmacy-name"
-          v-model="pharmacyName"
-          placeholder="약국명을 입력해주세요"
-        />
-      </div>
-
-      <div class="input-group">
-        <Label>약국 주소</Label>
-        <div class="pharmacy-container">
-          <Select v-model="city">
-            <SelectTrigger class="w-[120px]">
-              <SelectValue placeholder="시" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="seoul"> 서울특별시 </SelectItem>
-                <SelectItem value="guangju"> 광주광역시 </SelectItem>
-                <SelectItem value="daegu"> 대구광역시 </SelectItem>
-                <SelectItem value="busan"> 부산광역시 </SelectItem>
-                <SelectItem value="ulsan"> 울산광역시 </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select v-model="district">
-            <SelectTrigger class="w-[90px]">
-              <SelectValue placeholder="구" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="gangnam"> 강남구 </SelectItem>
-                <SelectItem value="guanjin"> 광진구 </SelectItem>
-                <SelectItem value="yeongdeongpo"> 영등포구 </SelectItem>
-                <SelectItem value="songpa"> 송파구 </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select v-model="neighborhood">
-            <SelectTrigger class="w-[90px]">
-              <SelectValue placeholder="동" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="seoul"> 무슨구 </SelectItem>
-                <SelectItem value="guangju"> 무슨구 </SelectItem>
-                <SelectItem value="daegu"> 무슨구 </SelectItem>
-                <SelectItem value="busan"> 무슨구 </SelectItem>
-                <SelectItem value="ulsan"> 무슨구 </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <Label for="pharmacist-license">면허 번호</Label>
+        <div class="license-container">
+          <Input
+            type="text"
+            id="pharmacist-license"
+            v-model="chemistNo"
+            placeholder="면허 번호를 입력하세요"
+            maxlength="6"
+          />
+          <Button @click="verifyLicense" :disabled="isLicenseVerified">등록하기</Button>
+          <CheckCircle2 v-if="isLicenseVerified" class="text-yellow-500" />
         </div>
-        <Input
-          type="text"
-          id="pharmacist-address"
-          v-model="detailAddress"
-          placeholder="(상세주소)"
-        />
       </div>
+    </div>
 
-      <div class="next-button">
-        <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextButtonClick">
-          다음
-        </Button>
-      </div>
+    <div class="next-button">
+      <Button size="lg" variant="default" :disabled="!isFormValid" @click="handleNextButtonClick">
+        다음
+      </Button>
     </div>
   </Main>
 </template>
@@ -168,12 +113,6 @@ const handleNextButtonClick = () => {
 }
 
 .input-group label {
-  margin-bottom: 8px;
-}
-
-.pharmacy-container {
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 8px;
 }
 

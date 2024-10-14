@@ -18,7 +18,7 @@ const route = useRoute();
 const signupStore = useSignupStore();
 
 // 은행 정보 가져오기
-const bankName = computed(() => signupStore.patientInfo.bankName);
+const bankName = computed(() => signupStore.patientInfo.bankNm);
 const bankImg = computed(() => route.query.bankImg as string);
 
 // 폼 입력값 및 약관 동의 상태
@@ -137,9 +137,9 @@ const handleNextClick = async () => {
     try {
       signupStore.setUserInfo({
         patientInfo: {
-          bankName: bankName.value,
-          accountNumber: accountNumber.value,
-          accountPassword: accountPassword.value
+          bankNm: bankName.value,
+          accountNo: accountNumber.value,
+          accountPw: accountPassword.value
         },
         terms: {
           service: serviceTerms.value,
@@ -151,7 +151,7 @@ const handleNextClick = async () => {
         }
       });
 
-      const { success, nextRoute } = await signupStore.submitSignup();
+      const { success } = await signupStore.submitSignup();
       if (success) {
         router.push('/success');
       } else {
