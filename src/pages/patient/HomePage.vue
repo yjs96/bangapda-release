@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useFaceIdStore } from '@/stores/faceId';
 import { useThemeStore } from '@/stores/theme';
 import { toast } from '@steveyuowo/vue-hot-toast';
@@ -16,16 +16,13 @@ import {
   // DialogTitle,
   DialogContent,
   DialogFooter,
-  DialogClose,
-  DialogTrigger
+  DialogClose
 } from '@/components/ui/dialog';
 import {
   Carousel,
   type CarouselApi,
   CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
+  CarouselItem
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -119,7 +116,7 @@ const handleSummaryDetail = () => {
 const faceIdStore = useFaceIdStore();
 
 const userName = ref('임시');
-faceIdStore.isAuthenticated = true;
+faceIdStore.isAuthenticated = false;
 
 const handleFaceIdAuth = () => {
   faceIdStore.authenticate(userName.value);
@@ -168,7 +165,7 @@ const NotRecievedPrescription = ref<Prescription[]>();
 
 const getNotRecieved = async () => {
   await axiosInstance
-    .get('/api/patient/prescription/new/list?userId=2')
+    .get('/api/patient/prescription/new/list?userId=1')
     .then((res) => {
       console.log(res.data.data.prescriptionList);
       NotRecievedPrescription.value = res.data.data.prescriptionList;
@@ -297,6 +294,7 @@ const isQRDialogOpen = ref(false);
 const selectedQRData = ref();
 
 const openQRDialog = (prescription: Prescription) => {
+  handleFaceIdAuth();
   selectedQRData.value = generateQRCode(prescription.prescriptionPk);
   isQRDialogOpen.value = true;
 };
@@ -324,7 +322,7 @@ onMounted(async () => {
   <Main :headbar="false" :navbar="true" :bg-gray="true" style="overflow-y: hidden">
     <div class="top-half">
       <div class="hospital-name">안녕하세요, 최규찬님</div>
-      <div v-if="NotRecievedPrescription">
+      <div v-if="NotRecievedPrescription?.length">
         <Carousel @init-api="(api) => (carouselApi = api)" class="h-[120px]">
           <CarouselContent class="ps-0">
             <CarouselItem v-for="(prescription, index) in NotRecievedPrescription" :key="index">
@@ -426,7 +424,11 @@ onMounted(async () => {
     </div>
     <div
       class="bottom-half"
-      :style="NotRecievedPrescription ? 'height: calc(100% - 272px)' : 'height: calc(100% - 156px)'"
+      :style="
+        !(NotRecievedPrescription?.length == 0)
+          ? 'height: calc(100% - 272px)'
+          : 'height: calc(100% - 156px)'
+      "
     >
       <div v-if="NotRecievedPrescription" class="notice">
         <img src="/images/tada.svg" />
