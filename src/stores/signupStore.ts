@@ -42,10 +42,14 @@ interface PharmacistInfo {
   pharmacyPhone: string;
 }
 
+// 약관 동의 인터페이스 수정
 interface Terms {
   service: boolean;
   privacy: boolean;
-  marketing: boolean;
+  medicalInfo: boolean;
+  ePrescription: boolean;
+  sensitiveInfo: boolean;
+  notification: boolean;
 }
 
 // Pinia 스토어 정의
@@ -99,7 +103,7 @@ export const useSignupStore = defineStore('signup', {
             data = {
               ...data,
               ...this.patientInfo,
-              user_nm: this.commonInfo.name // 일반 회원용 이름 필드
+              user_nm: this.commonInfo.name
             };
             break;
           case '의사':
@@ -107,7 +111,7 @@ export const useSignupStore = defineStore('signup', {
             data = {
               ...data,
               ...this.doctorInfo,
-              doctor_nm: this.commonInfo.name // 의사용 이름 필드
+              doctor_nm: this.commonInfo.name
             };
             break;
           case '약사':
@@ -115,13 +119,14 @@ export const useSignupStore = defineStore('signup', {
             data = {
               ...data,
               ...this.pharmacistInfo,
-              chemist_nm: this.commonInfo.name // 약사용 이름 필드
+              chemist_nm: this.commonInfo.name
             };
             break;
           default:
             throw new Error('잘못된 회원 유형입니다.');
         }
 
+        // 약관 동의 정보 추가 (알림 수신 동의 포함)
         data.terms = this.terms;
 
         // API 요청 전송
@@ -137,7 +142,6 @@ export const useSignupStore = defineStore('signup', {
         }
       } catch (error) {
         console.error('회원가입에 실패했어요', error);
-
         return { success: false, nextRoute: '' };
       }
     },

@@ -6,7 +6,6 @@ import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
-import NotificationConsent from '@/components/NotificationConsent.vue';
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,7 @@ import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
 import { toast } from '@steveyuowo/vue-hot-toast';
 
-// 은행 정보
+// 은행 정보 배열 정의
 const banks = [
   { name: '국민은행', img: '/images/banks/kb-bank.png' },
   { name: '신한은행', img: '/images/banks/shinhan-bank.png' },
@@ -32,24 +31,26 @@ const banks = [
   { name: '기업은행', img: '/images/banks/ibk-bank.png' }
 ];
 
-// 계좌 관련 상태 및 함수
+// 계좌 관련 상태 변수들 정의
 const selectedBank = ref<{ name: string; img: string } | null>(null);
-
-const selectBank = (bank: { name: string; img: string }) => {
-  selectedBank.value = bank;
-};
-
 const accountNumber = ref('');
 const newAccountNumber = ref('');
 const accountPassword = ref('');
 const bank = ref('');
 
+// 은행 선택 함수
+const selectBank = (bank: { name: string; img: string }) => {
+  selectedBank.value = bank;
+};
+
+// 계좌 비밀번호 입력 처리 함수
 const handlePasswordInput = (event: Event) => {
   const input = event.target as HTMLInputElement;
   input.value = input.value.replace(/\D/g, '').slice(0, 4);
   accountPassword.value = input.value;
 };
 
+// 폼 유효성 검사
 const isFormValid = computed(() => {
   return (
     selectedBank.value !== null &&
@@ -58,13 +59,13 @@ const isFormValid = computed(() => {
   );
 });
 
-// 복약 시간 관련 상태 및 함수
+// 복약 시간 관련 상태 변수들
 const mealTimeStore = useMealTimeStore();
 const breakfastTime = ref('');
 const lunchTime = ref('');
 const dinnerTime = ref('');
 
-/**약 알람 시간 변경 */
+// 복약 시간 업데이트 함수
 const updateMealTimes = async () => {
   mealTimeStore.updateAllMealTimes({
     breakfast: breakfastTime.value,
@@ -81,7 +82,8 @@ const updateMealTimes = async () => {
   try {
     const response = await axiosInstance.patch(
       'api/patient/modify/medicineTime?userId=1',
-      updateAlarm)
+      updateAlarm
+    );
     toast.success('알림시간을 수정했습니다.');
     console.log(response);
   } catch (err) {
@@ -89,8 +91,7 @@ const updateMealTimes = async () => {
   }
 };
 
-// 알림 관련 함수
-
+// 계좌 정보 업데이트 함수
 const updateAccount = async () => {
   try {
     const updateData = {
@@ -103,7 +104,6 @@ const updateAccount = async () => {
     const response = await axiosInstance.patch('/api/patient/modify/account?userId=1', updateData);
     console.log(response.data);
 
-    // response.data가 정확히 boolean 값인지 확인
     if (response.data.data === true) {
       toast.success('계좌정보를 수정했습니다');
     } else if (response.data.data === false) {
@@ -116,20 +116,21 @@ const updateAccount = async () => {
   }
 };
 
-/**시간 00:00 형식으로 변환 */
+// 시간을 '00:00' 형식으로 변환하는 함수
 const formatTime = (alarmArray: String[]) => {
   const hours = String(alarmArray[0]).padStart(2, '0');
-  const minutes = String(alarmArray[1]).padStart(2, '0'); // 분(minute)
+  const minutes = String(alarmArray[1]).padStart(2, '0');
   return `${hours}:${minutes}`;
 };
-/**계좌정보 수정할 때 초기화해서 들어가게 하기 */
+
+// 계좌 정보 수정 폼 초기화 함수
 const resetAccountForm = () => {
   selectedBank.value = null;
   newAccountNumber.value = '';
   accountPassword.value = '';
 };
 
-
+// 사용자 정보 가져오기 함수
 const getUserInfo = async () => {
   try {
     const response = await axiosInstance.get(`/api/patient/account?userId=1`);
@@ -138,17 +139,16 @@ const getUserInfo = async () => {
     breakfastTime.value = formatTime(response.data.data.morningAlarm);
     lunchTime.value = formatTime(response.data.data.lunchAlarm);
     dinnerTime.value = formatTime(response.data.data.dinnerAlarm);
-    console.log(response.data); // 응답 데이터를 출력해 확인
+    console.log(response.data);
   } catch (err) {
     console.log(err);
   }
 };
 
+// 컴포넌트 마운트 시 사용자 정보 로드
 onMounted(async () => {
   getUserInfo();
 });
-
-
 </script>
 
 <template>
@@ -262,17 +262,6 @@ onMounted(async () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-    </ShadowBox>
-
-    <!-- 알림 설정 섹션 -->
-    <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
-      <div class="settings-title">알림 설정</div>
-      <div class="settings-frame">
-        <div class="settings-row">
-          <div class="settings-key">알림 수신 동의</div>
-          <NotificationConsent />
-        </div>
       </div>
     </ShadowBox>
 
