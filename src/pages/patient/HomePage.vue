@@ -160,12 +160,13 @@ import axiosInstance from '@/api/instance';
 import moment from 'moment';
 import 'moment/locale/ko';
 import { watchOnce } from '@vueuse/core';
+import axios from 'axios';
 
 const NotRecievedPrescription = ref<Prescription[]>();
 
 const getNotRecieved = async () => {
   await axiosInstance
-    .get('/api/patient/prescription/new/list?userId=1')
+    .get('/api/patient/prescription/new/list')
     .then((res) => {
       console.log(res.data.data.prescriptionList);
       NotRecievedPrescription.value = res.data.data.prescriptionList;
@@ -180,7 +181,7 @@ const receivedReport = ref<Report>();
 const getReport = async (id: number) => {
   isLoaded.value = false; // 로딩중 화면 표시
   await axiosInstance
-    .get(`/api/patient/report/get/${id}?userId=1`)
+    .get(`/api/patient/report/get/${id}`)
     .then((res) => {
       receivedReport.value = res.data.data;
       isLoaded.value = true; // 로딩이 완전히 끝나면 로딩중 화면 끝내기.
@@ -203,7 +204,7 @@ const getIntake = async () => {
   const formattedDate = `${year}-${month}-${day}`;
 
   await axiosInstance
-    .get(`/api/medi/taking/list?userId=1&date=${formattedDate}`)
+    .get(`/api/medi/taking/list?&date=${formattedDate}`)
     .then((res) => {
       medicineIntake.value = res.data.data.medicineIntakeList;
     })
@@ -212,7 +213,7 @@ const getIntake = async () => {
     });
 
   await axiosInstance
-    .get(`/api/inj/taking/list?userId=1&date=${formattedDate}`)
+    .get(`/api/inj/taking/list?date=${formattedDate}`)
     .then((res) => {
       injectionIntake.value = res.data.data.injectionIntakeList;
     })
@@ -223,7 +224,7 @@ const getIntake = async () => {
 
 const toggleMediEatSt = async (id: number, st: boolean) => {
   try {
-    const response = await axiosInstance.patch(`/api/medi/taking/comp/${id}?userId=1`);
+    const response = await axiosInstance.patch(`/api/medi/taking/comp/${id}`);
     if (medicineIntake.value) {
       const index = medicineIntake.value.findIndex((item: MedicineIntake) => item.medInkPk === id);
       medicineIntake.value[index].eatSt = !medicineIntake.value[index].eatSt; // 업데이트된 데이터로 교체
@@ -259,7 +260,7 @@ const reportPrescriptions = ref<Prescription[]>([]);
 const getRecent = async () => {
   try {
     const response = await axiosInstance(
-      `/api/patient/prescription/list?userId=1&pageIndex=0&pageSize=20`
+      `/api/patient/prescription/list?&pageIndex=0&pageSize=20`
     );
     const data = response.data.data.prescriptionList;
 
@@ -299,6 +300,12 @@ const openQRDialog = (prescription: Prescription) => {
   isQRDialogOpen.value = true;
 };
 
+const getUserName = async() => {
+  await axiosInstance.get("/api/patient/name")
+  .then(res => {userName.value = res.data.data})
+  .catch(err => console.log(err));
+}
+
 watchOnce(carouselApi, (api) => {
   if (!api) return;
   onSelect();
@@ -314,6 +321,7 @@ onMounted(async () => {
   getNotRecieved();
   getIntake();
   getRecent();
+  getUserName();
 });
 </script>
 
@@ -321,7 +329,7 @@ onMounted(async () => {
   <NavBar />
   <Main :headbar="false" :navbar="true" :bg-gray="true" style="overflow-y: hidden">
     <div class="top-half">
-      <div class="hospital-name">안녕하세요, 최규찬님</div>
+      <div class="hospital-name">안녕하세요, {{ userName }}님</div>
       <div v-if="NotRecievedPrescription?.length">
         <Carousel @init-api="(api) => (carouselApi = api)" class="h-[120px]">
           <CarouselContent class="ps-0">
@@ -493,7 +501,7 @@ onMounted(async () => {
       <ShadowBox :padding-x="20" :padding-y="20">
         <div>
           <div class="title-with-arrow" @click="handleSummaryDetail()">
-            <div class="shadow-box-title">최규찬님의 건강 리포트</div>
+            <div class="shadow-box-title">{{ userName }}님의 건강 리포트</div>
             <i
               v-if="reportPrescriptions.length"
               class="fa-solid fa-chevron-down"
