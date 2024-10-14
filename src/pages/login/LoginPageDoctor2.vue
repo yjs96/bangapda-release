@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignupStore } from '@/stores/signupStore';
 import HeadBar from '@/components/HeadBar.vue';
@@ -8,6 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { CheckCircle2 } from 'lucide-vue-next';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { toast } from '@steveyuowo/vue-hot-toast';
 
 // Vue Router와 Signup 스토어 인스턴스를 생성합니다.
@@ -32,7 +40,7 @@ const verifyLicense = async () => {
 const isFormValid = computed(() => {
   return (
     isLicenseVerified.value &&
-    representativeName.value.trim() !== '' &&
+    type.value.trim() !== '' &&
     hospitalPhone.value.trim() !== ''
   );
 });
@@ -42,9 +50,10 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       doctorInfo: {
-        licenseNumber: licenseNumber.value,
+        doctorNo: licenseNumber.value,
         representativeName: representativeName.value,
-        hospitalPhone: hospitalPhone.value
+        hospitalPhoneNo: hospitalPhone.value,
+        tp : type.value
       }
     });
 
@@ -63,6 +72,14 @@ const handleNextButtonClick = async () => {
     toast.error('모든 필드를 올바르게 입력해주세요.');
   }
 };
+
+const type = ref("");
+
+
+onMounted(() => {
+  
+})
+
 </script>
 
 <template>
@@ -88,13 +105,40 @@ const handleNextButtonClick = async () => {
       </div>
 
       <div class="input-group">
-        <Label for="doctor-representative">대표 원장 성명</Label>
+        <!-- <Label for="doctor-representative">대표 원장 성명</Label>
         <Input
           type="text"
           id="doctor-representative"
           v-model="representativeName"
           placeholder="대표 원장 성명 입력"
-        ></Input>
+        ></Input> -->
+        <Label for="license-type">면허 종별</Label>
+        <Select v-model="type" >
+            <SelectTrigger>
+              <SelectValue placeholder="면허 종별" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="GENERAL_PRACTITIONER">일반의</SelectItem>
+                <SelectItem value="INTERNIST">내과 의사</SelectItem>
+                <SelectItem value="SURGEON">외과 의사</SelectItem>
+                <SelectItem value="PEDIATRICIAN">소아과 의사</SelectItem>
+                <SelectItem value="GYNECOLOGIST">산부인과 의사</SelectItem>
+                <SelectItem value="DERMATOLOGIST">피부과 의사</SelectItem>
+                <SelectItem value="PSYCHIATRIST">정신과 의사</SelectItem>
+                <SelectItem value="ORTHOPEDIC_SURGEON">정형외과 의사</SelectItem>
+                <SelectItem value="RADIOLOGIST">방사선과 의사</SelectItem>
+                <SelectItem value="CARDIOLOGIST">심장내과 의사</SelectItem>
+                <SelectItem value="NEUROLOGIST">신경과 의사</SelectItem>
+                <SelectItem value="OPHTHALMOLOGIST">안과 의사</SelectItem>
+                <SelectItem value="ENT_SPECIALIST">이비인후과 의사</SelectItem>
+                <SelectItem value="DENTIST">치과 의사</SelectItem>
+                <SelectItem value="VETERINARIAN">수의사</SelectItem>
+                <SelectItem value="PHARMACIST">약사</SelectItem>
+                <SelectItem value="UNLICENSED">무면허</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
       </div>
 
       <div class="input-group">

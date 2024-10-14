@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignupStore } from '@/stores/signupStore';
 import HeadBar from '@/components/HeadBar.vue';
@@ -15,6 +15,19 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import axiosInstance from '@/api/instance';
+
+interface gu {
+  gu_nm : string;
+  gu_pk : number;
+  gu_si_fk : number;
+}
+
+interface dong {
+  dong_nm : string;
+  dong_pk : number;
+  dong_gu_fk : number;
+}
 
 // Vue Router와 Signup 스토어 인스턴스를 생성합니다.
 const router = useRouter();
@@ -46,13 +59,15 @@ const handleNextButtonClick = () => {
     // 입력된 병원 정보를 Pinia 스토어에 저장합니다.
     signupStore.setUserInfo({
       doctorInfo: {
-        hospitalName: hospitalName.value,
+        hospitalNm : hospitalName.value,
         hospitalAddress: {
           city: city.value,
           district: district.value,
           neighborhood: neighborhood.value,
           detail: detailAddress.value
         },
+        hospitalDong : neighborhood.value,
+        hospitalDetailAdress:detailAddress.value,
         hospitalType: hospitalType.value
       }
     });
@@ -63,6 +78,38 @@ const handleNextButtonClick = () => {
     // TODO: 사용자에게 유효성 검사 실패 메시지 표시
   }
 };
+
+const guList = ref<gu[]>([]);
+
+const getGuBySi = async (si : string) => {
+  await axiosInstance.get(`/api/address/get/gu/${si}`)
+  .then(res => {
+    guList.value = res.data.data.sort((a: any, b: any) => {
+        return a.gu_nm.localeCompare(b.gu_nm);
+      });
+    //console.log(guList.value);
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+const dongList = ref<dong[]>([]);
+
+const getDongByGu = async (gu : string) => {
+  await axiosInstance.get(`/api/address/get/dong/${gu}`)
+  .then(res => {
+    dongList.value = res.data.data.sort((a: any, b: any) => {
+        return a.dong_nm.localeCompare(b.dong_nm);
+      });
+    //console.log(dongList.value);
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+
+onMounted(() => {
+})
 </script>
 
 <template>
@@ -84,30 +131,23 @@ const handleNextButtonClick = () => {
       <div class="input-group">
         <Label>병원 주소</Label>
         <div class="hospital-container">
-          <Select v-model="city">
+          <Select v-model="city" @update:modelValue="getGuBySi">
             <SelectTrigger class="w-[120px]">
               <SelectValue placeholder="시" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="seoul"> 서울특별시 </SelectItem>
-                <SelectItem value="guangju"> 광주광역시 </SelectItem>
-                <SelectItem value="daegu"> 대구광역시 </SelectItem>
-                <SelectItem value="busan"> 부산광역시 </SelectItem>
-                <SelectItem value="ulsan"> 울산광역시 </SelectItem>
+                <SelectItem value="서울특별시"> 서울특별시 </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Select v-model="district">
+          <Select v-model="district" @update:modelValue="getDongByGu">
             <SelectTrigger class="w-[90px]">
               <SelectValue placeholder="구" />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup>
-                <SelectItem value="gangnam"> 강남구 </SelectItem>
-                <SelectItem value="guanjin"> 광진구 </SelectItem>
-                <SelectItem value="yeongdeongpo"> 영등포구 </SelectItem>
-                <SelectItem value="songpa"> 송파구 </SelectItem>
+              <SelectGroup >
+                <SelectItem v-for="gu in guList" :value=gu.gu_nm> {{ gu.gu_nm }} </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -117,11 +157,7 @@ const handleNextButtonClick = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="seoul"> 무슨구 </SelectItem>
-                <SelectItem value="guangju"> 무슨구 </SelectItem>
-                <SelectItem value="daegu"> 무슨구 </SelectItem>
-                <SelectItem value="busan"> 무슨구 </SelectItem>
-                <SelectItem value="ulsan"> 무슨구 </SelectItem>
+                <SelectItem v-for="dong in dongList" :value=dong.dong_nm> {{ dong.dong_nm }} </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
