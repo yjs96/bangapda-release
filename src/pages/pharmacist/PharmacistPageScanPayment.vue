@@ -222,6 +222,17 @@ onMounted(() => {
         <div class="text-center">{{ medicine.dosePerDinner }}</div>
         <div class="text-center">{{ medicine.dayCnt }}</div>
       </div>
+      <div
+        v-for="(injection, index) in injectionList"
+        class="w-full grid grid-cols-8 gap-x-1"
+        :key="index"
+      >
+        <div class="col-span-4 truncate">{{ injection.injectionNm }}</div>
+        <div class="text-center">{{ injection.dosePerMorning }}</div>
+        <div class="text-center">{{ injection.dosePerLunch }}</div>
+        <div class="text-center">{{ injection.dosePerDinner }}</div>
+        <div class="text-center">{{ injection.dayCnt }}</div>
+      </div>
     </ShadowBox>
 
     <ShadowBox :padding-x="20" :padding-y="20">

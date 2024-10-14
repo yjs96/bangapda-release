@@ -214,7 +214,7 @@ const handleReceiptIndex = (idx: number) => {
   receiptIndex.value = idx;
 };
 
-faceIdStore.isAuthenticated = true;
+faceIdStore.isAuthenticated = false;
 const handleFaceIdAuth = () => {
   faceIdStore.authenticate(userName.value);
 };
