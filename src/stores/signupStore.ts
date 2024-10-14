@@ -3,43 +3,50 @@ import axiosInstance from '@/api/instance';
 
 // 회원 정보 관련 인터페이스 정의
 interface CommonInfo {
-  name: string;
-  phoneNumber: string;
+  userNm: string;
+  phoneNo: string;
   phoneCarrier: string;
-  residentNumber: string;
+  firstNo: string;
+  lastNo: string;
 }
 
 interface PatientInfo {
-  bankName: string;
-  accountNumber: string;
-  accountPassword: string;
+  bankNm: string;
+  accountNo: string;
+  accountPw: string;
 }
 
 interface DoctorInfo {
-  hospitalName: string;
+  doctorNo: string;
   hospitalAddress: {
     city: string;
     district: string;
     neighborhood: string;
     detail: string;
   };
+  tp: string;
+  
+  hospitalDong : string;
+  hospitalDetailAdress: string;
+  hospitalNm: string;
   hospitalType: string;
-  licenseNumber: string;
+  hospitalPhoneNo: string;
   representativeName: string;
-  hospitalPhone: string;
 }
 
 interface PharmacistInfo {
-  pharmacyName: string;
+  chemistNo: string;
   pharmacyAddress: {
     city: string;
     district: string;
     neighborhood: string;
     detail: string;
   };
-  licenseNumber: string;
+  pharmacyDong : string;
+  pharmacyDetailAddress: string;
+  pharmacyNm: string; 
+  pharmacyPhoneNo: string;
   representativeName: string;
-  pharmacyPhone: string;
 }
 
 interface Terms {
@@ -89,51 +96,46 @@ export const useSignupStore = defineStore('signup', {
     // 회원가입 제출 액션
     async submitSignup() {
       try {
+        const token = sessionStorage.getItem('token');
         let endpoint = '';
         let data: any = { ...this.commonInfo };
 
         // 회원 유형에 따라 엔드포인트와 데이터 설정
         switch (this.memberType) {
           case '일반 회원':
-            endpoint = '/api/patient/register';
-            data = {
-              ...data,
-              ...this.patientInfo,
-              user_nm: this.commonInfo.name // 일반 회원용 이름 필드
-            };
+            endpoint = '/api/auth/register/user';
+            data = { ...data, ...this.patientInfo };
             break;
           case '의사':
-            endpoint = '/api/hospital/register';
-            data = {
-              ...data,
-              ...this.doctorInfo,
-              doctor_nm: this.commonInfo.name // 의사용 이름 필드
-            };
+            endpoint = '/api/auth/register/doctor';
+            data = { ...data, ...this.doctorInfo };
             break;
           case '약사':
-            endpoint = '/api/pharmacy/register';
-            data = {
-              ...data,
-              ...this.pharmacistInfo,
-              chemist_nm: this.commonInfo.name // 약사용 이름 필드
-            };
+            endpoint = '/api/auth/register/chemist';
+            data = { ...data, ...this.pharmacistInfo };
             break;
           default:
             throw new Error('잘못된 회원 유형입니다.');
         }
 
         data.terms = this.terms;
-
         // API 요청 전송
-        const response = await axiosInstance.post(endpoint, data);
-        if (response.data.success) {
-          console.log('회원가입에 성공했어요', response.data);
-
+        const response = await axiosInstance.post(endpoint, data, {
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization' : `Bearer ${token}`
+          }
+        });
+        if (response.data) {
+          console.log(response);
+          localStorage.setItem("accessToken", response.data.data.accessToken)
+          console.log('회원가입에 성공했어요');
+          const type = this.memberType
           this.resetState(); // 상태 초기화
 
-          return { success: true, nextRoute: this.getNextRoute() };
+          return { success: true, nextRoute: this.getNextRoute(type) };
         } else {
-          throw new Error(response.data.message || '회원가입에 실패했습니다.');
+          throw new Error(response.data.error || '회원가입에 실패했습니다.');
         }
       } catch (error) {
         console.error('회원가입에 실패했어요', error);
@@ -143,8 +145,9 @@ export const useSignupStore = defineStore('signup', {
     },
 
     // 회원 유형에 따른 다음 라우트 반환
-    getNextRoute() {
-      switch (this.memberType) {
+    getNextRoute(member : string = '일반 회원') {
+
+      switch (member) {
         case '일반 회원':
           return '/';
         case '의사':

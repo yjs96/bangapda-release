@@ -41,9 +41,9 @@ const handleNextButtonClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       pharmacistInfo: {
-        licenseNumber: licenseNumber.value,
+        chemistNo: licenseNumber.value,
         representativeName: representativeName.value,
-        pharmacyPhone: pharmacyPhone.value
+        pharmacyPhoneNo: pharmacyPhone.value
       }
     });
 

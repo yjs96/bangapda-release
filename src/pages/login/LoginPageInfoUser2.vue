@@ -16,7 +16,7 @@ const route = useRoute();
 const signupStore = useSignupStore();
 
 // 스토어에서 은행 이름을 가져오고, 라우트 쿼리에서 은행 이미지 URL을 가져옵니다.
-const bankName = computed(() => signupStore.patientInfo.bankName);
+const bankName = computed(() => signupStore.patientInfo.bankNm);
 const bankImg = computed(() => route.query.bankImg as string);
 
 // 폼 입력값을 위한 반응형 변수들을 생성합니다.
@@ -61,8 +61,8 @@ const handleNextClick = async () => {
   if (isFormValid.value) {
     signupStore.setUserInfo({
       patientInfo: {
-        accountNumber: accountNumber.value,
-        accountPassword: accountPassword.value
+        accountNo: accountNumber.value,
+        accountPw: accountPassword.value
       },
       terms: {
         service: serviceTerms.value,
