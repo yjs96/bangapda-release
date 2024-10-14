@@ -81,15 +81,16 @@ const hospital = ref<Hospital | null>(null);
 const doctor = ref<Doctor | null>(null);
 const paymentAmount = ref('');
 
-const formattedPaymentAmount = computed({
+const newAmount = ref<number | null>(null);
+
+const localStringNewAmount = computed({
   get: () => {
-    // 숫자가 아닌 문자를 제거하고 천 단위로 쉼표를 추가
-    const num = paymentAmount.value.replace(/\D/g, '');
-    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return newAmount.value !== null ? newAmount.value.toLocaleString() : '';
   },
   set: (value: string) => {
-    // 입력된 값에서 쉼표를 제거하고 숫자만 저장
-    paymentAmount.value = value.replace(/[^\d]/g, '');
+    // Remove non-digit characters and parse as number
+    const parsedValue = parseInt(value.replace(/\D/g, ''), 10);
+    newAmount.value = isNaN(parsedValue) ? null : parsedValue;
   }
 });
 
@@ -141,20 +142,18 @@ const formatNumber = (id: number) => {
 
 // 결제 요청 함수
 const requestPayment = async () => {
-  const amount = Number(paymentAmount.value);
-  if (!amount || isNaN(amount)) {
+  if (!newAmount.value) {
     toast.error('유효한 금액을 입력해주세요.');
     return;
   }
 
   try {
-    const response = await axiosInstance.post('/api/payment/request', {
-      amount: amount,
-      prescriptionId: prescriptionId.value
-    });
+    const response = await axiosInstance.patch(
+      `/api/pay/${route.params.id}?deductedAmount=${newAmount.value}`
+    );
 
     if (response.data.success) {
-      toast.success(`${formattedPaymentAmount.value}원 결제가 환자에게 요청되었습니다.`);
+      toast.success(`결제 요청되었습니다.`);
       paymentAmount.value = ''; // 입력 필드 초기화
     } else {
       toast.error('결제 요청에 실패했습니다.');
@@ -168,6 +167,7 @@ const requestPayment = async () => {
 // 의사 페이지로 이동하는 함수
 const goToDoctorPage = () => {
   router.push('/doctor');
+  toast.success('처방전이 환자에게 전송되었어요');
 };
 </script>
 
@@ -357,7 +357,7 @@ const goToDoctorPage = () => {
 
     <div class="payment-section">
       <Input
-        v-model="formattedPaymentAmount"
+        v-model="localStringNewAmount"
         type="text"
         placeholder="결제 금액 입력"
         class="payment-input"
