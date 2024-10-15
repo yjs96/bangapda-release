@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useTokenStore } from '@/stores/tokenControl';
 import Home from '@/pages/patient/HomePage.vue';
 import Medicine from '@/pages/patient/MedicinePage.vue';
 import Prescription from '@/pages/patient/PrescriptionPage.vue';
@@ -21,6 +22,27 @@ import LoginPagePharmacist2 from '@/pages/login/LoginPagePharmacist2.vue';
 import Error404 from '@/pages/Error404.vue';
 import InjectionDetail from '@/pages/patient/InjectionDetail.vue';
 import LoginRedrection from '@/pages/login/LoginRedirection.vue';
+
+function decodeJWT(token: string) {
+  console.log('decoding');
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding JWT', e);
+    return null;
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -136,10 +158,49 @@ const router = createRouter({
       component: DoctorFinalCheck
     },
     {
-      path : '/redirect',
-      component : LoginRedrection
+      path: '/redirect',
+      component: LoginRedrection
     }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  const tokenStore = useTokenStore();
+  const isLoggedIn = !!tokenStore.accessToken;
+
+  // '/redirect'와 '/login'은 항상 접근 가능
+  if (to.path === '/redirect' || to.path === '/login') {
+    next();
+    return;
+  }
+
+  if (!isLoggedIn) {
+    next('/login');
+  } else {
+    // 로그인 상태이고 홈 페이지로 이동하려는 경우, 역할에 따라 리다이렉트
+    if (to.path === '/') {
+      const decodedToken = decodeJWT(tokenStore.accessToken);
+      if (decodedToken && decodedToken.rol) {
+        switch (decodedToken.rol.toLowerCase()) {
+          case 'user':
+            next('/');
+            break;
+          case 'doctor':
+            next('/doctor');
+            break;
+          case 'chemist':
+            next('/pharmacist');
+            break;
+          default:
+            next('/'); // 기본값으로 홈페이지로 이동
+        }
+      } else {
+        next('/'); // 토큰 디코딩 실패 시 기본적으로 홈페이지로 이동
+      }
+    } else {
+      next(); // 다른 경로의 경우 정상적으로 진행
+    }
+  }
 });
 
 export default router;

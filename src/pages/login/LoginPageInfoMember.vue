@@ -217,7 +217,7 @@ const handleSubmit = async () => {
 }
 
 .next-button {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   left: 20px;
   right: 20px;

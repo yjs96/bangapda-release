@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import HeadBar from '@/components/HeadBar.vue';
@@ -17,9 +18,11 @@ import {
 } from '@/components/ui/dialog';
 import Button from '@/components/ui/button/Button.vue';
 import TimeSelector from '@/components/TimeSelector.vue';
-import { useMealTimeStore } from '@/stores/mealtime';
+// import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
 import { toast } from '@steveyuowo/vue-hot-toast';
+
+const authStore = useAuthStore();
 
 // 은행 정보 배열 정의
 const banks = [
@@ -60,18 +63,18 @@ const isFormValid = computed(() => {
 });
 
 // 복약 시간 관련 상태 변수들
-const mealTimeStore = useMealTimeStore();
+// const mealTimeStore = useMealTimeStore();
 const breakfastTime = ref('');
 const lunchTime = ref('');
 const dinnerTime = ref('');
 
 // 복약 시간 업데이트 함수
 const updateMealTimes = async () => {
-  mealTimeStore.updateAllMealTimes({
-    breakfast: breakfastTime.value,
-    lunch: lunchTime.value,
-    dinner: dinnerTime.value
-  });
+  // mealTimeStore.updateAllMealTimes({
+  //   breakfast: breakfastTime.value,
+  //   lunch: lunchTime.value,
+  //   dinner: dinnerTime.value
+  // });
 
   const updateAlarm = {
     morningAlarm: breakfastTime.value,
@@ -117,11 +120,11 @@ const updateAccount = async () => {
 };
 
 // 시간을 '00:00' 형식으로 변환하는 함수
-const formatTime = (alarmArray: String[]) => {
-  const hours = String(alarmArray[0]).padStart(2, '0');
-  const minutes = String(alarmArray[1]).padStart(2, '0');
-  return `${hours}:${minutes}`;
-};
+// const formatTime = (alarmArray: String[]) => {
+//   const hours = String(alarmArray[0]).padStart(2, '0');
+//   const minutes = String(alarmArray[1]).padStart(2, '0');
+//   return `${hours}:${minutes}`;
+// };
 
 // 계좌 정보 수정 폼 초기화 함수
 const resetAccountForm = () => {
@@ -136,12 +139,12 @@ const getUserInfo = async () => {
     const response = await axiosInstance.get(`/api/patient/account`);
     bank.value = response.data.data.bankNm;
     accountNumber.value = response.data.data.accountNo;
-    breakfastTime.value = formatTime(response.data.data.morningAlarm);
-    mealTimeStore.breakfast = formatTime(response.data.data.morningAlarm);
-    lunchTime.value = formatTime(response.data.data.lunchAlarm);
-    mealTimeStore.lunch = formatTime(response.data.data.lunchAlarm);
-    dinnerTime.value = formatTime(response.data.data.dinnerAlarm);
-    mealTimeStore.dinner = formatTime(response.data.data.dinnerAlarm);
+    breakfastTime.value = response.data.data.morningAlarm;
+    // mealTimeStore.breakfast = formatTime(response.data.data.morningAlarm);
+    lunchTime.value = response.data.data.lunchAlarm;
+    // mealTimeStore.lunch = formatTime(response.data.data.lunchAlarm);
+    dinnerTime.value = response.data.data.dinnerAlarm;
+    // mealTimeStore.dinner = formatTime(response.data.data.dinnerAlarm);
     console.log(response.data);
   } catch (err) {
     console.log(err);
@@ -232,15 +235,15 @@ onMounted(async () => {
       <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key">아침</div>
-          <div class="settings-value">{{ mealTimeStore.breakfast }}</div>
+          <div class="settings-value">{{ breakfastTime }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">점심</div>
-          <div class="settings-value">{{ mealTimeStore.lunch }}</div>
+          <div class="settings-value">{{ lunchTime }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">저녁</div>
-          <div class="settings-value">{{ mealTimeStore.dinner }}</div>
+          <div class="settings-value">{{ dinnerTime }}</div>
         </div>
         <Dialog>
           <DialogTrigger>
@@ -252,9 +255,9 @@ onMounted(async () => {
           <DialogContent>
             <DialogTitle>복약 시간 수정</DialogTitle>
             <DialogDescription> 아침, 점심, 저녁 복약 시간을 설정하세요. </DialogDescription>
-            <TimeSelector title="아침" v-model="mealTimeStore.breakfast" />
-            <TimeSelector title="점심" v-model="mealTimeStore.lunch" />
-            <TimeSelector title="저녁" v-model="mealTimeStore.dinner" />
+            <TimeSelector title="아침" v-model="breakfastTime" />
+            <TimeSelector title="점심" v-model="lunchTime" />
+            <TimeSelector title="저녁" v-model="dinnerTime" />
             <DialogFooter class="modal-footer">
               <DialogClose>
                 <Button size="lg" @click="updateMealTimes">저장</Button>
@@ -272,10 +275,9 @@ onMounted(async () => {
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-frame">
         <div class="settings-row">
-          <div class="settings-key logout">로그아웃</div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-key">회원탈퇴</div>
+          <div @click="authStore.logout, $router.push('/login')" class="settings-key logout">
+            로그아웃
+          </div>
         </div>
       </div>
     </ShadowBox>

@@ -115,7 +115,7 @@ const handleSummaryDetail = () => {
 
 const faceIdStore = useFaceIdStore();
 
-const userName = ref('임시');
+const userName = ref('');
 faceIdStore.isAuthenticated = false;
 
 const handleFaceIdAuth = () => {

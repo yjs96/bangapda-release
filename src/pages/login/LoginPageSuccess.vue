@@ -8,8 +8,16 @@ const signupStore = useSignupStore();
 const router = useRouter();
 
 const handleConfirm = () => {
-  const nextRoute = signupStore.getNextRoute();
-  router.push(nextRoute);
+  switch (signupStore.memberType) {
+    case '일반 회원':
+      router.push('/');
+      break;
+    case '의사':
+      router.push('/doctor');
+      break;
+    case '약사':
+      router.push('/pharmacist');
+  }
 };
 </script>
 
@@ -19,7 +27,6 @@ const handleConfirm = () => {
       <div class="success-icon"></div>
       <div class="success-info">회원 가입이<br />완료되었어요</div>
     </div>
-
     <div class="success-button">
       <Button size="lg" @click="handleConfirm">확인</Button>
     </div>
@@ -121,7 +128,7 @@ const handleConfirm = () => {
 }
 
 .success-button {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   left: 20px;
   right: 20px;

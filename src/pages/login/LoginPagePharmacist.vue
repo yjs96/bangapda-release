@@ -134,7 +134,7 @@ const getDongByGu = async (gu: string) => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="서울특별시"> 서울특별시 </SelectItem>
+                <SelectItem value="서울특별시">서울특별시</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -144,7 +144,9 @@ const getDongByGu = async (gu: string) => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem v-for="gu in guList" :value="gu.gu_nm"> {{ gu.gu_nm }} </SelectItem>
+                <SelectItem v-for="(gu, index) in guList" :value="gu.gu_nm" :key="index">
+                  {{ gu.gu_nm }}
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -154,7 +156,7 @@ const getDongByGu = async (gu: string) => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem v-for="dong in dongList" :value="dong.dong_nm">
+                <SelectItem v-for="(dong, index) in dongList" :value="dong.dong_nm" :key="index">
                   {{ dong.dong_nm }}
                 </SelectItem>
               </SelectGroup>
@@ -222,7 +224,7 @@ const getDongByGu = async (gu: string) => {
 }
 
 .next-button {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   left: 20px;
   right: 20px;
