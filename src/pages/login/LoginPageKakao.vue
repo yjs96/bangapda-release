@@ -3,14 +3,10 @@ import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import Main from '@/components/Main.vue';
 
-
 const router = useRouter();
 
 const navigateToNextPage = async () => {
-
   window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
-
-
 };
 </script>
 
