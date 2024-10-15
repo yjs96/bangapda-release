@@ -275,7 +275,7 @@ onMounted(() => {
               <div class="medicine-icon">
                 <img :src="`/images/medicines/${intake.medicineNm}.png`" alt="" />
               </div>
-              <span class="medicine-name">{{ intake.medicineNm }}</span>
+              <span class="medicine-name truncate">{{ intake.medicineNm }}</span>
             </div>
             <div class="medicine-badge-frame">
               <Badge v-for="(c, index) in intake.caution.split(',')" :key="index">{{ c }}</Badge>
@@ -313,7 +313,7 @@ onMounted(() => {
               <div class="medicine-icon">
                 <img :src="`/images/medicines/injection-icon.png`" alt="" />
               </div>
-              <span class="medicine-name">{{ intake.injectionNm }}</span>
+              <span class="medicine-name truncate">{{ intake.injectionNm }}</span>
             </div>
             <div class="medicine-badge-frame">
               <Badge
@@ -521,6 +521,7 @@ onMounted(() => {
 .medicine-intake {
   font-size: 18px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .no-medicine {
