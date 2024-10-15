@@ -22,7 +22,7 @@ export const requestForToken = async (): Promise<string | null> => {
         'BNCnOqfdBm_KSYG37G7TRtXeXU3TqZybnY9so-jIq3VIf37dVJRJrkveugdXGE8AVnsWTE3wVZ1Ic3Dzcoc8KPM'
     });
     if (currentToken) {
-      alert(`발급 성공 : ${currentToken}`);
+      //alert(`발급 성공 : ${currentToken}`);
       console.log('current token for client: ', currentToken);
       // 여기서 토큰을 서버로 전송하는 로직을 추가할 수 있습니다.
       return currentToken;

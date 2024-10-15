@@ -14,6 +14,7 @@ interface PatientInfo {
   bankNm: string;
   accountNo: string;
   accountPw: string;
+  fcmNo: string | null;
 }
 
 interface DoctorInfo {

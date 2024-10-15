@@ -101,7 +101,7 @@ const updateAccount = async () => {
     };
 
     console.log(updateData);
-    const response = await axiosInstance.patch('/api/patient/modify/account?userId=1', updateData);
+    const response = await axiosInstance.patch('/api/patient/modify/account', updateData);
     console.log(response.data);
 
     if (response.data.data === true) {
@@ -133,12 +133,15 @@ const resetAccountForm = () => {
 // 사용자 정보 가져오기 함수
 const getUserInfo = async () => {
   try {
-    const response = await axiosInstance.get(`/api/patient/account?userId=1`);
+    const response = await axiosInstance.get(`/api/patient/account`);
     bank.value = response.data.data.bankNm;
     accountNumber.value = response.data.data.accountNo;
     breakfastTime.value = formatTime(response.data.data.morningAlarm);
+    mealTimeStore.breakfast = formatTime(response.data.data.morningAlarm);
     lunchTime.value = formatTime(response.data.data.lunchAlarm);
+    mealTimeStore.lunch = formatTime(response.data.data.lunchAlarm);
     dinnerTime.value = formatTime(response.data.data.dinnerAlarm);
+    mealTimeStore.dinner = formatTime(response.data.data.dinnerAlarm);
     console.log(response.data);
   } catch (err) {
     console.log(err);
@@ -229,15 +232,15 @@ onMounted(async () => {
       <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key">아침</div>
-          <div class="settings-value">{{ breakfastTime }}</div>
+          <div class="settings-value">{{ mealTimeStore.breakfast }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">점심</div>
-          <div class="settings-value">{{ lunchTime }}</div>
+          <div class="settings-value">{{ mealTimeStore.lunch }}</div>
         </div>
         <div class="settings-row">
           <div class="settings-key">저녁</div>
-          <div class="settings-value">{{ dinnerTime }}</div>
+          <div class="settings-value">{{ mealTimeStore.dinner }}</div>
         </div>
         <Dialog>
           <DialogTrigger>
@@ -249,9 +252,9 @@ onMounted(async () => {
           <DialogContent>
             <DialogTitle>복약 시간 수정</DialogTitle>
             <DialogDescription> 아침, 점심, 저녁 복약 시간을 설정하세요. </DialogDescription>
-            <TimeSelector title="아침" v-model="breakfastTime" />
-            <TimeSelector title="점심" v-model="lunchTime" />
-            <TimeSelector title="저녁" v-model="dinnerTime" />
+            <TimeSelector title="아침" v-model="mealTimeStore.breakfast" />
+            <TimeSelector title="점심" v-model="mealTimeStore.lunch" />
+            <TimeSelector title="저녁" v-model="mealTimeStore.dinner" />
             <DialogFooter class="modal-footer">
               <DialogClose>
                 <Button size="lg" @click="updateMealTimes">저장</Button>

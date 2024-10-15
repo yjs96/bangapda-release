@@ -132,7 +132,7 @@ const isPlaying = ref(false);
 const togglePlayPuase = async (content: string | undefined) => {
   try {
     // 오디오 변환 요청
-    const res = await axiosInstance.post(`http://localhost:8000/convert`, {
+    const res = await axiosInstance.post(`http://43.202.43.253:8000/convert`, {
       content: content
     });
 
@@ -543,7 +543,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content mb-5">
-                  {{ receivedReport?.intakeMethod }}
+                  {{ receivedReport?.intakeMethod.replace(",", " ") }}
                 </div>
               </div>
               <!-- <hr class="report-content-bottom" /> -->
@@ -566,7 +566,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content mb-5">
-                  {{ receivedReport?.exercise }}
+                  {{ receivedReport?.exercise.replace(",", " ") }}
                 </div>
                 <!-- <hr class="report-content-bottom" /> -->
               </div>
@@ -589,7 +589,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content">
-                  {{ receivedReport?.food }}
+                  {{ receivedReport?.food.replace(",", " ") }}
                 </div>
               </div>
             </div>
