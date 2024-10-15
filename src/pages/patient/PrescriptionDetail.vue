@@ -125,6 +125,7 @@ interface Medicine {
   dayCnt: string;
   totalDay: string;
   method: string;
+  dose_per_lunch: number;
 }
 
 interface Injection {
@@ -517,7 +518,7 @@ onMounted(() => {
             <tbody>
               <tr v-for="(medicine, index) in preMedicineList" :key="index">
                 <td colspan="2" class="left">{{ medicine.medicineNm || '' }}</td>
-                <td>{{ medicine.unit || '' }}</td>
+                <td>{{ medicine.dose_per_lunch || 1 }}</td>
                 <td>{{ medicine.dayCnt || '' }}</td>
                 <td>{{ medicine.totalDay || '' }}</td>
                 <td colspan="2" class="left">{{ medicine.method || '' }}</td>

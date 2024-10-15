@@ -22,6 +22,7 @@ import TimeSelector from '@/components/TimeSelector.vue';
 // import { useMealTimeStore } from '@/stores/mealtime';
 import axiosInstance from '@/api/instance';
 import { toast } from '@steveyuowo/vue-hot-toast';
+import { requestForToken } from '@/firebase';
 
 const authStore = useAuthStore();
 
@@ -151,6 +152,24 @@ const getUserInfo = async () => {
     console.log(err);
   }
 };
+// const fcmToken = ref<string | null>(null);
+
+const getAndSendFirebaseToken = async () => {
+  try {
+    const token = await requestForToken();
+    if (token) {
+      // fcmToken.value = token;
+      // await axiosInstance.post('/api/save-firebase-token', { token });
+      // toast.success('알림 수신 동의가 완료되었습니다.');
+      alert(token);
+    } else {
+      throw new Error('알림 권한을 허용해주세요.');
+    }
+  } catch (error) {
+    console.error('Firebase 토큰 처리 중 오류:', error);
+    toast.error('알림 설정 중 오류가 발생했습니다. 다시 시도해주세요.');
+  }
+};
 
 // 컴포넌트 마운트 시 사용자 정보 로드
 onMounted(async () => {
@@ -234,7 +253,7 @@ onMounted(async () => {
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
       <div class="settings-title flex justify-between items-center">
         <span>복약 알림 설정</span>
-        <NotificationConsent />
+        <Button @click="getAndSendFirebaseToken">알림 받기</Button>
       </div>
       <div class="settings-frame">
         <div class="settings-row">
