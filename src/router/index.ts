@@ -24,7 +24,7 @@ import InjectionDetail from '@/pages/patient/InjectionDetail.vue';
 import LoginRedrection from '@/pages/login/LoginRedirection.vue';
 
 function decodeJWT(token: string) {
-  console.log('decoding');
+  // console.log('decoding');
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -181,9 +181,9 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/') {
       const decodedToken = decodeJWT(tokenStore.accessToken);
       if (decodedToken && decodedToken.rol) {
-        switch (decodedToken.rol.toLowerCase()) {
-          case 'user':
-            next('/');
+        switch (decodedToken.rol) {
+          case 'USER':
+            next();
             break;
           case 'doctor':
             next('/doctor');

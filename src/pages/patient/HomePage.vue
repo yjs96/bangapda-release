@@ -129,10 +129,11 @@ const base64Audio = 'data:audio/wav;base64,12';
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 const isPlaying = ref(false);
 
+const fastURL = import.meta.env.VITE_FAST_URL;
 const togglePlayPuase = async (content: string | undefined) => {
   try {
     // 오디오 변환 요청
-    const res = await axiosInstance.post(`http://43.202.43.253:8000/convert`, {
+    const res = await axiosInstance.post(`${fastURL}convert`, {
       content: content
     });
 
@@ -259,16 +260,16 @@ const reportPrescriptions = ref<Prescription[]>([]);
 
 const getRecent = async () => {
   try {
-    const response = await axiosInstance(
-      `/api/patient/prescription/list?&pageIndex=0&pageSize=20`
-    );
+    const response = await axiosInstance(`/api/patient/prescription/list?&pageIndex=0&pageSize=20`);
     const data = response.data.data.prescriptionList;
 
     recentPrescription.value = await data.slice(0, 3);
     reportPrescriptions.value = await data
       .filter((prescription: Prescription) => prescription.prescriptionSt === true)
       .slice(0, 5);
-    getReport(data[0].prescriptionPk);
+    if (data[0]) {
+      getReport(data[0].prescriptionPk);
+    }
     // console.log(reportPrescriptions.value);
   } catch (err) {
     console.log(err);
@@ -300,11 +301,14 @@ const openQRDialog = (prescription: Prescription) => {
   isQRDialogOpen.value = true;
 };
 
-const getUserName = async() => {
-  await axiosInstance.get("/api/patient/name")
-  .then(res => {userName.value = res.data.data})
-  .catch(err => console.log(err));
-}
+const getUserName = async () => {
+  await axiosInstance
+    .get('/api/patient/name')
+    .then((res) => {
+      userName.value = res.data.data;
+    })
+    .catch((err) => console.log(err));
+};
 
 watchOnce(carouselApi, (api) => {
   if (!api) return;
@@ -442,11 +446,11 @@ onMounted(async () => {
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
       </div>
-      <div class="flex justify-between">
+      <!-- <div class="flex justify-between">
         <Button variant="destructive" @click="$router.push('/login')">로그인</Button>
         <Button variant="destructive" @click="$router.push('/pharmacist')">약사</Button>
         <Button variant="destructive" @click="$router.push('/doctor')">의사</Button>
-      </div>
+      </div> -->
       <div></div>
       <div></div>
       <ShadowBox :padding-x="20" :padding-y="20">
@@ -519,9 +523,11 @@ onMounted(async () => {
                   (selectedTab = tabIndex - 1),
                     getReport(reportPrescriptions[tabIndex - 1].prescriptionPk)
                 "
-                >{{ reportPrescriptions[tabIndex - 1].hospitalNm }} : 
-                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(5,10).replace("-", "월 ") }}일 
-                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(11,16).replace(":", "시 ") }}분 방문</span
+                >{{ reportPrescriptions[tabIndex - 1].hospitalNm }} :
+                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(5, 10).replace('-', '월 ') }}일
+                {{
+                  reportPrescriptions[tabIndex - 1].createYmd.slice(11, 16).replace(':', '시 ')
+                }}분 방문</span
               >
             </div>
             <div></div>
@@ -545,7 +551,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content mb-5">
-                  {{ receivedReport?.intakeMethod.replace(",", " ") }}
+                  {{ receivedReport?.intakeMethod.replace(',', ' ') }}
                 </div>
               </div>
               <!-- <hr class="report-content-bottom" /> -->
@@ -568,7 +574,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content mb-5">
-                  {{ receivedReport?.exercise.replace(",", " ") }}
+                  {{ receivedReport?.exercise.replace(',', ' ') }}
                 </div>
                 <!-- <hr class="report-content-bottom" /> -->
               </div>
@@ -591,7 +597,7 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="report-content">
-                  {{ receivedReport?.food.replace(",", " ") }}
+                  {{ receivedReport?.food.replace(',', ' ') }}
                 </div>
               </div>
             </div>
