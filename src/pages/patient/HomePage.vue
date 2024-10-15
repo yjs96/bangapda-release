@@ -519,7 +519,9 @@ onMounted(async () => {
                   (selectedTab = tabIndex - 1),
                     getReport(reportPrescriptions[tabIndex - 1].prescriptionPk)
                 "
-                >{{ reportPrescriptions[tabIndex - 1].hospitalNm }}</span
+                >{{ reportPrescriptions[tabIndex - 1].hospitalNm }} : 
+                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(5,10).replace("-", "월 ") }}일 
+                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(11,16).replace(":", "시 ") }}분 방문</span
               >
             </div>
             <div></div>
