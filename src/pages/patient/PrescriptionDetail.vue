@@ -164,8 +164,17 @@ const diseaseList = ref<Disease | null>();
 const hospitalBill = ref<HospitalBill | null>();
 const pharmacyBill = ref<PharmacyBill | null>();
 
-const userName = ref('임시');
+const userName = ref('');
 const receiptIndex = ref(0);
+
+const getUserName = async () => {
+  await axiosInstance
+    .get('/api/patient/name')
+    .then((res) => {
+      userName.value = res.data.data;
+    })
+    .catch((err) => console.log(err));
+};
 
 const getPrescriptionDetail = async () => {
   try {
@@ -348,6 +357,7 @@ onMounted(() => {
   getPrescriptionDetail();
   getHospitalBill();
   getPharmacyBill();
+  getUserName();
 });
 </script>
 
