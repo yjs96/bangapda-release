@@ -116,7 +116,8 @@ const getAndSendFirebaseToken = async () => {
     const token = await requestForToken();
     if (token) {
       fcmToken.value = token;
-      await axiosInstance.post('/api/save-firebase-token', { token });
+      //await axiosInstance.post('/api/save-firebase-token', { token });
+      //localStorage.setItem('fcm', fcmToken.value);
       console.log('Firebase 토큰이 서버로 전송되었습니다.');
       toast.success('알림 수신 동의가 완료되었습니다.');
     } else {
@@ -139,7 +140,8 @@ const handleNextClick = async () => {
         patientInfo: {
           bankNm: bankName.value,
           accountNo: accountNumber.value,
-          accountPw: accountPassword.value
+          accountPw: accountPassword.value,
+          fcmNo: fcmToken.value
         },
         terms: {
           service: serviceTerms.value,

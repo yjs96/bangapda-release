@@ -149,7 +149,7 @@ const requestPayment = async () => {
 
   try {
     const response = await axiosInstance.patch(
-      `/api/pay/${route.params.id}?deductedAmount=${newAmount.value}`
+      `/api/pay/doctor/${route.params.id}`
     );
 
     if (response.data.success) {
