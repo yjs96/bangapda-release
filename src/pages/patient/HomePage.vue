@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import axios from 'axios';
 
 interface Prescription {
   prescriptionPk: number;
@@ -133,7 +134,7 @@ const fastURL = import.meta.env.VITE_FAST_URL;
 const togglePlayPuase = async (content: string | undefined) => {
   try {
     // 오디오 변환 요청
-    const res = await axiosInstance.post(`${fastURL}/convert`, {
+    const res = await axios.post(`${fastURL}/convert`, {
       content: content
     });
 
@@ -161,7 +162,6 @@ import axiosInstance from '@/api/instance';
 import moment from 'moment';
 import 'moment/locale/ko';
 import { watchOnce } from '@vueuse/core';
-import axios from 'axios';
 
 const NotRecievedPrescription = ref<Prescription[]>();
 
