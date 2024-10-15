@@ -232,7 +232,10 @@ onMounted(async () => {
 
     <!-- 복약 알림 설정 섹션 -->
     <ShadowBox :padding-x="24" :padding-y="20" :radius="false">
-      <div class="settings-title">복약 알림 설정</div>
+      <div class="settings-title flex justify-between items-center">
+        <span>복약 알림 설정</span>
+        <NotificationConsent />
+      </div>
       <div class="settings-frame">
         <div class="settings-row">
           <div class="settings-key">아침</div>
@@ -279,9 +282,6 @@ onMounted(async () => {
           <div @click="authStore.logout, $router.push('/login')" class="settings-key logout">
             로그아웃
           </div>
-        </div>
-        <div class="settings-row">
-          <NotificationConsent />
         </div>
       </div>
     </ShadowBox>

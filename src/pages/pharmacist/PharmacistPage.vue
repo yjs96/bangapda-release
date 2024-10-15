@@ -70,20 +70,21 @@ async function validateQRInfo(qrData: QRData) {
 }
 
 // 최근 처방전 목록을 가져오는 함수
-async function fetchRecentPrescriptions() {
-  try {
-    const response = await axiosInstance.get('/api/pharmacy/prescription');
-    // @ts-ignore
-    recentPrescriptions.value = response.data.map((prescription) => ({
-      id: prescription.prescriptionId,
-      name: prescription.patientName,
-      date: formatDate(prescription.createdAt),
-      status: prescription.status
-    }));
-  } catch (err) {
-    console.error('최근 처방전 목록을 가져오는 데 실패했습니다:', err);
-  }
-}
+// async function fetchRecentPrescriptions() {
+//   try {
+//     const response = await axiosInstance.get('/api/pharmacy/list?pageIndex=0&pageSize=10');
+//     console.log(response.data.data);
+// @ts-ignore
+// recentPrescriptions.value = response.data.map((prescription) => ({
+//   id: prescription.prescriptionId,
+//   name: prescription.patientName,
+//   date: formatDate(prescription.createdAt),
+//   status: prescription.status
+// }));
+//   } catch (err) {
+//     console.error('최근 처방전 목록을 가져오는 데 실패했습니다:', err);
+//   }
+// }
 
 // 날짜 형식을 변환하는 함수
 function formatDate(dateString: string): string {
@@ -92,7 +93,9 @@ function formatDate(dateString: string): string {
 }
 
 // 컴포넌트가 마운트될 때 최근 처방전 목록을 가져옵니다.
-onMounted(fetchRecentPrescriptions);
+// onMounted(() => {
+//   fetchRecentPrescriptions();
+// });
 </script>
 
 <template>

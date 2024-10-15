@@ -1,11 +1,51 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import Main from '@/components/Main.vue';
+import { onMounted, ref } from 'vue';
+import { Dialog, DialogContent, DialogFooter, DialogClose } from '@/components/ui/dialog';
+
+localStorage.clear();
+sessionStorage.clear();
 
 const kakaoURL = import.meta.env.VITE_BASE_URL;
 
 const navigateToNextPage = async () => {
   window.location.href = `${kakaoURL}/oauth2/authorization/kakao`;
+};
+
+const isIOS = ref(false);
+const showIOSDialog = ref(false);
+
+const deferredPrompt = ref<any>(null);
+const isPWAInstallable = ref(false);
+
+onMounted(() => {
+  const isDeviceIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  isIOS.value = isDeviceIOS;
+
+  if (!isDeviceIOS) {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt.value = e;
+      isPWAInstallable.value = true;
+    });
+  }
+});
+
+const installPWA = async () => {
+  if (isIOS.value) {
+    showIOSDialog.value = true;
+  } else if (deferredPrompt.value) {
+    deferredPrompt.value.prompt();
+    const { outcome } = await deferredPrompt.value.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    } else {
+      console.log('User dismissed the install prompt');
+    }
+    deferredPrompt.value = null;
+    isPWAInstallable.value = false;
+  }
 };
 </script>
 
@@ -18,12 +58,31 @@ const navigateToNextPage = async () => {
         </div>
         <div class="login-name">방갑다</div>
       </div>
-      <div class="w-full flex justify-center">
+      <div class="w-full flex flex-col items-center gap-5 relative">
         <Button size="lg" class="login-kakao" @click="navigateToNextPage">
-          <i class="fa-solid fa-comment"></i>카카오 로그인
+          <img class="button-icon kakao" src="/images/kakao-logo.png" alt="" />카카오 로그인
+        </Button>
+        <Button size="lg" class="login-kakao download" @click="installPWA">
+          <i class="fa-solid fa-download button-icon"></i>어플리케이션 설치
         </Button>
       </div>
     </div>
+
+    <Dialog v-model:open="showIOSDialog">
+      <DialogContent>
+        <h2 class="text-lg font-semibold mb-4">iOS에서 앱 설치하기</h2>
+        <ol class="list-decimal list-inside space-y-2">
+          <li>브라우저의 공유 버튼을 탭하세요.</li>
+          <li>"홈 화면에 추가" 옵션을 선택하세요.</li>
+          <li>"추가"를 탭하여 홈 화면에 앱을 설치하세요.</li>
+        </ol>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button>닫기</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </Main>
 </template>
 
@@ -75,8 +134,29 @@ const navigateToNextPage = async () => {
 }
 
 .login-kakao {
+  position: relative;
   width: 80%;
   background-color: #fee500;
   gap: 12px;
+}
+
+.button-icon {
+  position: absolute;
+  left: 18px;
+}
+
+.kakao {
+  width: 24px;
+  height: 24px;
+}
+
+.fa-download {
+  font-size: 21px;
+  margin-left: 1px;
+}
+
+.download {
+  background-color: var(--black);
+  color: var(--white);
 }
 </style>
