@@ -169,7 +169,7 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = !!tokenStore.accessToken;
 
   // '/redirect'와 '/login'은 항상 접근 가능
-  if (to.path === '/redirect' || to.path === '/login') {
+  if (to.path === '/redirect' || to.path === '/login' || to.path === '/') {
     next();
     return;
   }

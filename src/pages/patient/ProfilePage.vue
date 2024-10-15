@@ -7,6 +7,7 @@ import HeadBar from '@/components/HeadBar.vue';
 import NavBar from '@/components/NavBar.vue';
 import Main from '@/components/Main.vue';
 import ShadowBox from '@/components/ShadowBox.vue';
+import NotificationConsent from '@/components/NotificationConsent.vue';
 import {
   Dialog,
   DialogContent,
@@ -278,6 +279,9 @@ onMounted(async () => {
           <div @click="authStore.logout, $router.push('/login')" class="settings-key logout">
             로그아웃
           </div>
+        </div>
+        <div class="settings-row">
+          <NotificationConsent />
         </div>
       </div>
     </ShadowBox>
