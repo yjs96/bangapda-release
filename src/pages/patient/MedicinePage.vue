@@ -131,10 +131,9 @@ const toggleMediEatSt = async (id: number, st: boolean) => {
     );
 
     if (
-      today.format('YYYY-MM-DD') !==
-      medicineIntakeList.value[index].day
-        // .map((num: Number) => String(num).padStart(2, '0'))
-        // .join('-')
+      today.format('YYYY-MM-DD') !== medicineIntakeList.value[index].day
+      // .map((num: Number) => String(num).padStart(2, '0'))
+      // .join('-')
     ) {
       toast.error('다른 날짜는 처리할 수 없습니다.');
       return;
@@ -195,7 +194,29 @@ const noMedicine = computed(() => {
   );
 });
 
+const breakfastTime = ref('');
+const lunchTime = ref('');
+const dinnerTime = ref('');
+
+const getUserInfo = async () => {
+  const response = await axiosInstance.get(`/api/patient/account`);
+  breakfastTime.value = response.data.data.morningAlarm;
+  lunchTime.value = response.data.data.lunchAlarm;
+  dinnerTime.value = response.data.data.dinnerAlarm;
+};
+
+const getTime = (meal: string) => {
+  if (meal === 'BREAKFAST') {
+    return breakfastTime.value;
+  } else if (meal === 'LUNCH') {
+    return lunchTime.value;
+  } else if (meal === 'DINNER') {
+    return dinnerTime.value;
+  }
+};
+
 onMounted(() => {
+  getUserInfo();
   if (calendarContainer.value) {
     const tomorrowElement = calendarContainer.value.querySelector('.day-frame:nth-child(15)');
     if (tomorrowElement) {
@@ -239,7 +260,7 @@ onMounted(() => {
       <div class="day-alert-top">
         <div class="meal-and-time">
           <span class="meal">{{ getTimeValue(intake.meal) }}</span>
-          <span class="meal-time">{{ mealTimeStore.breakfast }}</span>
+          <span class="meal-time">{{ getTime(intake.meal) }}</span>
         </div>
         <Button
           :variant="intake.eatSt ? 'destructive' : 'default'"
@@ -277,7 +298,7 @@ onMounted(() => {
       <div class="day-alert-top">
         <div class="meal-and-time">
           <span class="meal">{{ getTimeValue(intake.meal) }}</span>
-          <span class="meal-time">{{ mealTimeStore.breakfast }}</span>
+          <span class="meal-time">{{ getTime(intake.meal) }}</span>
         </div>
         <Button
           :variant="intake.eatSt ? 'destructive' : 'default'"

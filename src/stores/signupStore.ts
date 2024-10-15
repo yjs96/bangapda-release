@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useTokenStore } from './tokenControl';
 import axiosInstance from '@/api/instance';
 
 // 회원 정보 관련 인터페이스 정의
@@ -108,6 +109,8 @@ export const useSignupStore = defineStore('signup', {
             data = { ...data, ...this.patientInfo };
             break;
           case '의사':
+            console.log(data);
+            console.log(this.doctorInfo);
             endpoint = '/api/auth/register/doctor';
             data = { ...data, ...this.doctorInfo };
             break;
@@ -131,6 +134,9 @@ export const useSignupStore = defineStore('signup', {
         if (response.data) {
           console.log(response);
           localStorage.setItem('accessToken', response.data.data.accessToken);
+          const tokenStorage = useTokenStore();
+          tokenStorage.setToken(response.data.data.accessToken);
+
           console.log('회원가입에 성공했어요');
           const type = this.memberType;
 

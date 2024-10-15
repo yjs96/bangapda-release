@@ -17,7 +17,7 @@ onMounted(() => {
     setTimeout(() => {
       isLoading.value = false;
     }, 1000);
-  }, 4000); // 4초 후에 로딩 화면을 숨깁니다. 필요에 따라 시간을 조절하세요.
+  }, 2400); // 4초 후에 로딩 화면을 숨깁니다. 필요에 따라 시간을 조절하세요.
 });
 </script>
 
@@ -40,6 +40,14 @@ onMounted(() => {
 </template>
 
 <style scoped>
+@font-face {
+  font-family: 'SBAggroB';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .splash-screen {
   position: fixed;
   top: 0;
@@ -114,7 +122,7 @@ onMounted(() => {
 }
 
 .logo-container {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .logo {
@@ -124,6 +132,7 @@ onMounted(() => {
 }
 
 .app-name {
+  font-family: 'SBAggroB';
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;

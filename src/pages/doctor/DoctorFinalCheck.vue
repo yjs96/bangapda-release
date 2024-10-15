@@ -142,22 +142,9 @@ const formatNumber = (id: number) => {
 
 // 결제 요청 함수
 const requestPayment = async () => {
-  if (!newAmount.value) {
-    toast.error('유효한 금액을 입력해주세요.');
-    return;
-  }
-
   try {
-    const response = await axiosInstance.patch(
-      `/api/pay/doctor/${route.params.id}`
-    );
-
-    if (response.data.success) {
-      toast.success(`결제 요청되었습니다.`);
-      paymentAmount.value = ''; // 입력 필드 초기화
-    } else {
-      toast.error('결제 요청에 실패했습니다.');
-    }
+    const response = await axiosInstance.patch(`/api/pay/doctor/${route.params.id}`);
+    toast.success(`결제 요청되었습니다.`);
   } catch (error) {
     console.error('결제 요청 중 오류 발생:', error);
     toast.error('결제 요청에 실패했습니다.');
@@ -356,12 +343,12 @@ const goToDoctorPage = () => {
     </ShadowBox>
 
     <div class="payment-section">
-      <Input
+      <!-- <Input
         v-model="localStringNewAmount"
         type="text"
         placeholder="결제 금액 입력"
         class="payment-input"
-      />
+      /> -->
       <Button size="lg" @click="requestPayment" class="payment-button">결제 요청</Button>
     </div>
 

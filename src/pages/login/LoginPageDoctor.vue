@@ -17,6 +17,11 @@ import {
 } from '@/components/ui/select';
 import axiosInstance from '@/api/instance';
 
+interface Si {
+  si_pk: number;
+  si_nm: string;
+}
+
 interface gu {
   gu_nm: string;
   gu_pk: number;
@@ -79,6 +84,13 @@ const handleNextButtonClick = () => {
   }
 };
 
+const siList = ref<Si[]>([]);
+
+const getSi = async () => {
+  const response = await axiosInstance.get('/api/address/get/si');
+  siList.value = response.data.data;
+};
+
 const guList = ref<gu[]>([]);
 
 const getGuBySi = async (si: string) => {
@@ -111,7 +123,9 @@ const getDongByGu = async (gu: string) => {
     });
 };
 
-onMounted(() => {});
+onMounted(() => {
+  getSi();
+});
 </script>
 
 <template>
@@ -139,7 +153,9 @@ onMounted(() => {});
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="서울특별시">서울특별시</SelectItem>
+                <SelectItem v-for="(si, index) in siList" :value="si.si_nm" :key="index">{{
+                  si.si_nm
+                }}</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

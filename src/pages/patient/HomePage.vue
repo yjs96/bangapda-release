@@ -442,7 +442,7 @@ onMounted(async () => {
           : 'height: calc(100% - 156px)'
       "
     >
-      <div v-if="NotRecievedPrescription" class="notice">
+      <div v-if="NotRecievedPrescription?.length" class="notice">
         <img src="/images/tada.svg" />
         <div>아직 조제받지 않은 처방전이 있어요</div>
       </div>

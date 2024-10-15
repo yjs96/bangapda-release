@@ -219,7 +219,7 @@ const handleFaceIdAuth = () => {
   faceIdStore.authenticate(userName.value);
 };
 
-const prescDetail = computed(() => [
+const prescDoneDetail = computed(() => [
   {
     name: '병원명',
     info: prescHospital.value?.hospitalNm
@@ -235,6 +235,25 @@ const prescDetail = computed(() => [
   {
     name: '약사명',
     info: prescChemist.value?.chemistNm
+  },
+  {
+    name: '작성일',
+    info: prescInfo.value ? moment(prescInfo.value.createYmd).format('YY. M. D.') : null
+  },
+  {
+    name: '처방약',
+    info: ''
+  }
+]);
+
+const prescNotDoneDetail = computed(() => [
+  {
+    name: '병원명',
+    info: prescHospital.value?.hospitalNm
+  },
+  {
+    name: '의사명',
+    info: prescDoctor.value?.doctorNm
   },
   {
     name: '작성일',
@@ -370,8 +389,32 @@ onMounted(() => {
       </div>
     </div>
     <div class="presc-title">처방전 상세</div>
-    <div class="detail-frame">
-      <div class="detail-container" v-for="info in prescDetail" :key="info.name">
+    <div class="detail-frame" v-if="prescPharmacy">
+      <div class="detail-container" v-for="info in prescDoneDetail" :key="info.name">
+        <span>{{ info.name }}</span>
+        <div v-if="info.name != '처방약'">
+          <Skeleton v-if="!prescInfo" class="h-7 w-16"></Skeleton>
+          {{ info.info }}
+        </div>
+        <Popover v-else>
+          <PopoverTrigger>
+            <Button variant="outline"
+              >{{ preMedicineList.length + preInjectionList.length }}개</Button
+            >
+          </PopoverTrigger>
+          <PopoverContent class="me-4 flex flex-col gap-2 text-sm text-cssblack">
+            <div v-for="(medicine, index) in preMedicineList" :key="index">
+              {{ medicine.medicineNm }}
+            </div>
+            <div v-for="(injection, index) in preInjectionList" :key="index">
+              {{ injection.injectionNm }}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    </div>
+    <div class="detail-frame" v-else>
+      <div class="detail-container" v-for="info in prescNotDoneDetail" :key="info.name">
         <span>{{ info.name }}</span>
         <div v-if="info.name != '처방약'">
           <Skeleton v-if="!prescInfo" class="h-7 w-16"></Skeleton>
