@@ -658,7 +658,11 @@ onMounted(async () => {
                 class="tab"
                 :class="{ selected: tabIndex - 1 === selectedTab }"
                 @click="selectedTab = tabIndex - 1"
-                >dddd</span
+                >{{ reportPrescriptions[tabIndex - 1].hospitalNm }} :
+                {{ reportPrescriptions[tabIndex - 1].createYmd.slice(5, 10).replace('-', '월 ') }}일
+                {{
+                  reportPrescriptions[tabIndex - 1].createYmd.slice(11, 16).replace(':', '시 ')
+                }}분 방문</span
               >
             </div>
             <div></div>
