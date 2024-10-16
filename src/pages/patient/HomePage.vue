@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
+import reportExample from './reportExample.json';
 
 interface Prescription {
   prescriptionPk: number;
@@ -77,6 +78,9 @@ interface Report {
   intakeMethod: string;
   food: string;
   exercise: string;
+  intakeMethodAudio: string;
+  excerciseAudio: string;
+  foodAudio: string;
 }
 
 enum MealType {
@@ -108,7 +112,7 @@ const themeStore = useThemeStore();
 
 const showSummaryDetail = ref(false);
 // 임시
-const isLoaded = ref(false);
+const isLoaded = ref(true);
 
 const handleSummaryDetail = () => {
   showSummaryDetail.value = !showSummaryDetail.value;
@@ -131,31 +135,47 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const isPlaying = ref(false);
 
 const fastURL = import.meta.env.VITE_FAST_URL;
+// const togglePlayPuase = async (content: string | undefined) => {
+//   try {
+//     // 오디오 변환 요청
+//     const res = await axios.post(`${fastURL}/convert`, {
+//       content: content
+//     });
+
+//     // base64 데이터를 src로 설정
+//     if (audioPlayer.value) {
+//       audioPlayer.value.src = `data:audio/wav;base64,${res.data.result}`; // 서버에서 제공하는 오디오 URL로 변경
+//       //console.log(audioPlayer.value.src);
+//     }
+
+//     if (isPlaying.value && audioPlayer.value) {
+//       audioPlayer.value.pause();
+//     } else {
+//       if (audioPlayer.value) {
+//         await audioPlayer.value.play(); // play 호출
+//       }
+//     }
+
+//     isPlaying.value = !isPlaying.value; // 재생 상태 토글
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
 const togglePlayPuase = async (content: string | undefined) => {
-  try {
-    // 오디오 변환 요청
-    const res = await axios.post(`${fastURL}/convert`, {
-      content: content
-    });
-
-    // base64 데이터를 src로 설정
-    if (audioPlayer.value) {
-      audioPlayer.value.src = `data:audio/wav;base64,${res.data.result}`; // 서버에서 제공하는 오디오 URL로 변경
-      //console.log(audioPlayer.value.src);
-    }
-
-    if (isPlaying.value && audioPlayer.value) {
-      audioPlayer.value.pause();
-    } else {
-      if (audioPlayer.value) {
-        await audioPlayer.value.play(); // play 호출
-      }
-    }
-
-    isPlaying.value = !isPlaying.value; // 재생 상태 토글
-  } catch (err) {
-    console.error(err);
+  // base64 데이터를 src로 설정
+  if (audioPlayer.value) {
+    audioPlayer.value.src = `data:audio/wav;base64,${content}`;
   }
+
+  if (isPlaying.value && audioPlayer.value) {
+    audioPlayer.value.pause();
+  } else {
+    if (audioPlayer.value) {
+      await audioPlayer.value.play(); // play 호출
+    }
+  }
+
+  isPlaying.value = !isPlaying.value; // 재생 상태 토글
 };
 
 import axiosInstance from '@/api/instance';
@@ -177,21 +197,21 @@ const getNotRecieved = async () => {
     });
 };
 
-const receivedReport = ref<Report>();
+const receivedReport: Report[] = reportExample;
 
-const getReport = async (id: number) => {
-  isLoaded.value = false; // 로딩중 화면 표시
-  await axiosInstance
-    .get(`/api/patient/report/get/${id}`)
-    .then((res) => {
-      receivedReport.value = res.data.data;
-      isLoaded.value = true; // 로딩이 완전히 끝나면 로딩중 화면 끝내기.
-      //console.log(receivedReport.value);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-};
+// const getReport = async (id: number) => {
+//   isLoaded.value = false; // 로딩중 화면 표시
+//   await axiosInstance
+//     .get(`/api/patient/report/get/${id}`)
+//     .then((res) => {
+//       receivedReport.value = res.data.data;
+//       isLoaded.value = true; // 로딩이 완전히 끝나면 로딩중 화면 끝내기.
+//       //console.log(receivedReport.value);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// };
 
 const medicineIntake = ref<MedicineIntake[]>([]);
 const injectionIntake = ref<InjectionIntake[]>();
@@ -267,9 +287,9 @@ const getRecent = async () => {
     reportPrescriptions.value = await data
       .filter((prescription: Prescription) => prescription.prescriptionSt === true)
       .slice(0, 5);
-    if (data[0]) {
-      getReport(data[0].prescriptionPk);
-    }
+    // if (data[0]) {
+    //   getReport(data[0].prescriptionPk);
+    // }
     // console.log(reportPrescriptions.value);
   } catch (err) {
     console.log(err);
@@ -502,7 +522,7 @@ onMounted(async () => {
         </div>
       </ShadowBox>
 
-      <ShadowBox :padding-x="20" :padding-y="20">
+      <!-- <ShadowBox :padding-x="20" :padding-y="20">
         <div>
           <div class="title-with-arrow" @click="handleSummaryDetail()">
             <div class="shadow-box-title">{{ userName }}님의 건강 리포트</div>
@@ -554,7 +574,6 @@ onMounted(async () => {
                   {{ receivedReport?.intakeMethod.replace(',', ' ') }}
                 </div>
               </div>
-              <!-- <hr class="report-content-bottom" /> -->
               <div>
                 <div class="report-top">
                   <div class="flex">
@@ -576,7 +595,6 @@ onMounted(async () => {
                 <div class="report-content mb-5">
                   {{ receivedReport?.exercise.replace(',', ' ') }}
                 </div>
-                <!-- <hr class="report-content-bottom" /> -->
               </div>
               <div>
                 <div class="report-top">
@@ -599,6 +617,119 @@ onMounted(async () => {
                 <div class="report-content">
                   {{ receivedReport?.food.replace(',', ' ') }}
                 </div>
+              </div>
+            </div>
+
+            <div v-else>
+              <div class="report-title-load">
+                <Skeleton class="report-icon-load" />
+                <div class="flex flex-col gap-1">
+                  <Skeleton class="h-4 w-[124px]" />
+                  <Skeleton class="h-4 w-[124px]" />
+                </div>
+              </div>
+              <div class="report-content-load">
+                <Skeleton class="h-4 w-full"> </Skeleton>
+                <Skeleton class="h-4 w-full"> </Skeleton>
+              </div>
+            </div>
+          </div>
+          <div v-else class="summary-short-text">
+            처방전을 기반으로 여러 주의사항들을 알려드려요
+          </div>
+        </div>
+      </ShadowBox> -->
+
+      <ShadowBox :padding-x="20" :padding-y="20">
+        <div>
+          <div class="title-with-arrow" @click="handleSummaryDetail()">
+            <div class="shadow-box-title">{{ userName }}님의 건강 리포트</div>
+            <i
+              v-if="true"
+              class="fa-solid fa-chevron-down"
+              :class="{ rotate: showSummaryDetail }"
+            ></i>
+          </div>
+          <div v-if="showSummaryDetail">
+            <div class="tab-select-container">
+              <span
+                v-for="tabIndex in reportPrescriptions?.length"
+                :key="tabIndex - 1"
+                class="tab"
+                :class="{ selected: tabIndex - 1 === selectedTab }"
+                @click="selectedTab = tabIndex - 1"
+                >dddd</span
+              >
+            </div>
+            <div></div>
+            <div v-if="isLoaded">
+              <div>
+                <div class="report-top">
+                  <div class="flex">
+                    <div class="report-icon">
+                      <img src="/images/report-pill.svg" alt="" />
+                    </div>
+                    <div class="flex flex-col justify-center">
+                      <span class="report-title">약 복용방법</span>
+                      <span class="date-and-time">약에 대한 주의사항을 알려드려요</span>
+                    </div>
+                  </div>
+                  <img
+                    src="/images/report-speaker.svg"
+                    alt="speaker"
+                    @click="togglePlayPuase(receivedReport[selectedTab % 5].intakeMethodAudio)"
+                    :class="{ playing: isPlaying }"
+                  />
+                </div>
+                <div
+                  v-html="receivedReport[selectedTab % 5].intakeMethod"
+                  class="report-content mb-5"
+                ></div>
+              </div>
+              <!-- <hr class="report-content-bottom" /> -->
+              <div>
+                <div class="report-top">
+                  <div class="flex">
+                    <div class="report-icon exercise">
+                      <img src="/images/report-workout.svg" alt="" />
+                    </div>
+                    <div class="flex flex-col justify-center">
+                      <span class="report-title">운동 요령</span>
+                      <span class="date-and-time">이런 활동을 하면 좋아요</span>
+                    </div>
+                  </div>
+                  <img
+                    src="/images/report-speaker.svg"
+                    alt="speaker"
+                    @click="togglePlayPuase(receivedReport[selectedTab % 5].excerciseAudio)"
+                    :class="{ playing: isPlaying }"
+                  />
+                </div>
+                <div
+                  v-html="receivedReport[selectedTab % 5].exercise"
+                  class="report-content mb-5"
+                ></div>
+                <!-- <hr class="report-content-bottom" /> -->
+              </div>
+              <div>
+                <div class="report-top">
+                  <div class="flex">
+                    <div class="report-icon food">
+                      <img src="/images/report-food.svg" alt="" />
+                    </div>
+                    <div class="flex flex-col justify-center">
+                      <span class="report-title">식이요법 추천</span>
+                      <span class="date-and-time">이런 음식은 피하고 주의하세요</span>
+                    </div>
+                  </div>
+                  <img
+                    src="/images/report-speaker.svg"
+                    alt="speaker"
+                    @click="togglePlayPuase(receivedReport[selectedTab % 5].foodAudio)"
+                    :class="{ playing: isPlaying }"
+                  />
+                </div>
+                <div v-html="receivedReport[selectedTab % 5].food" class="report-content"></div>
               </div>
             </div>
 
