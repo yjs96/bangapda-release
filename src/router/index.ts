@@ -164,15 +164,16 @@ const router = createRouter({
   ]
 });
 
+// @ts-ignore
 router.beforeEach((to, from, next) => {
-  const tokenStore = useTokenStore();
-  const isLoggedIn = !!tokenStore.accessToken;
-
   // '/redirect'와 '/login'은 항상 접근 가능
   if (to.path === '/redirect' || to.path === '/login') {
     next();
     return;
   }
+
+  const tokenStore = useTokenStore();
+  const isLoggedIn = !!tokenStore.accessToken;
 
   if (!isLoggedIn) {
     next('/login');
@@ -185,10 +186,10 @@ router.beforeEach((to, from, next) => {
           case 'USER':
             next();
             break;
-          case 'doctor':
+          case 'DOCTOR':
             next('/doctor');
             break;
-          case 'chemist':
+          case 'CHEMIST':
             next('/pharmacist');
             break;
           default:
